@@ -50,12 +50,24 @@ trailActivPerc    = input.float(1.0,  "Trailing Activation %", minval = 0.1, ste
 trailOffsetPerc   = input.float(0.5,  "Trailing Offset %",     minval = 0.1, step = 0.1, group = "EXITS")
 
 // ============================================================================
-// 4. VISUALS — Inputs
+// 4. FILTERS — Inputs
+// Filtro de estiramiento: exige que el precio esté suficientemente lejos
+// (en ATRs) de una EMA rápida para considerar la divergencia como agotamiento
+// real, en vez de ruido de un pullback/rango pegado a la media.
 // ============================================================================
-showRSI     = input.bool(true, "Show RSI",         group = "VISUALS")
-showDiv     = input.bool(true, "Show Divergences", group = "VISUALS")
-showEntries = input.bool(true, "Show Entries",     group = "VISUALS")
-showExits   = input.bool(true, "Show Exits",       group = "VISUALS")
+useStretchFilter = input.bool(true, "Use EMA Stretch Filter",                        group = "FILTERS")
+stretchEmaLen     = input.int(20,    "Stretch EMA Length", minval = 1,                group = "FILTERS")
+stretchAtrLen     = input.int(14,    "Stretch ATR Length", minval = 1,                group = "FILTERS")
+minStretchATR      = input.float(1.0, "Min. Distance from EMA (in ATR)", minval = 0.0, step = 0.1, group = "FILTERS")
+
+// ============================================================================
+// 5. VISUALS — Inputs
+// ============================================================================
+showRSI       = input.bool(true, "Show RSI",         group = "VISUALS")
+showDiv       = input.bool(true, "Show Divergences", group = "VISUALS")
+showEntries   = input.bool(true, "Show Entries",     group = "VISUALS")
+showExits     = input.bool(true, "Show Exits",       group = "VISUALS")
+showStretchZone = input.bool(true, "Show Stretch Filter Zone on price", group = "VISUALS")
 
 // ============================================================================
 // RSI CALCULATION
@@ -98,20 +110,31 @@ bullDiv = allowBull and (minPrice[1] < minPrice[2]) and (rsi[1] > minRsi) and (r
 
 // ============================================================================
 // FILTERS
-// Punto de extensión para futuros filtros de confirmación (EMA, ADX, Volumen...).
+// Punto de extensión para futuros filtros de confirmación (Volumen, sesión...).
 // Cada filtro nuevo solo agrega una condición acá, sin tocar RSI ni Divergence Engine.
+// filtersOk = filtro SIMÉTRICO (aplica igual a longs y shorts).
+// bullFilterOk / bearFilterOk = filtros DIRECCIONALES (distintos por lado).
 // ============================================================================
 filtersOk = true
-// Ejemplo para más adelante:
-// emaOk = close > ta.ema(close, 200)
-// adxOk = ta.adx(...) > 25   (o el cálculo de ADX que prefieras)
-// filtersOk := emaOk and adxOk
+// Ejemplo simétrico para más adelante:
+// volumeOk = volume > ta.sma(volume, 20)
+// filtersOk := volumeOk
+
+stretchEma = ta.ema(close, stretchEmaLen)
+stretchAtr = ta.atr(stretchAtrLen)
+stretch    = (close - stretchEma) / stretchAtr   // positivo = arriba de la EMA, negativo = abajo
+
+bullFilterOk = not useStretchFilter or stretch <= -minStretchATR   // precio estirado ABAJO de la EMA
+bearFilterOk = not useStretchFilter or stretch >=  minStretchATR   // precio estirado ARRIBA de la EMA
+
+stretchUpper = stretchEma + minStretchATR * stretchAtr
+stretchLower = stretchEma - minStretchATR * stretchAtr
 
 // ============================================================================
 // SIGNAL GENERATION
 // ============================================================================
-longSignal  = bullDiv and filtersOk and enableLongs
-shortSignal = bearDiv and filtersOk and enableShorts
+longSignal  = bullDiv and filtersOk and bullFilterOk and enableLongs
+shortSignal = bearDiv and filtersOk and bearFilterOk and enableShorts
 
 // ============================================================================
 // ENTRY LOGIC
@@ -139,7 +162,7 @@ if exitOnOppositeDiv
     if bullDiv and strategy.position_size < 0
         strategy.close("Short", comment = "Opposite Divergence")
 
-/// ============================================================================
+// ============================================================================
 // RISK MANAGEMENT — SL / TP / ATR Stop / Trailing
 // ============================================================================
 atrVal = ta.atr(atrLen)
@@ -160,10 +183,13 @@ if riskActive and strategy.position_size > 0
 if riskActive and strategy.position_size < 0
     strategy.exit("Short Risk Exit", from_entry = "Short", stop = shortStop, limit = shortLimit, trail_points = trailPts, trail_offset = trailOff, comment = "Risk Exit")
 
-
 // ============================================================================
 // PLOTS
 // ============================================================================
+plot(showStretchZone ? stretchEma : na, title = "Stretch EMA", color = color.new(color.green, 20), force_overlay = true)
+upperBandPlot = plot(showStretchZone ? stretchUpper : na, title = "Stretch Upper Band", color = color.new(color.green, 60), force_overlay = true)
+lowerBandPlot = plot(showStretchZone ? stretchLower : na, title = "Stretch Lower Band", color = color.new(color.green, 60), force_overlay = true)
+fill(upperBandPlot, lowerBandPlot, color = color.new(color.aqua, 90), title = "Filtered Zone")
 plot(showRSI ? rsi : na, title = "RSI", color = color.new(color.yellow, (rsi > ob or rsi < osLevel) ? 0 : 10))
 obBand  = hline(ob,      title = "Overbought", color = color.new(color.red, 20))
 osBand  = hline(osLevel, title = "Oversold",   color = color.new(color.green, 20))
@@ -172,17 +198,16 @@ fill(midBand, obBand, color = color.new(color.lime, 96))
 fill(osBand, midBand, color = color.new(color.red, 96))
 
 if showDiv and bearDiv
-    label.new(bar_index - 1, rsi[1] + 1, "", color = color.red, textcolor = color.white, style = label.style_label_down, yloc = yloc.price, size = size.small)
+    label.new(bar_index - 1, rsi[1] + 1, "BEAR", color = bearFilterOk ? color.red : color.gray, textcolor = color.white, style = label.style_label_down, yloc = yloc.price, size = size.small)
 
 if showDiv and bullDiv
-    label.new(bar_index - 1, rsi[1] - 1, "", color = color.green, textcolor = color.white, style = label.style_label_up, yloc = yloc.price, size = size.small)
+    label.new(bar_index - 1, rsi[1] - 1, "BULL", color = bullFilterOk ? color.green : color.gray, textcolor = color.white, style = label.style_label_up, yloc = yloc.price, size = size.small)
 
 plotshape(showEntries and longSignal and canLong and cooldownOk, title = "Long Entry", style = shape.triangleup, location = location.bottom, color = color.green, size = size.tiny)
 plotshape(showEntries and shortSignal and canShort and cooldownOk, title = "Short Entry", style = shape.triangledown, location = location.top, color = color.red, size = size.tiny)
 
 plotshape(showExits and exitOnOppositeDiv and bearDiv and strategy.position_size > 0, title = "Long Exit (Opp. Div)", style = shape.xcross, location = location.top, color = color.orange, size = size.tiny)
 plotshape(showExits and exitOnOppositeDiv and bullDiv and strategy.position_size < 0, title = "Short Exit (Opp. Div)", style = shape.xcross, location = location.bottom, color = color.orange, size = size.tiny)
-
 
 // ============================================================================
 // ALERTS
