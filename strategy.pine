@@ -63,16 +63,10 @@ minStretchATR      = input.float(1.0, "Min. Distance from EMA (in ATR)", minval 
 // ============================================================================
 // 5. VISUALS — Inputs
 // ============================================================================
-// Innecesario. Si se carga la estrategia se cargan las visuales.
-// showRSI       = input.bool(true, "Show RSI",         group = "VISUALS")
-// showDiv       = input.bool(true, "Show Divergences", group = "VISUALS")
-// showEntries   = input.bool(true, "Show Entries",     group = "VISUALS")
-// showExits     = input.bool(true, "Show Exits",       group = "VISUALS")
 showRSI       = true
 showDiv       = true
 showEntries   = false
 showExits     = false
-// showStretchZone = input.bool(true, "Show Stretch Filter Zone on price", group = "VISUALS")
 
 // ============================================================================
 // RSI CALCULATION
@@ -145,7 +139,10 @@ shortSignal = bearDiv and filtersOk and bearFilterOk and enableShorts
 // ENTRY LOGIC
 // ============================================================================
 var int lastEntryBar = na
-cooldownOk = na(lastEntryBar) or (bar_index - lastEntryBar) >= cooldownBars
+// bar_index > lastEntryBar (no solo >=) evita múltiples entradas dentro de la
+// MISMA vela cuando cooldownBars = 0 y calc_on_every_tick recalcula varias
+// veces por vela (bar detalization / ticks intrabar del broker emulator).
+cooldownOk = na(lastEntryBar) or (bar_index > lastEntryBar and (bar_index - lastEntryBar) >= cooldownBars)
 
 canLong  = reversePosition or strategy.position_size >= 0
 canShort = reversePosition or strategy.position_size <= 0
