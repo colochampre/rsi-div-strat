@@ -42,8 +42,9 @@ cooldownBars    = input.int(0,      "Minimum bars between entries", minval = 0, 
 // ============================================================================
 exitOnOppositeDiv = input.bool(true,  "Exit on opposite divergence",              group = "EXITS")
 tpPerc            = input.float(0.0,  "Take Profit %",   minval = 0.0, step = 0.1, group = "EXITS")
+useFixedSl        = input.bool(true,  "Fixed % Stop Loss",                        group = "EXITS")
 slPerc            = input.float(0.0,  "Stop Loss %",     minval = 0.0, step = 0.1, group = "EXITS")
-useSarStop        = input.bool(false, "SAR Stop (dynamic, overrides Stop Loss %)", group = "EXITS")
+useSarStop        = input.bool(false, "SAR Stop (dynamic)",                       group = "EXITS")
 sarStart          = input.float(0.02, "SAR Start",       minval = 0.001, step = 0.001, group = "EXITS")
 sarIncrement      = input.float(0.02, "SAR Increment",   minval = 0.001, step = 0.001, group = "EXITS")
 sarMaximum        = input.float(0.2,  "SAR Max",         minval = 0.001, step = 0.001, group = "EXITS")
@@ -168,42 +169,42 @@ if exitOnOppositeDiv
 
 // ============================================================================
 // RISK MANAGEMENT — SL fijo / TP / SAR Stop dinámico / Trailing
-// SL fijo y SAR conviven en vez de que uno pise al otro:
-//   1. Mientras el SAR está del lado "equivocado" (ej. todavía calculando
-//      tendencia bajista al abrir un long, por lo que quedaría por ARRIBA
-//      del precio) se usa el SL fijo (o, si slPerc = 0, un piso mínimo de
-//      seguridad pegado al precio de entrada).
-//   2. En cuanto el SAR cruza al lado correcto Y además queda MÁS
-//      favorable que ese piso (más cerca del precio => menos pérdida
-//      potencial), pasa a ser el stop activo y lo va reemplazando vela a
-//      vela a medida que el SAR avanza (igual que un trailing, pero con
-//      forma parabólica en vez de offset fijo).
-// Esto se logra pasando cada vela un nuevo valor de "stop" al mismo id de
-// strategy.exit(): Pine reemplaza la orden existente en vez de crear otra.
+// SL fijo y SAR son DOS fuentes de stop INDEPENDIENTES (cada una con su toggle:
+// useFixedSl y useSarStop). Regla de combinación: gana el stop MÁS AJUSTADO
+// (el más cercano al precio) de entre las fuentes activas esa vela.
+//   - Solo SL fijo (useFixedSl on / useSarStop off): SL fijo clásico.
+//   - Solo SAR (useFixedSl off / useSarStop on): el stop es el SAR siempre que
+//     esté del lado válido (por DEBAJO del precio en longs / por ENCIMA en
+//     shorts). Mientras el SAR está del lado equivocado (recién invertido) NO
+//     hay stop duro esa vela: la posición queda a merced de TP / Trailing /
+//     divergencia opuesta. Es el modo "dejar respirar" para aislar el SAR.
+//   - Ambos on: el SAR solo toma el control cuando ya trepó MÁS CERCA del
+//     precio que el SL fijo; hasta entonces protege el SL fijo. (Idéntico al
+//     comportamiento previo, para que tu backtest actual siga reproduciéndose.)
+// El stop se recalcula y se reenvía cada vela al mismo id de strategy.exit():
+// Pine reemplaza la orden existente en vez de crear otra.
 // ============================================================================
 sarVal = ta.sar(sarStart, sarIncrement, sarMaximum)
-riskActive = tpPerc > 0 or slPerc > 0 or useSarStop or useTrailStop
 
-fixedLongStop  = slPerc > 0 ? strategy.position_avg_price * (1 - slPerc / 100) : na
-fixedShortStop = slPerc > 0 ? strategy.position_avg_price * (1 + slPerc / 100) : na
+// --- Candidatos de stop (na = fuente inactiva esta vela) ---
+fixedLong  = (useFixedSl and slPerc > 0) ? strategy.position_avg_price * (1 - slPerc / 100) : na
+fixedShort = (useFixedSl and slPerc > 0) ? strategy.position_avg_price * (1 + slPerc / 100) : na
 
-// Piso de seguridad cuando no hay SL fijo definido, para que el SAR nunca
-// deje la posición sin ninguna protección mientras está del lado incorrecto.
-longFloor  = na(fixedLongStop)  ? strategy.position_avg_price - syminfo.mintick : fixedLongStop
-shortFloor = na(fixedShortStop) ? strategy.position_avg_price + syminfo.mintick : fixedShortStop
+// El SAR solo es candidato cuando está del lado que realmente protege.
+sarLong  = (useSarStop and not na(sarVal) and sarVal < close) ? sarVal : na
+sarShort = (useSarStop and not na(sarVal) and sarVal > close) ? sarVal : na
 
-// ¿El SAR está del lado válido (no dispararía la salida de inmediato)?
-sarLongValid  = not na(sarVal) and sarVal < close
-sarShortValid = not na(sarVal) and sarVal > close
+// Combinación "gana el más ajustado":
+//   long  -> stop por DEBAJO del precio, más ajustado = más ALTO  -> math.max
+//   short -> stop por ENCIMA del precio, más ajustado = más BAJO  -> math.min
+longStop  = na(fixedLong)  ? sarLong  : na(sarLong)  ? fixedLong  : math.max(fixedLong,  sarLong)
+shortStop = na(fixedShort) ? sarShort : na(sarShort) ? fixedShort : math.min(fixedShort, sarShort)
 
-// ¿Quién manda en el stop de este lado ahora mismo: el SAR o el piso
-// (SL fijo, o el mínimo de seguridad si no hay SL fijo definido)?
-// Se reutiliza para el precio del stop y para etiquetar el motivo de salida.
-longSarActive  = useSarStop and sarLongValid  and sarVal > longFloor
-shortSarActive = useSarStop and sarShortValid and sarVal < shortFloor
-
-longStop  = useSarStop ? (longSarActive  ? sarVal : longFloor)  : fixedLongStop
-shortStop = useSarStop ? (shortSarActive ? sarVal : shortFloor) : fixedShortStop
+// ¿La fuente activa de este lado es el SAR? (solo para etiquetar el motivo)
+longSarIsActive  = not na(sarLong)  and (na(fixedLong)  or sarLong  >= fixedLong)
+shortSarIsActive = not na(sarShort) and (na(fixedShort) or sarShort <= fixedShort)
+longLossComment  = longSarIsActive  ? "SAR Stop" : "Stop Loss"
+shortLossComment = shortSarIsActive ? "SAR Stop" : "Stop Loss"
 
 longLimit  = tpPerc > 0 ? strategy.position_avg_price * (1 + tpPerc / 100) : na
 shortLimit = tpPerc > 0 ? strategy.position_avg_price * (1 - tpPerc / 100) : na
@@ -211,16 +212,17 @@ shortLimit = tpPerc > 0 ? strategy.position_avg_price * (1 - tpPerc / 100) : na
 trailPts = useTrailStop ? (strategy.position_avg_price * trailActivPerc   / 100) / syminfo.mintick : na
 trailOff = useTrailStop ? (strategy.position_avg_price * trailOffsetPerc / 100) / syminfo.mintick : na
 
-// Etiquetas por motivo real de salida: se ven en el chart (si tenés activado
-// "Show trade labels") y en la lista de operaciones del Strategy Tester.
-longLossComment  = longSarActive  ? "SAR Stop" : "Stop Loss"
-shortLossComment = shortSarActive ? "SAR Stop" : "Stop Loss"
+// Solo mandamos la orden si hay al menos un objetivo real esa vela (evita
+// strategy.exit sin target cuando el SAR está del lado equivocado y no hay
+// TP ni trailing).
+longHasTarget  = not na(longStop)  or not na(longLimit)  or not na(trailPts)
+shortHasTarget = not na(shortStop) or not na(shortLimit) or not na(trailPts)
 
-if riskActive and strategy.position_size > 0
+if strategy.position_size > 0 and longHasTarget
     strategy.exit("Long Risk Exit", from_entry = "Long", stop = longStop, limit = longLimit, trail_points = trailPts, trail_offset = trailOff,
          comment_loss = longLossComment, comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
 
-if riskActive and strategy.position_size < 0
+if strategy.position_size < 0 and shortHasTarget
     strategy.exit("Short Risk Exit", from_entry = "Short", stop = shortStop, limit = shortLimit, trail_points = trailPts, trail_offset = trailOff,
          comment_loss = shortLossComment, comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
 
