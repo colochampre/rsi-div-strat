@@ -13,8 +13,9 @@ strategy(
      default_qty_value        = 10,
      commission_type          = strategy.commission.percent,
      commission_value         = 0.05,
-     calc_on_every_tick       = true,
+     calc_on_every_tick       = false,
      process_orders_on_close  = false,
+     use_bar_magnifier        = false, // true con plan premium
      max_bars_back            = 500)
 
 // ============================================================================
