@@ -43,9 +43,10 @@ cooldownBars    = input.int(0,      "Minimum bars between entries", minval = 0, 
 exitOnOppositeDiv = input.bool(true,  "Exit on opposite divergence",              group = "EXITS")
 tpPerc            = input.float(0.0,  "Take Profit %",   minval = 0.0, step = 0.1, group = "EXITS")
 slPerc            = input.float(0.0,  "Stop Loss %",     minval = 0.0, step = 0.1, group = "EXITS")
-useAtrStop        = input.bool(false, "ATR Stop",                                 group = "EXITS")
-atrLen            = input.int(14,     "ATR Length",      minval = 1,              group = "EXITS")
-atrMult           = input.float(2.0,  "ATR Multiplier",  minval = 0.1, step = 0.1, group = "EXITS")
+useSarStop        = input.bool(false, "SAR Stop (dynamic, overrides Stop Loss %)", group = "EXITS")
+sarStart          = input.float(0.02, "SAR Start",       minval = 0.001, step = 0.001, group = "EXITS")
+sarIncrement      = input.float(0.02, "SAR Increment",   minval = 0.001, step = 0.001, group = "EXITS")
+sarMaximum        = input.float(0.2,  "SAR Max",         minval = 0.001, step = 0.001, group = "EXITS")
 useTrailStop      = input.bool(false, "Trailing Stop",                                 group = "EXITS")
 trailActivPerc    = input.float(1.0,  "Trailing Activation %", minval = 0.1, step = 0.1, group = "EXITS")
 trailOffsetPerc   = input.float(0.5,  "Trailing Offset %",     minval = 0.1, step = 0.1, group = "EXITS")
@@ -166,13 +167,43 @@ if exitOnOppositeDiv
         strategy.close("Short", comment = "Opposite Divergence")
 
 // ============================================================================
-// RISK MANAGEMENT — SL / TP / ATR Stop / Trailing
+// RISK MANAGEMENT — SL fijo / TP / SAR Stop dinámico / Trailing
+// SL fijo y SAR conviven en vez de que uno pise al otro:
+//   1. Mientras el SAR está del lado "equivocado" (ej. todavía calculando
+//      tendencia bajista al abrir un long, por lo que quedaría por ARRIBA
+//      del precio) se usa el SL fijo (o, si slPerc = 0, un piso mínimo de
+//      seguridad pegado al precio de entrada).
+//   2. En cuanto el SAR cruza al lado correcto Y además queda MÁS
+//      favorable que ese piso (más cerca del precio => menos pérdida
+//      potencial), pasa a ser el stop activo y lo va reemplazando vela a
+//      vela a medida que el SAR avanza (igual que un trailing, pero con
+//      forma parabólica en vez de offset fijo).
+// Esto se logra pasando cada vela un nuevo valor de "stop" al mismo id de
+// strategy.exit(): Pine reemplaza la orden existente en vez de crear otra.
 // ============================================================================
-atrVal = ta.atr(atrLen)
-riskActive = tpPerc > 0 or slPerc > 0 or useAtrStop or useTrailStop
+sarVal = ta.sar(sarStart, sarIncrement, sarMaximum)
+riskActive = tpPerc > 0 or slPerc > 0 or useSarStop or useTrailStop
 
-longStop  = useAtrStop ? strategy.position_avg_price - atrVal * atrMult : slPerc > 0 ? strategy.position_avg_price * (1 - slPerc / 100) : na
-shortStop = useAtrStop ? strategy.position_avg_price + atrVal * atrMult : slPerc > 0 ? strategy.position_avg_price * (1 + slPerc / 100) : na
+fixedLongStop  = slPerc > 0 ? strategy.position_avg_price * (1 - slPerc / 100) : na
+fixedShortStop = slPerc > 0 ? strategy.position_avg_price * (1 + slPerc / 100) : na
+
+// Piso de seguridad cuando no hay SL fijo definido, para que el SAR nunca
+// deje la posición sin ninguna protección mientras está del lado incorrecto.
+longFloor  = na(fixedLongStop)  ? strategy.position_avg_price - syminfo.mintick : fixedLongStop
+shortFloor = na(fixedShortStop) ? strategy.position_avg_price + syminfo.mintick : fixedShortStop
+
+// ¿El SAR está del lado válido (no dispararía la salida de inmediato)?
+sarLongValid  = not na(sarVal) and sarVal < close
+sarShortValid = not na(sarVal) and sarVal > close
+
+// ¿Quién manda en el stop de este lado ahora mismo: el SAR o el piso
+// (SL fijo, o el mínimo de seguridad si no hay SL fijo definido)?
+// Se reutiliza para el precio del stop y para etiquetar el motivo de salida.
+longSarActive  = useSarStop and sarLongValid  and sarVal > longFloor
+shortSarActive = useSarStop and sarShortValid and sarVal < shortFloor
+
+longStop  = useSarStop ? (longSarActive  ? sarVal : longFloor)  : fixedLongStop
+shortStop = useSarStop ? (shortSarActive ? sarVal : shortFloor) : fixedShortStop
 
 longLimit  = tpPerc > 0 ? strategy.position_avg_price * (1 + tpPerc / 100) : na
 shortLimit = tpPerc > 0 ? strategy.position_avg_price * (1 - tpPerc / 100) : na
@@ -180,11 +211,18 @@ shortLimit = tpPerc > 0 ? strategy.position_avg_price * (1 - tpPerc / 100) : na
 trailPts = useTrailStop ? (strategy.position_avg_price * trailActivPerc   / 100) / syminfo.mintick : na
 trailOff = useTrailStop ? (strategy.position_avg_price * trailOffsetPerc / 100) / syminfo.mintick : na
 
+// Etiquetas por motivo real de salida: se ven en el chart (si tenés activado
+// "Show trade labels") y en la lista de operaciones del Strategy Tester.
+longLossComment  = longSarActive  ? "SAR Stop" : "Stop Loss"
+shortLossComment = shortSarActive ? "SAR Stop" : "Stop Loss"
+
 if riskActive and strategy.position_size > 0
-    strategy.exit("Long Risk Exit", from_entry = "Long", stop = longStop, limit = longLimit, trail_points = trailPts, trail_offset = trailOff, comment = "Risk Exit")
+    strategy.exit("Long Risk Exit", from_entry = "Long", stop = longStop, limit = longLimit, trail_points = trailPts, trail_offset = trailOff,
+         comment_loss = longLossComment, comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
 
 if riskActive and strategy.position_size < 0
-    strategy.exit("Short Risk Exit", from_entry = "Short", stop = shortStop, limit = shortLimit, trail_points = trailPts, trail_offset = trailOff, comment = "Risk Exit")
+    strategy.exit("Short Risk Exit", from_entry = "Short", stop = shortStop, limit = shortLimit, trail_points = trailPts, trail_offset = trailOff,
+         comment_loss = shortLossComment, comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
 
 // ============================================================================
 // PLOTS
@@ -193,6 +231,7 @@ plot(useStretchFilter ? stretchEma : na, title = "Stretch EMA", color = color.ne
 upperBandPlot = plot(useStretchFilter ? stretchUpper : na, title = "Stretch Upper Band", color = color.new(color.blue, 60), force_overlay = true)
 lowerBandPlot = plot(useStretchFilter ? stretchLower : na, title = "Stretch Lower Band", color = color.new(color.blue, 60), force_overlay = true)
 fill(upperBandPlot, lowerBandPlot, color = color.new(color.blue, 90), title = "Filtered Zone")
+plot(useSarStop ? sarVal : na, title = "SAR Stop", style = plot.style_cross, color = color.new(color.fuchsia, 0), force_overlay = true)
 plot(showRSI ? rsi : na, title = "RSI", color = color.new(color.yellow, (rsi > ob or rsi < osLevel) ? 0 : 10))
 obBand  = hline(ob,      title = "Overbought", color = color.new(color.red, 40))
 osBand  = hline(osLevel, title = "Oversold",   color = color.new(color.green, 40))
