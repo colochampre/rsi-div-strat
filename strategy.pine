@@ -1,8 +1,7 @@
 //@version=5
 // ============================================================================
 // RSI DIVERGENCE STRATEGY
-// Arquitectura modular: RSI -> Filters -> Entries -> Exits -> Risk -> Plots
-// Cada bloque solo depende de lo que el bloque anterior produce.
+// RSI -> Divergences -> Entries -> Exits -> Risk -> Plots
 // ============================================================================
 strategy(
      title                    = "RSI Divergence Strategy",
@@ -32,44 +31,18 @@ allowBear = input.bool(true, "Bearish Divergences",                     group = 
 // ============================================================================
 // 2. ENTRIES — Inputs
 // ============================================================================
-enableLongs     = input.bool(true,  "Enable Longs",                        group = "ENTRIES")
-enableShorts    = input.bool(true,  "Enable Shorts",                       group = "ENTRIES")
-reversePosition = input.bool(true,  "Reverse Position",                    group = "ENTRIES")
-cooldownBars    = input.int(0,      "Minimum bars between entries", minval = 0, group = "ENTRIES")
+enableLongs  = input.bool(true, "Enable Longs",  group = "ENTRIES")
+enableShorts = input.bool(true, "Enable Shorts", group = "ENTRIES")
 
 // ============================================================================
 // 3. EXITS — Inputs
 // ============================================================================
-exitOnOppositeDiv = input.bool(true,  "Exit on opposite divergence",              group = "EXITS")
-tpPerc            = input.float(0.0,  "Take Profit %",   minval = 0.0, step = 0.1, group = "EXITS")
-useFixedSl        = input.bool(true,  "Fixed % Stop Loss",                        group = "EXITS")
-slPerc            = input.float(0.0,  "Stop Loss %",     minval = 0.0, step = 0.1, group = "EXITS")
-useSarStop        = input.bool(false, "SAR Stop (dynamic)",                       group = "EXITS")
-sarStart          = input.float(0.02, "SAR Start",       minval = 0.001, step = 0.001, group = "EXITS")
-sarIncrement      = input.float(0.02, "SAR Increment",   minval = 0.001, step = 0.001, group = "EXITS")
-sarMaximum        = input.float(0.2,  "SAR Max",         minval = 0.001, step = 0.001, group = "EXITS")
-useTrailStop      = input.bool(false, "Trailing Stop",                                 group = "EXITS")
+exitOnOppositeDiv = input.bool(true,  "Exit on opposite divergence",                group = "EXITS")
+tpPerc            = input.float(0.0,  "Take Profit %",   minval = 0.0, step = 0.1,  group = "EXITS")
+slPerc            = input.float(0.0,  "Stop Loss %",     minval = 0.0, step = 0.1,  group = "EXITS")
+useTrailStop      = input.bool(false, "Trailing Stop",                              group = "EXITS")
 trailActivPerc    = input.float(1.0,  "Trailing Activation %", minval = 0.1, step = 0.1, group = "EXITS")
 trailOffsetPerc   = input.float(0.5,  "Trailing Offset %",     minval = 0.1, step = 0.1, group = "EXITS")
-
-// ============================================================================
-// 4. FILTERS — Inputs
-// Filtro de estiramiento: exige que el precio esté suficientemente lejos
-// (en ATRs) de una EMA rápida para considerar la divergencia como agotamiento
-// real, en vez de ruido de un pullback/rango pegado a la media.
-// ============================================================================
-useStretchFilter = input.bool(true, "Use EMA Stretch Filter",                        group = "FILTERS")
-stretchEmaLen     = input.int(20,    "Stretch EMA Length", minval = 1,                group = "FILTERS")
-stretchAtrLen     = input.int(14,    "Stretch ATR Length", minval = 1,                group = "FILTERS")
-minStretchATR      = input.float(1.0, "Min. Distance from EMA (in ATR)", minval = 0.0, step = 0.1, group = "FILTERS")
-
-// ============================================================================
-// 5. VISUALS — Inputs
-// ============================================================================
-showRSI       = true
-showDiv       = true
-showEntries   = false
-showExits     = false
 
 // ============================================================================
 // RSI CALCULATION
@@ -78,7 +51,7 @@ rsi = ta.rsi(close, rsiLen)
 
 // ============================================================================
 // SWING DETECTION
-// (rastrea el extremo de precio/RSI vigente dentro de la ventana "lookback")
+// Rastrea el extremo de precio/RSI vigente dentro de la ventana "lookback".
 // ============================================================================
 var float maxPrice = na
 var float maxRsi   = na
@@ -104,59 +77,23 @@ if rsi < minRsi
 
 // ============================================================================
 // DIVERGENCE ENGINE
-// Sin inputs propios: solo consume RSI/precio ya calculados arriba.
-// Único trabajo: producir bullDiv / bearDiv.
 // ============================================================================
 bearDiv = allowBear and (maxPrice[1] > maxPrice[2]) and (rsi[1] < maxRsi) and (rsi <= rsi[1]) and (not obosOnly or maxRsi >= ob)
 bullDiv = allowBull and (minPrice[1] < minPrice[2]) and (rsi[1] > minRsi) and (rsi >= rsi[1]) and (not obosOnly or minRsi <= osLevel)
 
 // ============================================================================
-// FILTERS
-// Punto de extensión para futuros filtros de confirmación (Volumen, sesión...).
-// Cada filtro nuevo solo agrega una condición acá, sin tocar RSI ni Divergence Engine.
-// filtersOk = filtro SIMÉTRICO (aplica igual a longs y shorts).
-// bullFilterOk / bearFilterOk = filtros DIRECCIONALES (distintos por lado).
-// ============================================================================
-filtersOk = true
-// Ejemplo simétrico para más adelante:
-// volumeOk = volume > ta.sma(volume, 20)
-// filtersOk := volumeOk
-
-stretchEma = ta.ema(close, stretchEmaLen)
-stretchAtr = ta.atr(stretchAtrLen)
-stretch    = (close - stretchEma) / stretchAtr   // positivo = arriba de la EMA, negativo = abajo
-
-bullFilterOk = not useStretchFilter or stretch <= -minStretchATR   // precio estirado ABAJO de la EMA
-bearFilterOk = not useStretchFilter or stretch >=  minStretchATR   // precio estirado ARRIBA de la EMA
-
-stretchUpper = stretchEma + minStretchATR * stretchAtr
-stretchLower = stretchEma - minStretchATR * stretchAtr
-
-// ============================================================================
 // SIGNAL GENERATION
 // ============================================================================
-longSignal  = bullDiv and filtersOk and bullFilterOk and enableLongs
-shortSignal = bearDiv and filtersOk and bearFilterOk and enableShorts
+longSignal  = bullDiv and enableLongs
+shortSignal = bearDiv and enableShorts
 
 // ============================================================================
 // ENTRY LOGIC
 // ============================================================================
-var int lastEntryBar = na
-// bar_index > lastEntryBar (no solo >=) evita múltiples entradas dentro de la
-// MISMA vela cuando cooldownBars = 0 y calc_on_every_tick recalcula varias
-// veces por vela (bar detalization / ticks intrabar del broker emulator).
-cooldownOk = na(lastEntryBar) or (bar_index > lastEntryBar and (bar_index - lastEntryBar) >= cooldownBars)
-
-canLong  = reversePosition or strategy.position_size >= 0
-canShort = reversePosition or strategy.position_size <= 0
-
-if longSignal and canLong and cooldownOk
+if longSignal
     strategy.entry("Long", strategy.long, comment = "Long Entry")
-    lastEntryBar := bar_index
-
-if shortSignal and canShort and cooldownOk
+else if shortSignal
     strategy.entry("Short", strategy.short, comment = "Short Entry")
-    lastEntryBar := bar_index
 
 // ============================================================================
 // EXIT LOGIC — señal opuesta
@@ -168,90 +105,46 @@ if exitOnOppositeDiv
         strategy.close("Short", comment = "Opposite Divergence")
 
 // ============================================================================
-// RISK MANAGEMENT — SL fijo / TP / SAR Stop dinámico / Trailing
-// SL fijo y SAR son DOS fuentes de stop INDEPENDIENTES (cada una con su toggle:
-// useFixedSl y useSarStop). Regla de combinación: gana el stop MÁS AJUSTADO
-// (el más cercano al precio) de entre las fuentes activas esa vela.
-//   - Solo SL fijo (useFixedSl on / useSarStop off): SL fijo clásico.
-//   - Solo SAR (useFixedSl off / useSarStop on): el stop es el SAR siempre que
-//     esté del lado válido (por DEBAJO del precio en longs / por ENCIMA en
-//     shorts). Mientras el SAR está del lado equivocado (recién invertido) NO
-//     hay stop duro esa vela: la posición queda a merced de TP / Trailing /
-//     divergencia opuesta. Es el modo "dejar respirar" para aislar el SAR.
-//   - Ambos on: el SAR solo toma el control cuando ya trepó MÁS CERCA del
-//     precio que el SL fijo; hasta entonces protege el SL fijo. (Idéntico al
-//     comportamiento previo, para que tu backtest actual siga reproduciéndose.)
+// RISK MANAGEMENT — SL fijo / TP / Trailing
 // El stop se recalcula y se reenvía cada vela al mismo id de strategy.exit():
 // Pine reemplaza la orden existente en vez de crear otra.
 // ============================================================================
-sarVal = ta.sar(sarStart, sarIncrement, sarMaximum)
-
-// --- Candidatos de stop (na = fuente inactiva esta vela) ---
-fixedLong  = (useFixedSl and slPerc > 0) ? strategy.position_avg_price * (1 - slPerc / 100) : na
-fixedShort = (useFixedSl and slPerc > 0) ? strategy.position_avg_price * (1 + slPerc / 100) : na
-
-// El SAR solo es candidato cuando está del lado que realmente protege.
-sarLong  = (useSarStop and not na(sarVal) and sarVal < close) ? sarVal : na
-sarShort = (useSarStop and not na(sarVal) and sarVal > close) ? sarVal : na
-
-// Combinación "gana el más ajustado":
-//   long  -> stop por DEBAJO del precio, más ajustado = más ALTO  -> math.max
-//   short -> stop por ENCIMA del precio, más ajustado = más BAJO  -> math.min
-longStop  = na(fixedLong)  ? sarLong  : na(sarLong)  ? fixedLong  : math.max(fixedLong,  sarLong)
-shortStop = na(fixedShort) ? sarShort : na(sarShort) ? fixedShort : math.min(fixedShort, sarShort)
-
-// ¿La fuente activa de este lado es el SAR? (solo para etiquetar el motivo)
-longSarIsActive  = not na(sarLong)  and (na(fixedLong)  or sarLong  >= fixedLong)
-shortSarIsActive = not na(sarShort) and (na(fixedShort) or sarShort <= fixedShort)
-longLossComment  = longSarIsActive  ? "SAR Stop" : "Stop Loss"
-shortLossComment = shortSarIsActive ? "SAR Stop" : "Stop Loss"
+longStop  = slPerc > 0 ? strategy.position_avg_price * (1 - slPerc / 100) : na
+shortStop = slPerc > 0 ? strategy.position_avg_price * (1 + slPerc / 100) : na
 
 longLimit  = tpPerc > 0 ? strategy.position_avg_price * (1 + tpPerc / 100) : na
 shortLimit = tpPerc > 0 ? strategy.position_avg_price * (1 - tpPerc / 100) : na
 
-trailPts = useTrailStop ? (strategy.position_avg_price * trailActivPerc   / 100) / syminfo.mintick : na
+trailPts = useTrailStop ? (strategy.position_avg_price * trailActivPerc  / 100) / syminfo.mintick : na
 trailOff = useTrailStop ? (strategy.position_avg_price * trailOffsetPerc / 100) / syminfo.mintick : na
 
-// Solo mandamos la orden si hay al menos un objetivo real esa vela (evita
-// strategy.exit sin target cuando el SAR está del lado equivocado y no hay
-// TP ni trailing).
+// Solo mandamos la orden si hay al menos un objetivo real esa vela.
 longHasTarget  = not na(longStop)  or not na(longLimit)  or not na(trailPts)
 shortHasTarget = not na(shortStop) or not na(shortLimit) or not na(trailPts)
 
 if strategy.position_size > 0 and longHasTarget
     strategy.exit("Long Risk Exit", from_entry = "Long", stop = longStop, limit = longLimit, trail_points = trailPts, trail_offset = trailOff,
-         comment_loss = longLossComment, comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
+         comment_loss = "Stop Loss", comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
 
 if strategy.position_size < 0 and shortHasTarget
     strategy.exit("Short Risk Exit", from_entry = "Short", stop = shortStop, limit = shortLimit, trail_points = trailPts, trail_offset = trailOff,
-         comment_loss = shortLossComment, comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
+         comment_loss = "Stop Loss", comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
 
 // ============================================================================
 // PLOTS
 // ============================================================================
-plot(useStretchFilter ? stretchEma : na, title = "Stretch EMA", color = color.new(color.yellow, 30), force_overlay = true)
-upperBandPlot = plot(useStretchFilter ? stretchUpper : na, title = "Stretch Upper Band", color = color.new(color.blue, 60), force_overlay = true)
-lowerBandPlot = plot(useStretchFilter ? stretchLower : na, title = "Stretch Lower Band", color = color.new(color.blue, 60), force_overlay = true)
-fill(upperBandPlot, lowerBandPlot, color = color.new(color.blue, 90), title = "Filtered Zone")
-plot(useSarStop ? sarVal : na, title = "SAR Stop", style = plot.style_cross, color = color.new(color.fuchsia, 0), force_overlay = true)
-plot(showRSI ? rsi : na, title = "RSI", color = color.new(color.yellow, (rsi > ob or rsi < osLevel) ? 0 : 10))
+plot(rsi, title = "RSI", color = color.new(color.yellow, (rsi > ob or rsi < osLevel) ? 0 : 10))
 obBand  = hline(ob,      title = "Overbought", color = color.new(color.red, 40))
 osBand  = hline(osLevel, title = "Oversold",   color = color.new(color.green, 40))
 midBand = hline(50,      title = "Midline",    color = color.new(color.white, 50))
 fill(midBand, obBand, color = color.new(color.lime, 90))
 fill(osBand, midBand, color = color.new(color.red, 90))
 
-if showDiv and bearDiv
-    label.new(bar_index - 1, rsi[1] + 1, "", color = bearFilterOk ? color.red : color.gray, textcolor = color.white, style = label.style_label_down, yloc = yloc.price, size = size.small)
+if bearDiv
+    label.new(bar_index - 1, rsi[1] + 1, "", color = color.red, textcolor = color.white, style = label.style_label_down, yloc = yloc.price, size = size.small)
 
-if showDiv and bullDiv
-    label.new(bar_index - 1, rsi[1] - 1, "", color = bullFilterOk ? color.green : color.gray, textcolor = color.white, style = label.style_label_up, yloc = yloc.price, size = size.small)
-
-plotshape(showEntries and longSignal and canLong and cooldownOk, title = "Long Entry", style = shape.triangleup, location = location.bottom, color = color.green, size = size.tiny)
-plotshape(showEntries and shortSignal and canShort and cooldownOk, title = "Short Entry", style = shape.triangledown, location = location.top, color = color.red, size = size.tiny)
-
-plotshape(showExits and exitOnOppositeDiv and bearDiv and strategy.position_size > 0, title = "Long Exit (Opp. Div)", style = shape.xcross, location = location.top, color = color.orange, size = size.tiny)
-plotshape(showExits and exitOnOppositeDiv and bullDiv and strategy.position_size < 0, title = "Short Exit (Opp. Div)", style = shape.xcross, location = location.bottom, color = color.orange, size = size.tiny)
+if bullDiv
+    label.new(bar_index - 1, rsi[1] - 1, "", color = color.green, textcolor = color.white, style = label.style_label_up, yloc = yloc.price, size = size.small)
 
 // ============================================================================
 // ALERTS
