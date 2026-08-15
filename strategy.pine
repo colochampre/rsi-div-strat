@@ -5,7 +5,7 @@
 // ============================================================================
 strategy(
      title                    = "RSI Divergence Strategy",
-     shorttitle               = "RSI Divergences v1.2",
+     shorttitle               = "RSI Divergences v1.3",
      overlay                  = false,
      initial_capital          = 1000,
      default_qty_type         = strategy.percent_of_equity,
@@ -129,6 +129,55 @@ if strategy.position_size > 0 and longHasTarget
 if strategy.position_size < 0 and shortHasTarget
     strategy.exit("Short Risk Exit", from_entry = "Short", stop = shortStop, limit = shortLimit, trail_points = trailPts, trail_offset = trailOff,
          comment_loss = "Stop Loss", comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
+
+// ============================================================================
+// STOPS — visualización
+// Trailing: reconstruye el nivel que usa strategy.exit(). Distancia FIJA en
+// precio (offset % calculado sobre la entrada) medida contra el HIGH/LOW de la
+// vela, y recién a partir de que el precio alcanza el nivel de activación.
+// Solo se mueve a favor: nunca retrocede mientras dure la posición.
+// SL fijo: reusa longStop/shortStop, las mismas series que recibe la orden.
+// Ambos stops conviven en la misma strategy.exit(): sale el que toque primero.
+// ============================================================================
+float slLevel = na
+if strategy.position_size > 0
+    slLevel := longStop
+else if strategy.position_size < 0
+    slLevel := shortStop
+
+trailActivPrice = strategy.position_avg_price * trailActivPerc  / 100
+trailOffPrice   = strategy.position_avg_price * trailOffsetPerc / 100
+
+float trailActivLevel = na
+if useTrailStop and strategy.position_size > 0
+    trailActivLevel := strategy.position_avg_price + trailActivPrice
+else if useTrailStop and strategy.position_size < 0
+    trailActivLevel := strategy.position_avg_price - trailActivPrice
+
+var float trailLevel = na
+if not useTrailStop or strategy.position_size == 0
+    trailLevel := na
+else if strategy.position_size > 0
+    if high >= trailActivLevel
+        trailLevel := na(trailLevel) ? high - trailOffPrice : math.max(trailLevel, high - trailOffPrice)
+else
+    if low <= trailActivLevel
+        trailLevel := na(trailLevel) ? low + trailOffPrice : math.min(trailLevel, low + trailOffPrice)
+
+// Área de riesgo = entre el precio y el stop VIGENTE. Mientras el trailing no
+// esté armado el stop real es el SL fijo; una vez armado el SL deja de serlo,
+// así que el área cambia de color en vez de superponerse.
+slFillLevel = na(trailLevel) ? slLevel : na
+
+pricePlot  = plot(close,       title = "Fill anchor — price", color = color.new(color.white, 100), force_overlay = true)
+slFillPlot = plot(slFillLevel, title = "Fill anchor — SL",    color = color.new(color.white, 100), style = plot.style_linebr, force_overlay = true)
+
+plot(trailActivLevel,  title = "Trailing Activation", color = color.new(color.lime, 20),   linewidth = 1, style = plot.style_linebr, force_overlay = true)
+plot(slLevel,          title = "Fixed Stop Loss",     color = color.new(color.red, 20),    linewidth = 1, style = plot.style_linebr, force_overlay = true)
+trailPlot = plot(trailLevel, title = "Trailing Stop", color = color.new(color.fuchsia, 20), linewidth = 2, style = plot.style_linebr, force_overlay = true)
+
+fill(pricePlot, slFillPlot, color = color.new(color.red, 90),     title = "Fixed Stop Zone")
+fill(pricePlot, trailPlot,  color = color.new(color.fuchsia, 90), title = "Trailing Stop Zone")
 
 // ============================================================================
 // PLOTS
