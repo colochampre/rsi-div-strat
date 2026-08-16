@@ -91,9 +91,9 @@ shortSignal = bearDiv and enableShorts
 // ENTRY LOGIC
 // ============================================================================
 if longSignal
-    strategy.entry("Long", strategy.long, comment = "Long Entry")
+    strategy.entry("Long", strategy.long, comment = "Long")
 else if shortSignal
-    strategy.entry("Short", strategy.short, comment = "Short Entry")
+    strategy.entry("Short", strategy.short, comment = "Short")
 
 // ============================================================================
 // EXIT LOGIC — señal opuesta
@@ -124,11 +124,11 @@ shortHasTarget = not na(shortStop) or not na(shortLimit) or not na(trailPts)
 
 if strategy.position_size > 0 and longHasTarget
     strategy.exit("Long Risk Exit", from_entry = "Long", stop = longStop, limit = longLimit, trail_points = trailPts, trail_offset = trailOff,
-         comment_loss = "Stop Loss", comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
+         comment_loss = "SL", comment_profit = "TP", comment_trailing = "Trailing")
 
 if strategy.position_size < 0 and shortHasTarget
     strategy.exit("Short Risk Exit", from_entry = "Short", stop = shortStop, limit = shortLimit, trail_points = trailPts, trail_offset = trailOff,
-         comment_loss = "Stop Loss", comment_profit = "Take Profit", comment_trailing = "Trailing Stop")
+         comment_loss = "SL", comment_profit = "TP", comment_trailing = "Trailing")
 
 // ============================================================================
 // STOPS — visualización
