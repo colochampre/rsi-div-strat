@@ -8,12 +8,13 @@ strategy(
      shorttitle               = "RSI Divergences v1.3",
      overlay                  = false,
      initial_capital          = 1000,
-     default_qty_type         = strategy.percent_of_equity,
-     default_qty_value        = 100,
+     default_qty_type         = strategy.cash,
+     default_qty_value        = 1000,
      commission_type          = strategy.commission.percent,
      commission_value         = 0.05,
      calc_on_every_tick       = false,
-     process_orders_on_close  = false,
+     calc_on_order_fills      = true,
+     process_orders_on_close  = true,
      use_bar_magnifier        = false, // true con plan premium
      max_bars_back            = 500)
 
@@ -21,8 +22,8 @@ strategy(
 // 1. RSI — Inputs
 // ============================================================================
 rsiLen    = input.int(11,    "RSI Length",    minval = 1,               group = "RSI")
-ob        = input.int(70,    "Overbought",    minval = 0, maxval = 100, group = "RSI")
-osLevel   = input.int(30,    "Oversold",      minval = 0, maxval = 100, group = "RSI")
+ob        = input.int(72,    "Overbought",    minval = 0, maxval = 100, group = "RSI")
+osLevel   = input.int(28,    "Oversold",      minval = 0, maxval = 100, group = "RSI")
 lookback  = input.int(60,    "Lookback Bars", minval = 1,               group = "RSI")
 obosOnly  = input.bool(true, "Only divergences inside OB/OS zones",     group = "RSI")
 allowBull = input.bool(true, "Bullish Divergences",                     group = "RSI")
@@ -38,11 +39,11 @@ enableShorts = input.bool(true, "Enable Shorts", group = "ENTRIES")
 // 3. EXITS — Inputs
 // ============================================================================
 exitOnOppositeDiv = input.bool(true,  "Exit on opposite divergence",                group = "EXITS")
-tpPerc            = input.float(0.0,  "Take Profit %",   minval = 0.0, step = 0.1,  group = "EXITS")
-slPerc            = input.float(0.0,  "Stop Loss %",     minval = 0.0, step = 0.1,  group = "EXITS")
-useTrailStop      = input.bool(false, "Trailing Stop",                              group = "EXITS")
+tpPerc            = input.float(3.1,  "Take Profit %",   minval = 0.0, step = 0.1,  group = "EXITS")
+slPerc            = input.float(1.9,  "Stop Loss %",     minval = 0.0, step = 0.1,  group = "EXITS")
+useTrailStop      = input.bool(true,  "Trailing Stop",                              group = "EXITS")
 trailActivPerc    = input.float(1.0,  "Trailing Activation %", minval = 0.1, step = 0.1, group = "EXITS")
-trailOffsetPerc   = input.float(0.5,  "Trailing Offset %",     minval = 0.1, step = 0.1, group = "EXITS")
+trailOffsetPerc   = input.float(0.6,  "Trailing Offset %",     minval = 0.1, step = 0.1, group = "EXITS")
 
 // ============================================================================
 // RSI CALCULATION
