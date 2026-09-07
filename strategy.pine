@@ -14,7 +14,7 @@ strategy(
      commission_value         = 0.05,
      calc_on_every_tick       = false,
      calc_on_order_fills      = true,
-     process_orders_on_close  = true,
+     process_orders_on_close  = false, // = "Order execution delay: One tick"
      use_bar_magnifier        = false, // true con plan premium
      // margin 50 = leverage 2x en la pestaña Properties.
      // Con default_qty_value = 1000 sobre initial_capital = 1000 la estrategia
@@ -34,7 +34,7 @@ strategy(
 // ============================================================================
 // 1. RSI — Inputs
 // ============================================================================
-rsiLen    = input.int(11,    "RSI Length",    minval = 1,               group = "RSI")
+rsiLen    = input.int(8,     "RSI Length",    minval = 1,               group = "RSI")
 ob        = input.int(72,    "Overbought",    minval = 0, maxval = 100, group = "RSI")
 osLevel   = input.int(28,    "Oversold",      minval = 0, maxval = 100, group = "RSI")
 lookback  = input.int(60,    "Lookback Bars", minval = 1,               group = "RSI")
