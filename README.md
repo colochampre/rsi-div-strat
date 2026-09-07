@@ -13,7 +13,7 @@ gráfico; `analysis/` es lo que decide si eso merece confianza.
 | Ruta | Qué contiene |
 |---|---|
 | `strategy.pine` | La estrategia completa: señales, entradas, salidas y gestión de riesgo. |
-| `indicators/` | Indicadores auxiliares de solo visualización (`rsi-div.pine`, `sar.pine`). No participan de las órdenes. |
+| `indicators/` | Indicador auxiliar de solo visualización (`rsi-div.pine`). No participa de las órdenes. |
 | `backtest/` | Exports de la lista de operaciones de TradingView, más `configs.csv` con el resumen de corridas. Los exports de la validación 4h están versionados para que los scripts de `analysis/` sean reproducibles; corridas nuevas se regeneran desde TradingView. |
 | `analysis/` | Scripts de Python que validan esos exports. Ver [`analysis/README.md`](analysis/README.md). |
 
@@ -66,7 +66,12 @@ Hay tres mecanismos de salida y conviven:
 El cierre por divergencia opuesta es una orden aparte. Take profit, stop loss y
 trailing viajan juntos en una única orden de salida por lado, reenviada en cada
 vela al mismo identificador: Pine reemplaza la orden existente en lugar de
-duplicarla. Sale el nivel que se toque primero.
+duplicarla.
+
+Cuál de los tres dispara no lo decide solo el precio: en Pine v5 los niveles
+absolutos (stop y take profit) tienen prioridad sobre el trailing, que es
+relativo. Es un detalle que importa al interpretar la distribución de salidas de
+un backtest.
 
 ### 5. Visualización del riesgo
 

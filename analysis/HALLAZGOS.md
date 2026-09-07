@@ -64,3 +64,15 @@ ambigüedad de orden (que no empeora al apretar).
 Configuración congelada. Seguir optimizando desde acá agrega sobreajuste sin
 mejora distinguible del ruido. El siguiente paso es forward testing en papel, no
 otro backtest.
+
+## Ajuste posterior del offset
+
+El default que quedó en `strategy.pine` es **0.6%**, no el 0.5% que compara este
+documento. La comparación pareada de arriba enfrenta valores redondos (0.5 vs
+1.0) y describe cómo se comporta el resultado a lo largo del rango; la elección
+del 0.6 se tomó leyendo esa curva, no contradiciéndola. El límite inferior sigue
+siendo el de la sección de realizabilidad del fill: por debajo de cierto retroceso
+el stop queda dentro del ruido y del spread.
+
+Este documento conserva los números tal como se midieron. No se re-corrió la
+validación con 0.6.
