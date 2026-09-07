@@ -16,11 +16,19 @@ strategy(
      calc_on_order_fills      = true,
      process_orders_on_close  = true,
      use_bar_magnifier        = false, // true con plan premium
-     // v6 cambio el default de 0 a 100: ahora exige fondos para cada orden y
-     // puede disparar margin calls. Se adopta esa semantica y se declara
-     // explicito para que la diferencia contra v5 quede visible en el archivo.
-     margin_long              = 100,
-     margin_short             = 100,
+     // margin 50 = leverage 2x en la pestaña Properties.
+     // Con default_qty_value = 1000 sobre initial_capital = 1000 la estrategia
+     // corre al 100% exacto de utilización del capital. A leverage 1x la orden
+     // necesita fondos por todo el nocional, así que una sola pérdida por stop
+     // (1.9% ≈ 19 USDT) deja la equity debajo de 1000 y la estrategia no puede
+     // volver a entrar: necesita operar para recuperar, pero necesita capital
+     // para operar. El umbral exacto depende del símbolo (ETH se traba por
+     // debajo de 1018 de capital inicial).
+     // A leverage 2x el requisito baja a la mitad del nocional. El sizing sigue
+     // siendo fijo en 1000, así que el apalancamiento nunca se usa: sólo le da
+     // aire al chequeo de fondos, que sigue atajando un blowup real.
+     margin_long              = 50,
+     margin_short             = 50,
      max_bars_back            = 500)
 
 // ============================================================================
