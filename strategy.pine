@@ -1,4 +1,4 @@
-//@version=5
+//@version=6
 // ============================================================================
 // RSI DIVERGENCE STRATEGY
 // RSI -> Divergences -> Entries -> Exits -> Risk -> Plots
@@ -16,6 +16,11 @@ strategy(
      calc_on_order_fills      = true,
      process_orders_on_close  = true,
      use_bar_magnifier        = false, // true con plan premium
+     // v6 cambio el default de 0 a 100: ahora exige fondos para cada orden y
+     // puede disparar margin calls. Se adopta esa semantica y se declara
+     // explicito para que la diferencia contra v5 quede visible en el archivo.
+     margin_long              = 100,
+     margin_short             = 100,
      max_bars_back            = 500)
 
 // ============================================================================
@@ -139,6 +144,9 @@ if strategy.position_size < 0 and shortHasTarget
 // Solo se mueve a favor: nunca retrocede mientras dure la posición.
 // SL fijo: reusa longStop/shortStop, las mismas series que recibe la orden.
 // Ambos stops conviven en la misma strategy.exit(): sale el que toque primero.
+// Esto recien es cierto desde v6. En v5 los parametros absolutos (stop, limit)
+// tenian prioridad sobre los relativos (trail_points) sin mirar que nivel
+// estaba mas cerca, asi que el comentario describia algo que no pasaba.
 // ============================================================================
 float slLevel = na
 if strategy.position_size > 0
