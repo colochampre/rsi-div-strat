@@ -3,8 +3,11 @@
 Scripts para validar exports de TradingView de la estrategia. Requieren Python 3
 y los CSV de la lista de operaciones en `../backtest/`.
 
-> **Importante:** `backtest/*.csv` está en `.gitignore`. Los exports no viajan con
-> el repositorio: hay que volver a generarlos desde TradingView en cada máquina.
+> **Importante:** los exports de la validación 4h SÍ están versionados, aunque
+> `.gitignore` ignore `*.csv` por defecto. Se agregaron a propósito para que los
+> números de `HALLAZGOS.md` sean reproducibles: son un snapshot fechado, y
+> regenerarlos desde TradingView hoy daría otro rango de velas y otros
+> resultados. Corridas nuevas no se versionan salvo que respalden un hallazgo.
 
 Formato esperado: export de la pestaña "List of Trades", dos filas por operación
 (entrada y salida), con las columnas `Signal`, `Return %`, `Favorable excursion %`,
