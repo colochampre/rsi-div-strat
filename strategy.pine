@@ -1,4 +1,4 @@
-//@version=5
+//@version=6
 // ============================================================================
 // RSI DIVERGENCE STRATEGY
 // RSI -> Divergences -> Entries -> Exits -> Risk -> Plots
@@ -14,14 +14,27 @@ strategy(
      commission_value         = 0.05,
      calc_on_every_tick       = false,
      calc_on_order_fills      = true,
-     process_orders_on_close  = true,
+     process_orders_on_close  = false, // = "Order execution delay: One tick"
      use_bar_magnifier        = false, // true con plan premium
+     // margin 50 = leverage 2x en la pestaña Properties.
+     // Con default_qty_value = 1000 sobre initial_capital = 1000 la estrategia
+     // corre al 100% exacto de utilización del capital. A leverage 1x la orden
+     // necesita fondos por todo el nocional, así que una sola pérdida por stop
+     // (1.9% ≈ 19 USDT) deja la equity debajo de 1000 y la estrategia no puede
+     // volver a entrar: necesita operar para recuperar, pero necesita capital
+     // para operar. El umbral exacto depende del símbolo (ETH se traba por
+     // debajo de 1018 de capital inicial).
+     // A leverage 2x el requisito baja a la mitad del nocional. El sizing sigue
+     // siendo fijo en 1000, así que el apalancamiento nunca se usa: sólo le da
+     // aire al chequeo de fondos, que sigue atajando un blowup real.
+     margin_long              = 50,
+     margin_short             = 50,
      max_bars_back            = 500)
 
 // ============================================================================
 // 1. RSI — Inputs
 // ============================================================================
-rsiLen    = input.int(11,    "RSI Length",    minval = 1,               group = "RSI")
+rsiLen    = input.int(8,     "RSI Length",    minval = 1,               group = "RSI")
 ob        = input.int(72,    "Overbought",    minval = 0, maxval = 100, group = "RSI")
 osLevel   = input.int(28,    "Oversold",      minval = 0, maxval = 100, group = "RSI")
 lookback  = input.int(60,    "Lookback Bars", minval = 1,               group = "RSI")
@@ -139,6 +152,9 @@ if strategy.position_size < 0 and shortHasTarget
 // Solo se mueve a favor: nunca retrocede mientras dure la posición.
 // SL fijo: reusa longStop/shortStop, las mismas series que recibe la orden.
 // Ambos stops conviven en la misma strategy.exit(): sale el que toque primero.
+// Esto recien es cierto desde v6. En v5 los parametros absolutos (stop, limit)
+// tenian prioridad sobre los relativos (trail_points) sin mirar que nivel
+// estaba mas cerca, asi que el comentario describia algo que no pasaba.
 // ============================================================================
 float slLevel = na
 if strategy.position_size > 0

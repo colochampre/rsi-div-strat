@@ -68,10 +68,11 @@ trailing viajan juntos en una única orden de salida por lado, reenviada en cada
 vela al mismo identificador: Pine reemplaza la orden existente en lugar de
 duplicarla.
 
-Cuál de los tres dispara no lo decide solo el precio: en Pine v5 los niveles
-absolutos (stop y take profit) tienen prioridad sobre el trailing, que es
-relativo. Es un detalle que importa al interpretar la distribución de salidas de
-un backtest.
+Desde Pine v6 dispara el nivel que el precio toque primero, sin importar si es
+absoluto o relativo. En v5 los absolutos (stop y take profit) tenían prioridad
+sobre el trailing. Es un detalle que cambia la distribución de salidas de un
+backtest, así que los resultados de una versión no son comparables con los de la
+otra.
 
 ### 5. Visualización del riesgo
 
