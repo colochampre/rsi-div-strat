@@ -132,6 +132,8 @@ a:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
 .hm th{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);font-weight:500;text-align:right;padding:0 6px}
 .hm th.col{text-align:center;padding-bottom:4px}
 .hm td div{width:100%;min-width:42px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:2px;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
+.hm-scale{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace}
+.hm-bar{width:120px;height:9px;border-radius:2px;background:linear-gradient(90deg,var(--neg),var(--mid),var(--c1))}
 footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -214,7 +216,24 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
         <span class="lg"><span class="sw" style="background:var(--c2)"></span>Diez pares</span>
       </div>
       <div id="eq"></div>
+      <div id="underwater" style="margin-top:4px"></div>
       <div class="eqstats" id="eqstats"></div>
+      <p class="note" id="uw-note" style="margin-top:14px"></p>
+    </div>
+    <div class="panel">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Mes a mes</div>
+          <div class="chart-sub" style="margin-bottom:0">Acá lo que importa no es el total sino la textura: cuántos meses en rojo, si vienen seguidos, y qué queda del año cuando se encadenan. La columna de la derecha es el año entero, compuesto. Hasta noviembre de 2024 las dos carteras tienen los mismos meses, porque son los mismos pares.</div>
+        </div>
+        <div class="seg" role="group" aria-label="Elegir cartera para el mensual">
+          <button type="button" data-hm="largos" aria-pressed="true">Cinco</button>
+          <button type="button" data-hm="diez" aria-pressed="false">Diez</button>
+        </div>
+      </div>
+      <div class="hm-scale" style="margin-bottom:14px"><span>−15%</span><span class="hm-bar"></span><span>+15%</span></div>
+      <div class="scroller"><div id="heatmap"></div></div>
+      <div id="hm-stats" style="margin-top:16px;font-size:13px;color:var(--ink-2)"></div>
     </div>
     <div class="callout">
       <div class="eyebrow">La comparación justa, y la que engaña</div>
@@ -386,15 +405,59 @@ function stats(view) {
       </dl></div>`;
   }).join("");
 }
+/* La caída bajo el agua. Sin esto el gráfico solo muestra la recompensa, y la
+   lectura inevitable es que más margen siempre conviene. */
+function bajoElAgua(serie) {
+  let peak = 0;
+  return serie.map((p) => { peak = Math.max(peak, p.e); return { m: p.m, dd: 100 * (1 - p.e / peak) }; });
+}
+function caida(view) {
+  const key = view === "win" ? "_juntos" : "";
+  const a = bajoElAgua(D.curves["largos" + key]), b = bajoElAgua(D.curves["diez" + key]);
+  const meses = D.curves["diez" + key].map((x) => x.m);
+  const HH = 152, T = 12, B = 30, ih = HH - T - B;
+  const worst = Math.max(10, Math.max(...a.concat(b).map((p) => p.dd)) * 1.12);
+  const X = (i) => M.l + (i / (meses.length - 1)) * (W - M.l - M.r);
+  const Y = (v) => T + (v / worst) * ih;
+  const idx = Object.fromEntries(meses.map((m, i) => [m, i]));
+  const step = worst > 40 ? 20 : (worst > 20 ? 10 : 5);
+  let grid = "";
+  for (let v = 0; v <= worst; v += step) {
+    grid += `<line x1="${M.l}" y1="${Y(v).toFixed(1)}" x2="${W - M.r}" y2="${Y(v).toFixed(1)}" stroke="${v === 0 ? "var(--ink-3)" : "var(--rule-soft)"}" stroke-width="1"/>
+      <text x="${M.l - 9}" y="${(Y(v) + 3.5).toFixed(1)}" text-anchor="end" fill="var(--ink-3)" font-size="10" font-family="IBM Plex Mono, monospace">${v === 0 ? "0%" : "−" + v + "%"}</text>`;
+  }
+  const anios = meses.map((m, i) => m.slice(5) === "01"
+    ? `<line x1="${X(i).toFixed(1)}" y1="${T}" x2="${X(i).toFixed(1)}" y2="${T + ih}" stroke="var(--rule)" stroke-width="1"/>` : "").join("");
+  const capas = [[b, "var(--c2)"], [a, "var(--c1)"]].map(([arr, col]) => {
+    const pts = arr.map((p) => X(idx[p.m]).toFixed(1) + " " + Y(p.dd).toFixed(1)).join("L");
+    return `<path d="M${X(0).toFixed(1)} ${Y(0).toFixed(1)}L${pts}L${X(meses.length - 1).toFixed(1)} ${Y(0).toFixed(1)}Z" fill="${col}" opacity=".22"/>
+      <path d="M${pts}" fill="none" stroke="${col}" stroke-width="1.6"/>`;
+  }).join("");
+  return `<svg viewBox="0 0 ${W} ${HH}" role="img" aria-label="Cuánto por debajo de su máximo anterior estuvo el capital, mes a mes">
+    ${grid}${anios}${capas}
+    <text x="${M.l}" y="${HH - 8}" fill="var(--ink-3)" font-size="9.5" font-family="IBM Plex Mono, monospace">cuánto por debajo del máximo anterior estuvo el capital, mes a mes</text>
+  </svg>`;
+}
+
 let view = "full";
 function render() {
   $("eq").innerHTML = curva(view);
+  $("underwater").innerHTML = caida(view);
   $("eqstats").innerHTML = stats(view);
   $("eq-sub").textContent = view === "win"
     ? "Margen 30%, sin apalancamiento, desde que los diez pares cotizan. Las dos carteras arrancan en 1x para poder compararlas."
     : "Margen 30%, sin apalancamiento. Las marcas indican cuándo entra cada par nuevo: hasta ahí las dos carteras son idénticas.";
   $("btn-full").setAttribute("aria-pressed", String(view === "full"));
   $("btn-win").setAttribute("aria-pressed", String(view === "win"));
+  // El área dibuja cierres de mes; las fichas miden operación por operación.
+  // Sin esta aclaración los dos números parecen contradecirse.
+  const key = view === "win" ? "_juntos" : "", k = view === "win" ? "juntos" : "completa";
+  const mensual = Math.max(...["largos", "diez"].map((s) => Math.max(...bajoElAgua(D.curves[s + key]).map((p) => p.dd))));
+  const real = Math.max(D.ventana.largos[k].mdd, D.ventana.diez[k].mdd);
+  $("uw-note").textContent = "El área mide cierres de mes: a esa resolución la peor caída es de "
+    + pct(mensual) + ". La caída máxima de las fichas, " + pct(real)
+    + ", ocurre dentro de un mes —entre una operación y otra— y por eso no llega a dibujarse acá. "
+    + "Las dos son la misma cartera medida con distinta lupa, y la que importa para dimensionar el riesgo es la segunda.";
 }
 $("btn-full").addEventListener("click", () => { view = "full"; render(); });
 $("btn-win").addEventListener("click", () => { view = "win"; render(); });
@@ -452,6 +515,64 @@ for (const set of ["largos", "diez"]) {
   }).join("")}</tr>`).join("");
   $("tbl-corr").innerHTML = `<thead>${head}</thead><tbody>${body}</tbody>`;
 })();
+
+/* --- mes a mes --- */
+const MES = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+const shade = (v) => {
+  const t = Math.max(-1, Math.min(1, v / 15));
+  return "color-mix(in srgb," + (t >= 0 ? "var(--c1)" : "var(--neg)") + " " + (12 + Math.abs(t) * 80).toFixed(0) + "%, var(--mid))";
+};
+function retornos(set) {
+  let prev = 1;
+  return D.curves[set].map((p) => { const r = 100 * (p.e / prev - 1); prev = p.e; return { m: p.m, r: r }; });
+}
+function heatmap(set) {
+  const rows = retornos(set), map = {};
+  rows.forEach((r) => { map[r.m] = r.r; });
+  const anios = [];
+  rows.forEach((r) => { const y = r.m.slice(0, 4); if (anios.indexOf(y) < 0) anios.push(y); });
+  const cw = 58, ch = 32, gap = 3, L = 46, T = 22, RW = 78;
+  const WH = L + 12 * (cw + gap) + RW, HH = T + anios.length * (ch + gap) + 8;
+  let s = MES.map((m, i) => `<text x="${L + i * (cw + gap) + cw / 2}" y="14" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-3)">${m}</text>`).join("");
+  s += `<text x="${L + 12 * (cw + gap) + RW - 6}" y="14" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--ink-3)">AÑO</text>`;
+  anios.forEach((yr, r) => {
+    const y = T + r * (ch + gap);
+    s += `<text x="${L - 10}" y="${y + ch / 2 + 4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)">${yr}</text>`;
+    let tot = 1, any = false;
+    for (let i = 0; i < 12; i++) {
+      const k = yr + "-" + String(i + 1).padStart(2, "0"), x = L + i * (cw + gap);
+      if (!(k in map)) {
+        s += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="2" fill="none" stroke="var(--rule-soft)" stroke-width="1" stroke-dasharray="2 3"/>`;
+        continue;
+      }
+      const v = map[k];
+      tot *= 1 + v / 100; any = true;
+      s += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="2" fill="${shade(v)}" stroke="var(--panel)" stroke-width="1"/>
+        <text x="${x + cw / 2}" y="${y + ch / 2 + 4}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="500" fill="${Math.abs(v) > 8 ? "var(--panel)" : "var(--ink)"}">${v.toFixed(1)}</text>`;
+    }
+    if (any) {
+      const tv = 100 * (tot - 1);
+      s += `<text x="${L + 12 * (cw + gap) + RW - 6}" y="${y + ch / 2 + 4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="${tv >= 0 ? "var(--c1)" : "var(--neg)"}">${tv >= 0 ? "+" : ""}${tv.toFixed(1)}%</text>`;
+    }
+  });
+  $("heatmap").innerHTML = `<svg viewBox="0 0 ${WH} ${HH}" width="${WH}" style="min-width:${WH}px;max-width:100%" role="img" aria-label="Retorno mensual de la cartera por año y mes">${s}</svg>`;
+  const vals = rows.map((r) => r.r), pos = vals.filter((v) => v > 0).length;
+  let racha = 0, peor = 0;
+  vals.forEach((v) => { if (v <= 0) { racha++; peor = Math.max(peor, racha); } else racha = 0; });
+  const ord = vals.slice().sort((a, b) => a - b);
+  $("hm-stats").innerHTML = `<b>${pos} de ${vals.length} meses positivos</b> (${(100 * pos / vals.length).toFixed(0)}%) · `
+    + `mediana <span class="mono">${ord[Math.floor(vals.length / 2)].toFixed(2)}%</span> · `
+    + `mejor <span class="mono">${Math.max(...vals).toFixed(1)}%</span> · `
+    + `peor <span class="mono">${Math.min(...vals).toFixed(1)}%</span> · `
+    + `racha negativa más larga <b>${peor} ${peor === 1 ? "mes" : "meses"}</b>`;
+}
+heatmap("largos");
+document.querySelectorAll(".seg button[data-hm]").forEach((b) => {
+  b.addEventListener("click", function () {
+    document.querySelectorAll(".seg button[data-hm]").forEach((o) => o.setAttribute("aria-pressed", String(o === this)));
+    heatmap(this.dataset.hm);
+  });
+});
 
 /* --- límites --- */
 const limites = [
