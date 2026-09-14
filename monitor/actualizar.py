@@ -48,6 +48,15 @@ OPERACIONES = os.path.join(AQUI, "operaciones.json")
 PLANTILLA = os.path.join(AQUI, "plantilla.html")
 PAGINA = os.path.join(RAIZ, "informe", "monitor.html")
 INICIO = datetime.datetime(2021, 9, 1, tzinfo=datetime.timezone.utc)
+#: Desde cuándo cuentan las operaciones. Las velas anteriores son calentamiento
+#: del RSI y de los extremos del swing, nada más.
+#:
+#: El corte no es capricho: los últimos meses de 2021 contienen el techo del
+#: ciclo, y ahí unas pocas decenas de operaciones producen más que los cuatro
+#: años siguientes juntos. Midiendo desde 2021, ZEC daba 619% con t 2,60 y
+#: entraba como candidato; midiendo desde 2022 da -23% con t -0,29. La ventana
+#: también es la de los exports, así que las dos vías quedan comparables.
+MEDIR_DESDE = datetime.datetime(2022, 1, 1, tzinfo=datetime.timezone.utc)
 UMBRAL = 2.0
 MARGEN_BAJO, MARGEN_ALTO = 1.8, 2.2
 PERSISTENCIA = 2                # lecturas seguidas del mismo lado para avisar
@@ -117,7 +126,7 @@ def medir(sym, proveedor, hasta):
     if len(velas) < simular.CALENTAMIENTO:
         return None, []
     fina = proveedor.series(sym, simular.FINE_TF, INICIO + PASO * simular.CALENTAMIENTO, hasta)
-    ops = simular.operaciones(velas, fina)
+    ops = [o for o in simular.operaciones(velas, fina) if o.entrada >= MEDIR_DESDE]
     if not ops:
         return None, []
     fee = estimate.funding_cost([_Adaptada(o.entrada, o.salida, o.largo) for o in ops],
