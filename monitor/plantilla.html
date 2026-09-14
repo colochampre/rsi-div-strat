@@ -1,0 +1,214 @@
+<title>Quién entra y quién sale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F2F5F7; --panel:#FBFCFD; --panel-2:#E9EEF1;
+  --ink:#0F171E; --ink-2:#3D4E5C; --ink-3:#6B7D8B;
+  --rule:#D3DCE2; --rule-soft:#E4EAEE;
+  --c1:#0295A8; --c2:#BC6A00; --c3:#7048C4;
+  --neg:#C4442E; --mid:#E3E8EB;
+  --good:#1F6F47; --bad:#A8371F;
+  --shadow:0 1px 2px rgba(15,23,30,.05),0 8px 24px -16px rgba(15,23,30,.22);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1116; --panel:#141B22; --panel-2:#1B242C;
+    --ink:#E7EDF1; --ink-2:#A9B8C3; --ink-3:#7A8C99;
+    --rule:#28333C; --rule-soft:#1E272F;
+    --c1:#1FA6B8; --c2:#CE8018; --c3:#8E6FDC;
+    --neg:#E0644B; --mid:#1E272F;
+    --good:#4FBF87; --bad:#E8735A;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1116; --panel:#141B22; --panel-2:#1B242C;
+  --ink:#E7EDF1; --ink-2:#A9B8C3; --ink-3:#7A8C99;
+  --rule:#28333C; --rule-soft:#1E272F;
+  --c1:#1FA6B8; --c2:#CE8018; --c3:#8E6FDC;
+  --neg:#E0644B; --mid:#1E272F;
+  --good:#4FBF87; --bad:#E8735A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:40px 72px;padding-left:24px;padding-right:24px;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:Archivo,ui-sans-serif,system-ui,sans-serif;text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(28px,4.2vw,40px);font-weight:700;line-height:1.05}
+h2{font-size:19px;font-weight:600}
+p{margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.lede{color:var(--ink-2);font-size:16px;max-width:66ch}
+.note{color:var(--ink-3);font-size:13px;max-width:88ch;text-align:justify}
+header{display:flex;flex-direction:column;gap:14px;padding-bottom:22px;border-bottom:2px solid var(--ink)}
+.facts{display:flex;flex-wrap:wrap;gap:14px 0;border-top:1px solid var(--rule);padding-top:14px;margin-top:4px}
+.fact{padding-right:26px;margin-right:26px;border-right:1px solid var(--rule-soft)}
+.fact:last-child{border-right:none;margin-right:0;padding-right:0}
+.fact b{display:block;font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.fact span{font-size:11.5px;color:var(--ink-3)}
+section{display:flex;flex-direction:column;gap:16px}
+.shead{display:flex;flex-direction:column;gap:6px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:20px;box-shadow:var(--shadow)}
+.scroller{overflow-x:auto}
+/* avisos */
+.avisos{display:flex;flex-direction:column;gap:10px}
+.aviso{display:flex;gap:14px;align-items:baseline;border:1px solid var(--rule);border-left:3px solid var(--c2);border-radius:3px;background:var(--panel);padding:14px 18px}
+.aviso.quitar{border-left-color:var(--neg)}
+.aviso.agregar{border-left-color:var(--good)}
+.aviso .que{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.aviso.quitar .que{color:var(--neg)}
+.aviso.agregar .que{color:var(--good)}
+.aviso .par{font-family:Archivo,sans-serif;font-weight:700;font-size:16px}
+.aviso .por{color:var(--ink-2);font-size:13.5px}
+.calma{border:1px dashed var(--rule);border-radius:3px;padding:16px 18px;color:var(--ink-3);font-size:13.5px}
+/* tabla */
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:right;padding:7px 10px;border-bottom:1px solid var(--rule-soft);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--rule)}
+tbody td{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:"IBM Plex Sans",sans-serif}
+tbody tr:last-child td{border-bottom:none}
+tr.pool td{background:color-mix(in srgb,var(--c1) 9%,transparent)}
+tr.fuera td{color:var(--ink-3)}
+td.t{font-weight:600}
+td.est{text-align:left;width:1%;padding-left:12px}
+.badge{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;display:inline-block;min-width:96px;text-align:center}
+.badge.pool{background:color-mix(in srgb,var(--c1) 15%,transparent);color:var(--c1);border:1px solid color-mix(in srgb,var(--c1) 42%,transparent)}
+.badge.cand{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
+.badge.vig{background:color-mix(in srgb,var(--c2) 13%,transparent);color:var(--c2);border:1px solid color-mix(in srgb,var(--c2) 38%,transparent)}
+.badge.no{background:var(--panel-2);color:var(--ink-3);border:1px solid var(--rule)}
+.spark{display:block}
+.delta.sube{color:var(--good)}
+.delta.baja{color:var(--neg)}
+footer{border-top:1px solid var(--rule);padding-top:18px;color:var(--ink-3);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">RSI Divergence Strategy · monitoreo mensual</div>
+    <h1>Quién entra y quién sale</h1>
+    <p class="lede">Cada mes se recalcula el rendimiento de todos los pares del universo contra velas reales. Cuando uno pierde su ventaja estadística, o cuando otro la gana, aparece acá.</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Avisos</div>
+      <h2 id="avisos-titulo">Sin cambios</h2>
+    </div>
+    <div class="avisos" id="avisos"></div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Estado por par</div>
+      <h2>El universo completo</h2>
+      <p class="note">El estadístico <b>t</b> mide cuántos errores estándar separa del cero al retorno promedio por operación. Por debajo de 2 el resultado no se distingue de la suerte. La banda entre 1,8 y 2,2 es zona de nadie a propósito: un corte seco haría entrar y salir pares por el ruido de una sola operación. La miniatura muestra cómo se movió el <b>t</b> mes a mes, con la línea del umbral.</p>
+    </div>
+    <div class="panel scroller">
+      <table id="tabla"></table>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Cómo leerlo</div>
+      <h2>Estos números no se comparan con los del informe</h2>
+    </div>
+    <p class="note">El informe de selección de pares se calcula con las operaciones que TradingView exportó. Este monitor las genera por su cuenta, porque un backtest exportado a mano no se puede actualizar solo. Las operaciones que ambas vías toman dan idéntico —diferencia máxima de 0,0000 puntos—, pero el simulador no puede reproducir el 2,8% de operaciones que nacen del recálculo intravela de TradingView, y como esas resultaron rentables, deja el <b>t</b> de cada par entre 0,1 y 0,7 más abajo.</p>
+    <p class="note">Por eso la línea de base de esta página se reconstruyó con el mismo simulador, y las comparaciones son siempre entre lecturas de acá. Un termómetro que lee medio grado bajo sirve perfectamente para detectar fiebre, mientras no compares sus lecturas con las de otro termómetro.</p>
+  </section>
+
+  <footer>
+    <div id="pie-corrida"></div>
+    <div>Entradas generadas desde la lógica de divergencia de la estrategia; salidas replayadas contra velas de Binance con el <a href="https://github.com/colochampre/bar-magnifier-estimator">bar-magnifier-estimator</a>. Incluye comisiones y funding real.</div>
+  </footer>
+</div>
+
+<script>
+const D = __DATA__;
+const $ = (id) => document.getElementById(id);
+const pct = (v, d) => (v === null || v === undefined || Number.isNaN(v)) ? "—" : v.toFixed(d === undefined ? 1 : d) + "%";
+const UMBRAL = 2.0, BAJO = 1.8, ALTO = 2.2;
+
+const pares = Object.keys(D.pares).sort((a, b) => D.pares[b].t - D.pares[a].t);
+const pool = new Set(D.pool || []);
+const clase = (sym) => {
+  const t = D.pares[sym].t;
+  if (pool.has(sym)) return ["pool", "en cartera"];
+  if (t >= ALTO) return ["cand", "candidato"];
+  if (t >= BAJO) return ["vig", "en la banda"];
+  return ["no", "sin ventaja"];
+};
+
+$("facts").innerHTML = [
+  [pares.length, "pares medidos"],
+  [pool.size, "en la cartera"],
+  [pares.filter((p) => !pool.has(p) && D.pares[p].t >= ALTO).length, "candidatos a entrar"],
+  [(D.alertas || []).length, "avisos este mes"],
+  [D.tf, "resolución de salida"]
+].map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join("");
+
+/* --- avisos --- */
+const av = D.alertas || [];
+$("avisos-titulo").textContent = av.length
+  ? (av.length === 1 ? "Un par para revisar" : `${av.length} pares para revisar`)
+  : "Sin cambios";
+$("avisos").innerHTML = av.length ? av.map((a) => {
+  const quitar = a.accion === "quitar";
+  return `<div class="aviso ${quitar ? "quitar" : "agregar"}">
+    <span class="que">${quitar ? "Sacar" : "Sumar"}</span>
+    <span class="par">${a.par.replace("USDT", "")}</span>
+    <span class="por">t de <b class="mono">${a.t.toFixed(2)}</b> sostenido desde ${a.desde}
+      — ${quitar ? "dejó de distinguirse de la suerte" : "superó el umbral estando afuera de la cartera"}.</span>
+  </div>`;
+}).join("") : `<div class="calma">Ningún par sostuvo un cruce del umbral durante dos lecturas seguidas. La cartera queda como está.</div>`;
+
+/* --- miniatura del t --- */
+function spark(sym) {
+  const h = (D.historia[sym] || []).slice(-12);
+  if (h.length < 2) return '<span style="color:var(--ink-3)">—</span>';
+  const W = 84, H = 22, P = 2;
+  const vals = h.map((x) => x.t).concat([UMBRAL]);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const rango = (hi - lo) || 1;
+  const X = (i) => P + (i / (h.length - 1)) * (W - 2 * P);
+  const Y = (v) => H - P - ((v - lo) / rango) * (H - 2 * P);
+  const d = h.map((x, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(x.t).toFixed(1)).join(" ");
+  const ult = h[h.length - 1].t;
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="t mes a mes">
+    <line x1="${P}" y1="${Y(UMBRAL).toFixed(1)}" x2="${W - P}" y2="${Y(UMBRAL).toFixed(1)}"
+          stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 3"/>
+    <path d="${d}" fill="none" stroke="var(--ink-3)" stroke-width="1.4"/>
+    <circle cx="${X(h.length - 1).toFixed(1)}" cy="${Y(ult).toFixed(1)}" r="2.4"
+            fill="${ult >= UMBRAL ? "var(--c1)" : "var(--neg)"}"/>
+  </svg>`;
+}
+
+/* --- tabla --- */
+$("tabla").innerHTML = `<thead><tr>
+    <th>par</th><th class="est">estado</th><th>ops</th><th>total</th><th>t</th><th>cambio</th>
+    <th>mes a mes</th><th>anual</th><th>caída máx</th><th>desde</th></tr></thead><tbody>` +
+  pares.map((sym) => {
+    const p = D.pares[sym], [tono, texto] = clase(sym);
+    const h = D.historia[sym] || [];
+    const d = h.length > 1 ? p.t - h[h.length - 2].t : null;
+    return `<tr class="${pool.has(sym) ? "pool" : p.t < BAJO ? "fuera" : ""}">
+      <td>${sym.replace("USDT", "")}</td>
+      <td class="est"><span class="badge ${tono}">${texto}</span></td>
+      <td>${p.n}</td><td>${pct(p.total, 0)}</td>
+      <td class="t">${p.t.toFixed(2)}</td>
+      <td class="delta ${d === null ? "" : d > 0 ? "sube" : "baja"}">${d === null ? "—" : (d > 0 ? "+" : "") + d.toFixed(2)}</td>
+      <td>${spark(sym)}</td>
+      <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td><td>${p.desde}</td></tr>`;
+  }).join("") + "</tbody>";
+
+$("pie-corrida").textContent = "Última corrida: " + D.generado
+  + " · salidas replayadas a " + D.tf + " · cartera vigente: "
+  + ((D.pool || []).map((s) => s.replace("USDT", "")).join(", ") || "sin definir");
+</script>
