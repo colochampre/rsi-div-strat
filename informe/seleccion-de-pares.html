@@ -72,6 +72,9 @@ thead tr:first-child th[colspan]{text-align:center;color:var(--ink-2);font-weigh
 .badge.ok{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good);border:1px solid color-mix(in srgb,var(--good) 42%,transparent)}
 .badge.warn{background:color-mix(in srgb,var(--c2) 13%,transparent);color:var(--c2);border:1px solid color-mix(in srgb,var(--c2) 40%,transparent)}
 .badge.no{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 34%,transparent)}
+.badge.muted{background:var(--panel-2);color:var(--ink-3);border:1px solid var(--rule)}
+#tbl-pairs th.ev,#tbl-pairs td.ev{text-align:left;width:1%;padding-left:14px;padding-right:4px}
+#tbl-pairs td.ev .badge{display:inline-block;min-width:88px;text-align:center}
 .callout{border:1px solid var(--rule);border-left:3px solid var(--neg);border-radius:3px;background:var(--panel);padding:18px 20px;display:flex;flex-direction:column;gap:8px}
 .callout.calm{border-left-color:var(--c1)}
 .callout .eyebrow{color:var(--neg)}
@@ -191,7 +194,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
     <div class="panel scroller">
       <table id="tbl-pairs"></table>
     </div>
-    <p class="note">El drawdown por par está medido invirtiendo el 100% del capital en cada operación, así que no es comparable con el de las carteras más abajo, donde cada posición toma el 30%.</p>
+    <p class="note"><b>Dos ciclos</b>: cotiza desde 2022 o 2023, así que su resultado atravesó el mercado bajista además del alcista, y son los cinco de la cartera chica. <b>Ciclo único</b>: pasa el corte estadístico pero cotiza desde fines de 2024 y solo vio subir; son los cinco que agrega la cartera de diez. <b>Sin ventaja</b>: su t a 5 minutos no llega a 2, tenga la historia que tenga. El drawdown por par está medido invirtiendo el 100% del capital en cada operación, así que no es comparable con el de las carteras más abajo, donde cada posición toma el 30%.</p>
   </section>
 
   <section>
@@ -330,19 +333,22 @@ $("funnel").innerHTML = pasos.map(([b, w, y], i) =>
 
 /* --- tabla de pares --- */
 (() => {
+  // Una sola etiqueta por par. Antes eran dos -la cartera a la izquierda y el
+  // ciclo a la derecha- y decían lo mismo: los pares que solo entran en la de
+  // diez son exactamente los que cotizan desde fines de 2024.
+  const evidencia = (p) => p.set === "largos" ? ["ok", "dos ciclos"]
+    : p.set === "diez" ? ["warn", "ciclo único"] : ["muted", "sin ventaja"];
   const rows = D.pairs.map((p) => {
-    const set = p.set === "largos"
-      ? `<span class="badge ok">5 largos</span>`
-      : p.set === "diez" ? `<span class="badge warn">solo en 10</span>` : "";
-    const cls = p.t > 2 ? (p.set ? "hl" : "") : "dead";
-    return `<tr class="${cls}">
-      <td>${p.p} ${set}</td><td>${p.n}</td><td>${pct(p.tot4, 0)}</td><td>${pct(p.tot30, 0)}</td>
+    const [tono, texto] = evidencia(p);
+    return `<tr class="${p.set ? "hl" : "dead"}">
+      <td>${p.p}</td><td class="ev"><span class="badge ${tono}">${texto}</span></td>
+      <td>${p.n}</td><td>${pct(p.tot4, 0)}</td><td>${pct(p.tot30, 0)}</td>
       <td class="grp">${pct(p.tot5, 0)}</td><td>${num(p.t30)}</td><td><b>${num(p.t)}</b></td>
-      <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td><td>${esMes(p.desde)}${p.ciclo ? ' <span class="badge warn">ciclo único</span>' : ""}</td></tr>`;
+      <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td><td>${esMes(p.desde)}</td></tr>`;
   }).join("");
   $("tbl-pairs").innerHTML = `<thead>
-    <tr><th></th><th></th><th colspan="2">lo que reporta TradingView</th><th class="grp" colspan="5">estimación a 5 minutos</th></tr>
-    <tr><th>par</th><th>ops</th><th>4h</th><th>30m</th><th class="grp">total</th><th>t 30m</th><th>t 5m</th><th>anual</th><th>caída máx</th><th>desde</th></tr>
+    <tr><th></th><th></th><th></th><th colspan="2">lo que reporta TradingView</th><th class="grp" colspan="5">estimación a 5 minutos</th><th></th></tr>
+    <tr><th>par</th><th class="ev">evidencia</th><th>ops</th><th>4h</th><th>30m</th><th class="grp">total</th><th>t 30m</th><th>t 5m</th><th>anual</th><th>caída máx</th><th>desde</th></tr>
     </thead><tbody>${rows}</tbody>`;
 })();
 
