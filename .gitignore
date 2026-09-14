@@ -5,3 +5,5 @@
 # Cache del monitoreo: se reescribe entero en cada corrida y pesa varios megas.
 # La historia mensual vive en monitor/estado.json, que si se versiona.
 monitor/operaciones.json
+
+__pycache__/
