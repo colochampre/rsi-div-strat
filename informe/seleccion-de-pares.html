@@ -1,0 +1,593 @@
+<title>De 70 pares a 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F2F5F7; --panel:#FBFCFD; --panel-2:#E9EEF1;
+  --ink:#0F171E; --ink-2:#3D4E5C; --ink-3:#6B7D8B;
+  --rule:#D3DCE2; --rule-soft:#E4EAEE;
+  --c1:#0295A8; --c2:#BC6A00; --c3:#7048C4;
+  --neg:#C4442E; --mid:#E3E8EB;
+  --good:#1F6F47; --bad:#A8371F;
+  --shadow:0 1px 2px rgba(15,23,30,.05),0 8px 24px -16px rgba(15,23,30,.22);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1116; --panel:#141B22; --panel-2:#1B242C;
+    --ink:#E7EDF1; --ink-2:#A9B8C3; --ink-3:#7A8C99;
+    --rule:#28333C; --rule-soft:#1E272F;
+    --c1:#1FA6B8; --c2:#CE8018; --c3:#8E6FDC;
+    --neg:#E0644B; --mid:#1E272F;
+    --good:#4FBF87; --bad:#E8735A;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1116; --panel:#141B22; --panel-2:#1B242C;
+  --ink:#E7EDF1; --ink-2:#A9B8C3; --ink-3:#7A8C99;
+  --rule:#28333C; --rule-soft:#1E272F;
+  --c1:#1FA6B8; --c2:#CE8018; --c3:#8E6FDC;
+  --neg:#E0644B; --mid:#1E272F;
+  --good:#4FBF87; --bad:#E8735A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:40px 72px;padding-left:24px;padding-right:24px;display:flex;flex-direction:column;gap:52px}
+h1,h2,h3{font-family:Archivo,ui-sans-serif,system-ui,sans-serif;text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(30px,4.6vw,46px);font-weight:700;line-height:1.05}
+h2{font-size:20px;font-weight:600}
+h3{font-size:15px;font-weight:600}
+p{margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.lede{color:var(--ink-2);font-size:17px;max-width:63ch}
+.note{color:var(--ink-3);font-size:13px;max-width:85ch;text-align:justify}
+header{display:flex;flex-direction:column;gap:16px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.facts{display:flex;flex-wrap:wrap;gap:14px 0;border-top:1px solid var(--rule);padding-top:14px;margin-top:6px}
+.fact{padding-right:26px;margin-right:26px;border-right:1px solid var(--rule-soft)}
+.fact:last-child{border-right:none;margin-right:0;padding-right:0}
+.fact b{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.fact span{font-size:11.5px;color:var(--ink-3);letter-spacing:.03em}
+section{display:flex;flex-direction:column;gap:20px}
+.shead{display:flex;flex-direction:column;gap:7px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:22px;box-shadow:var(--shadow)}
+.chart-title{font-family:Archivo,sans-serif;font-size:14px;font-weight:600;margin-bottom:2px}
+.chart-sub{font-size:13px;color:var(--ink-3);margin-bottom:16px;max-width:85ch;text-align:justify}
+svg{display:block;max-width:100%;height:auto}
+.scroller{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:right;padding:8px 11px;border-bottom:1px solid var(--rule-soft);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--rule)}
+tbody td{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:"IBM Plex Sans",sans-serif}
+tbody tr:last-child td{border-bottom:none}
+tr.hl td{background:color-mix(in srgb,var(--c1) 10%,transparent)}
+tr.dead td{color:var(--ink-3)}
+th.grp,td.grp{border-left:2px solid var(--rule)}
+thead tr:first-child th[colspan]{text-align:center;color:var(--ink-2);font-weight:600}
+.badge{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;padding:2px 7px;border-radius:2px}
+.badge.ok{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good);border:1px solid color-mix(in srgb,var(--good) 42%,transparent)}
+.badge.warn{background:color-mix(in srgb,var(--c2) 13%,transparent);color:var(--c2);border:1px solid color-mix(in srgb,var(--c2) 40%,transparent)}
+.badge.no{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 34%,transparent)}
+.badge.muted{background:var(--panel-2);color:var(--ink-3);border:1px solid var(--rule)}
+#tbl-pairs th.ev,#tbl-pairs td.ev{text-align:left;width:1%;padding-left:14px;padding-right:4px}
+#tbl-pairs td.ev .badge{display:inline-block;min-width:88px;text-align:center}
+.callout{border:1px solid var(--rule);border-left:3px solid var(--neg);border-radius:3px;background:var(--panel);padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.callout.calm{border-left-color:var(--c1)}
+.callout .eyebrow{color:var(--neg)}
+.callout.calm .eyebrow{color:var(--c1)}
+.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:18px}
+.mini{border-top:2px solid var(--rule);padding-top:13px;display:flex;flex-direction:column;gap:6px}
+.mini h3{font-size:14px}
+.mini p{font-size:13px;color:var(--ink-2)}
+a{color:var(--c1);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--c1) 40%,transparent)}
+a:hover{border-bottom-color:var(--c1)}
+a:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+.intro{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0}
+.intro>div{padding:0 24px;border-left:1px solid var(--rule);display:flex;flex-direction:column;gap:10px}
+.intro>div:first-child{padding-left:0;border-left:none}
+.intro h3{font-size:14px;margin-bottom:2px}
+.intro p{font-size:13.5px;color:var(--ink-2);line-height:1.6;text-align:justify}
+@media(max-width:820px){.intro{gap:22px}.intro>div{padding:0;border-left:none;border-top:1px solid var(--rule);padding-top:16px}.intro>div:first-child{border-top:none;padding-top:0}}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;font-size:12.5px;color:var(--ink-2);margin-bottom:14px}
+.lg{display:flex;align-items:center;gap:7px}
+.sw{width:22px;height:3px;border-radius:2px;flex:none}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:var(--panel-2)}
+.seg button{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;letter-spacing:.03em;padding:6px 13px;border:none;background:transparent;color:var(--ink-3);cursor:pointer;border-right:1px solid var(--rule)}
+.seg button:last-child{border-right:none}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.seg button:focus-visible{outline:2px solid var(--c1);outline-offset:-2px}
+.chart-head{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.eqstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0;margin-top:18px;border-top:1px solid var(--rule);padding-top:14px}
+.eqstats>div{padding:0 20px;border-left:1px solid var(--rule-soft)}
+.eqstats>div:first-child{padding-left:0;border-left:none}
+.eqstats .who{font-family:Archivo,sans-serif;font-size:13px;font-weight:700;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.eqstats .who i{width:14px;height:3px;border-radius:2px;flex:none;display:inline-block}
+.eqstats dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0;font-size:12.5px}
+.eqstats dt{color:var(--ink-3)}
+.eqstats dd{margin:0;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink)}
+.eqstats dd.risk{color:var(--neg)}
+/* embudo */
+.funnel{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0}
+.step{padding:0 18px;border-left:1px solid var(--rule);display:flex;flex-direction:column;gap:5px}
+.step:first-child{padding-left:0;border-left:none}
+.step b{font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.step .what{font-size:12.5px;color:var(--ink-2);font-weight:600}
+.step .why{font-size:12px;color:var(--ink-3);line-height:1.5}
+.step.last b{color:var(--c1)}
+@media(max-width:700px){.funnel{gap:14px}.step{padding:0;border-left:none;border-top:1px solid var(--rule);padding-top:12px}.step:first-child{border-top:none;padding-top:0}}
+/* barras de contribucion */
+.loo{display:flex;flex-direction:column;gap:9px}
+.loorow{display:grid;grid-template-columns:96px 1fr 112px;gap:12px;align-items:center;font-size:12.5px}
+.loorow .nm{font-weight:600}
+.loorow .track{height:15px;background:var(--panel-2);border-radius:2px;position:relative;overflow:hidden}
+.loorow .bar{position:absolute;top:0;bottom:0;left:0;background:color-mix(in srgb,var(--c1) 55%,transparent)}
+.loorow.base .bar{background:var(--ink-3)}
+.loorow .val{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink-2)}
+.loorow .val i{font-style:normal;color:var(--neg)}
+.loorow .val i.up{color:var(--good)}
+/* matriz */
+.hm{border-collapse:separate;border-spacing:2px;font-size:11.5px}
+.hm td,.hm th{padding:0;border:none;white-space:nowrap}
+.hm th{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);font-weight:500;text-align:right;padding:0 6px}
+.hm th.col{text-align:center;padding-bottom:4px}
+.hm td div{width:100%;min-width:42px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:2px;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
+.hm-scale{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace}
+.hm-bar{width:120px;height:9px;border-radius:2px;background:linear-gradient(90deg,var(--neg),var(--mid),var(--c1))}
+footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">RSI Divergence Strategy · selección de pares</div>
+    <h1>De 70 pares a 5</h1>
+    <p class="lede">Se probaron 70 backtests de la misma estrategia, uno por par, y se estimó qué habría hecho cada uno con velas de 5 minutos. Sobreviven diez. Solo cinco vieron algo más que un mercado alcista.</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Punto de partida</div>
+      <h2>Qué se midió, y con qué reglas</h2>
+    </div>
+    <div class="intro">
+      <div>
+        <h3>La estrategia</h3>
+        <p><a href="https://www.tradingview.com/script/pn6hOL4l-RSI-Divergence-Strategy/" target="_blank" rel="noopener">RSI Divergence Strategy</a> en gráfico de 4 horas, con los parámetros definitivos: sin toma de ganancias, stop de 5,0%, trailing que se activa a 3,0% con 0,6% de distancia. Comisión 0,05% por lado. Un export de TradingView por par.</p>
+      </div>
+      <div>
+        <h3>Cómo se estimó</h3>
+        <p>TradingView no dice qué pasó dentro de cada vela de 4 horas. Cada operación se volvió a recorrer contra las velas reales de Binance a 5 minutos, aplicando las mismas reglas de salida. Se incluye el funding histórico real de cada posición.</p>
+      </div>
+      <div>
+        <h3>Qué no se midió</h3>
+        <p>Deslizamiento: se asume que cada stop se ejecuta a su precio exacto. Tampoco se modela la liquidación con apalancamiento. Y 5 minutos sigue siendo una aproximación: adentro de esas velas también se adivina. Ver <a id="link-audit" href="#" target="_blank" rel="noopener">la auditoría del Bar Magnifier</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">El embudo</div>
+      <h2>Setenta backtests, cinco candidatos</h2>
+      <p class="note">Cada paso descarta por un motivo distinto, y el orden importa: primero se verifica que los datos sean lo que dicen ser, después se mide la ventaja, y recién al final se juzga si esa ventaja se puede creer. Saltear el primer paso invalida todo lo que sigue.</p>
+    </div>
+    <div class="panel">
+      <div class="funnel" id="funnel"></div>
+    </div>
+    <div class="callout">
+      <div class="eyebrow">El problema de mirar 70 pares</div>
+      <p>Con 65 pares evaluados, un corte en <span class="mono">t &gt; 2</span> deja pasar alrededor de <b id="ruido">1,5</b> pares por puro azar, sin ninguna ventaja real. Diez lo pasan. Eso significa que uno o dos de esos diez son ruido, y no hay forma de saber cuál mirando estos datos. Es la razón por la que la cartera chica, con pares de historia larga, no es timidez: es lo único que el tamaño de la muestra permite defender.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Por par</div>
+      <h2>Los 18 que llegaron a 5 minutos</h2>
+      <p class="note">La columna <b>5m</b> es la estimación realista; <b>30m</b> es lo que reportaría TradingView con el Bar Magnifier encendido. La diferencia entre ambas es lo que la Strategy Tester nunca muestra. El estadístico <b>t</b> mide cuántos errores estándar separa del cero al retorno promedio por operación: abajo de 2, el resultado no se distingue de la suerte por bueno que se vea el total.</p>
+    </div>
+    <div class="panel scroller">
+      <table id="tbl-pairs"></table>
+    </div>
+    <p class="note"><b>Dos ciclos</b>: cotiza desde 2022 o 2023, así que su resultado atravesó el mercado bajista además del alcista, y son los cinco de la cartera chica. <b>Ciclo único</b>: pasa el corte estadístico pero cotiza desde fines de 2024 y solo vio subir; son los cinco que agrega la cartera de diez. <b>Sin ventaja</b>: su t a 5 minutos no llega a 2, tenga la historia que tenga. El drawdown por par está medido invirtiendo el 100% del capital en cada operación, así que no es comparable con el de las carteras más abajo, donde cada posición toma el 30%.</p>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Las dos carteras</div>
+      <h2>Cinco pares, o diez</h2>
+      <p class="note">Las dos carteras reparten un mismo pool de capital: cada operación toma el 30% del capital disponible como margen, y una señal que llega con el pool comprometido no entra más chica, no entra. El capital se reinvierte. Un símbolo sostiene una sola posición a la vez. La cartera de diez contiene a la de cinco, así que hasta noviembre de 2024 las dos curvas son la misma línea: todo lo que las separa ocurre después, cuando los cinco pares nuevos empiezan a cotizar.</p>
+    </div>
+    <div class="panel">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Capital acumulado, escala logarítmica</div>
+          <div class="chart-sub" id="eq-sub">Margen 30%, sin apalancamiento. Las marcas indican cuándo entra cada par nuevo.</div>
+        </div>
+        <div class="seg" role="group" aria-label="Ventana">
+          <button type="button" id="btn-full" aria-pressed="true">Historia completa</button>
+          <button type="button" id="btn-win" aria-pressed="false">Desde 2024-11</button>
+        </div>
+      </div>
+      <div class="legend">
+        <span class="lg"><span class="sw" style="background:var(--c1)"></span>Cinco de historia larga</span>
+        <span class="lg"><span class="sw" style="background:var(--c2)"></span>Diez pares</span>
+      </div>
+      <div id="eq"></div>
+      <div id="underwater" style="margin-top:4px"></div>
+      <div class="eqstats" id="eqstats"></div>
+      <p class="note" id="uw-note" style="margin-top:14px"></p>
+    </div>
+    <div class="panel">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Mes a mes</div>
+          <div class="chart-sub" style="margin-bottom:0">Acá lo que importa no es el total sino la textura: cuántos meses en rojo, si vienen seguidos, y qué queda del año cuando se encadenan. La columna de la derecha es el año entero, compuesto. Hasta noviembre de 2024 las dos carteras tienen los mismos meses, porque son los mismos pares.</div>
+        </div>
+        <div class="seg" role="group" aria-label="Elegir cartera para el mensual">
+          <button type="button" data-hm="largos" aria-pressed="true">Cinco</button>
+          <button type="button" data-hm="diez" aria-pressed="false">Diez</button>
+        </div>
+      </div>
+      <div class="hm-scale" style="margin-bottom:14px"><span>−15%</span><span class="hm-bar"></span><span>+15%</span></div>
+      <div class="scroller"><div id="heatmap"></div></div>
+      <div id="hm-stats" style="margin-top:16px;font-size:13px;color:var(--ink-2)"></div>
+    </div>
+    <div class="callout">
+      <div class="eyebrow">La comparación justa, y la que engaña</div>
+      <p>Sobre la historia completa la cartera de diez rinde más porque tiene más pares, pero también porque esos pares aparecen justo en el mejor tramo. Sobre la ventana en que todos cotizan —desde noviembre de 2024— la diferencia se vuelve enorme: <b id="c-win">242% contra 102% anual</b>, con un MAR de <b id="c-mar">16</b>. Un MAR de 16 no describe una cartera excepcional: describe una ventana corta y favorable anualizada. Es la mejor prueba de que los cinco pares nuevos todavía no demostraron nada, porque brillan exactamente en el único mercado que vieron.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Tamaño de posición</div>
+      <h2>Cuánto capital por operación</h2>
+      <p class="note">Más margen por operación significa menos posiciones simultáneas y más señales perdidas, y aun así rinde más: el capital se concentra donde hay señal en vez de repartirse en una posición que llega tarde. Las fracciones marcadas son bordes: ahí <i>n</i> posiciones consumen exactamente todo el pool y el resultado pasa a depender de cómo se cuente el margen —hasta 4 puntos de rendimiento anual— en vez de depender de la estrategia. 30% y 40% son estables en las dos carteras.</p>
+    </div>
+    <div class="panel scroller">
+      <table id="tbl-sizing"></table>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Concentración</div>
+      <h2>Qué pasa si sacamos un par</h2>
+      <p class="note">Cada barra es el rendimiento anual de la cartera sin ese par, con margen 30%. Un par cuya ausencia casi no mueve el resultado es reemplazable; uno que se lleva un tercio del rendimiento es una apuesta concentrada disfrazada de cartera diversificada.</p>
+    </div>
+    <div class="panel">
+      <div class="chart-title" style="margin-bottom:14px">Cinco de historia larga</div>
+      <div class="loo" id="loo-largos"></div>
+      <div class="chart-title" style="margin:22px 0 14px">Diez pares</div>
+      <div class="loo" id="loo-diez"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Diversificación</div>
+      <h2>Se mueven juntos o no</h2>
+      <p class="note">Correlación entre los retornos mensuales de cada par. Cerca de 1 significa que ganan y pierden los mismos meses, y entonces sumar el segundo agrega riesgo sin agregar diversificación. Las celdas vacías son parejas con menos de 12 meses en común: no hay historia compartida suficiente para calcular nada.</p>
+    </div>
+    <div class="panel scroller">
+      <table class="hm" id="tbl-corr"></table>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Antes de poner plata</div>
+      <h2>Lo que estos números no dicen</h2>
+    </div>
+    <div class="cards3" id="limits"></div>
+  </section>
+
+  <footer>
+    <div>Cadena de datos: exports de TradingView (4h) → verificación de símbolo y zona horaria → validación de las reglas contra el export → replay a 30 minutos y a 5 minutos contra velas de Binance → funding histórico real → simulación de pool común.</div>
+    <div>Motor de replay: <a href="https://github.com/colochampre/bar-magnifier-estimator" target="_blank" rel="noopener">bar-magnifier-estimator</a>. Exports del 13 de septiembre de 2026.</div>
+  </footer>
+</div>
+
+<script>
+const D = {"sets":{"largos":["SFP","AAVE","STX","BAT","NEO"],"diez":["SFP","AAVE","STX","BAT","NEO","ACU","PNUT","BAN","AGT","JELLYJELLY"]},"fractions":[20,25,30,40,50],"desde_juntos":"2024-11","pairs":[{"p":"SFP","n":314,"tot4":605.0,"tot30":438.0,"tot5":394.0,"t30":5.38,"t":4.97,"cagr":116.8,"mdd":21.6,"match":99.7,"desde":"2022-01","ciclo":false,"set":"largos"},{"p":"ACU","n":33,"tot4":101.0,"tot30":62.0,"tot5":52.0,"t30":3.14,"t":2.82,"cagr":141.9,"mdd":16.8,"match":100.0,"desde":"2026-02","ciclo":true,"set":"diez"},{"p":"AAVE","n":367,"tot4":444.0,"tot30":235.0,"tot5":203.0,"t30":3.12,"t":2.78,"cagr":45.5,"mdd":28.6,"match":99.7,"desde":"2022-01","ciclo":false,"set":"largos"},{"p":"PNUT","n":147,"tot4":219.0,"tot30":141.0,"tot5":113.0,"t30":2.93,"t":2.47,"cagr":75.3,"mdd":18.9,"match":100.0,"desde":"2024-11","ciclo":true,"set":"diez"},{"p":"STX","n":259,"tot4":349.0,"tot30":198.0,"tot5":156.0,"t30":2.97,"t":2.45,"cagr":46.5,"mdd":26.9,"match":100.0,"desde":"2023-02","ciclo":false,"set":"largos"},{"p":"BAT","n":354,"tot4":358.0,"tot30":217.0,"tot5":173.0,"t30":2.83,"t":2.33,"cagr":36.2,"mdd":29.3,"match":99.7,"desde":"2022-01","ciclo":false,"set":"largos"},{"p":"BAN","n":111,"tot4":240.0,"tot30":152.0,"tot5":102.0,"t30":3.07,"t":2.34,"cagr":67.7,"mdd":24.8,"match":100.0,"desde":"2024-11","ciclo":true,"set":"diez"},{"p":"AGT","n":97,"tot4":241.0,"tot30":133.0,"tot5":99.0,"t30":2.8,"t":2.26,"cagr":96.9,"mdd":28.5,"match":100.0,"desde":"2025-05","ciclo":true,"set":"diez"},{"p":"JELLYJELLY","n":83,"tot4":194.0,"tot30":106.0,"tot5":86.0,"t30":2.57,"t":2.24,"cagr":71.2,"mdd":18.3,"match":100.0,"desde":"2025-03","ciclo":true,"set":"diez"},{"p":"NEO","n":352,"tot4":319.0,"tot30":180.0,"tot5":152.0,"t30":2.44,"t":2.1,"cagr":30.6,"mdd":26.4,"match":99.7,"desde":"2022-01","ciclo":false,"set":"largos"},{"p":"CFX","n":244,"tot4":335.0,"tot30":184.0,"tot5":134.0,"t30":2.56,"t":1.98,"cagr":37.0,"mdd":32.6,"match":100.0,"desde":"2023-02","ciclo":false,"set":null},{"p":"COAI","n":74,"tot4":206.0,"tot30":131.0,"tot5":66.0,"t30":2.47,"t":1.84,"cagr":87.9,"mdd":20.6,"match":100.0,"desde":"2025-10","ciclo":true,"set":null},{"p":"DOGS","n":145,"tot4":194.0,"tot30":105.0,"tot5":82.0,"t30":2.27,"t":1.83,"cagr":42.4,"mdd":20.8,"match":100.0,"desde":"2024-09","ciclo":true,"set":null},{"p":"ALICE","n":359,"tot4":336.0,"tot30":206.0,"tot5":139.0,"t30":2.55,"t":1.81,"cagr":26.4,"mdd":36.6,"match":100.0,"desde":"2022-01","ciclo":false,"set":null},{"p":"ZETA","n":208,"tot4":267.0,"tot30":136.0,"tot5":100.0,"t30":2.36,"t":1.8,"cagr":39.0,"mdd":27.7,"match":100.0,"desde":"2024-02","ciclo":false,"set":null},{"p":"MASK","n":366,"tot4":406.0,"tot30":196.0,"tot5":124.0,"t30":2.4,"t":1.62,"cagr":22.4,"mdd":35.3,"match":99.2,"desde":"2022-01","ciclo":false,"set":null},{"p":"SNX","n":392,"tot4":375.0,"tot30":188.0,"tot5":117.0,"t30":2.25,"t":1.47,"cagr":19.9,"mdd":37.8,"match":100.0,"desde":"2022-01","ciclo":false,"set":null},{"p":"CELO","n":413,"tot4":361.0,"tot30":179.0,"tot5":110.0,"t30":2.17,"t":1.4,"cagr":18.2,"mdd":34.7,"match":100.0,"desde":"2022-01","ciclo":false,"set":null}],"sizing":[{"set":"largos","f":20,"lev":1,"admission":"slots","cagr":55.5,"mdd":12.1,"mar":4.57,"taken":1646,"skipped":0,"skip":0.0,"maxconc":5,"worst":-1.08,"equity":7.93},{"set":"largos","f":20,"lev":2,"admission":"slots","cagr":133.1,"mdd":23.2,"mar":5.74,"taken":1646,"skipped":0,"skip":0.0,"maxconc":5,"worst":-2.24,"equity":53.06},{"set":"largos","f":20,"lev":1,"admission":"margin","cagr":55.6,"mdd":12.6,"mar":4.41,"taken":1641,"skipped":5,"skip":0.3,"maxconc":5,"worst":-1.08,"equity":7.97},{"set":"largos","f":20,"lev":2,"admission":"margin","cagr":133.6,"mdd":24.0,"mar":5.56,"taken":1641,"skipped":5,"skip":0.3,"maxconc":5,"worst":-2.23,"equity":53.63},{"set":"largos","f":25,"lev":1,"admission":"slots","cagr":71.8,"mdd":14.5,"mar":4.96,"taken":1634,"skipped":12,"skip":0.7,"maxconc":4,"worst":-1.36,"equity":12.67},{"set":"largos","f":25,"lev":2,"admission":"slots","cagr":179.2,"mdd":27.4,"mar":6.55,"taken":1634,"skipped":12,"skip":0.7,"maxconc":4,"worst":-2.83,"equity":123.65},{"set":"largos","f":25,"lev":1,"admission":"margin","cagr":72.7,"mdd":14.0,"mar":5.18,"taken":1605,"skipped":41,"skip":2.5,"maxconc":4,"worst":-1.34,"equity":12.97},{"set":"largos","f":25,"lev":2,"admission":"margin","cagr":182.7,"mdd":26.5,"mar":6.91,"taken":1605,"skipped":41,"skip":2.5,"maxconc":4,"worst":-2.76,"equity":131.25},{"set":"largos","f":30,"lev":1,"admission":"slots","cagr":80.5,"mdd":16.7,"mar":4.83,"taken":1557,"skipped":89,"skip":5.4,"maxconc":3,"worst":-1.62,"equity":15.98},{"set":"largos","f":30,"lev":2,"admission":"slots","cagr":203.0,"mdd":31.1,"mar":6.53,"taken":1557,"skipped":89,"skip":5.4,"maxconc":3,"worst":-3.35,"equity":181.68},{"set":"largos","f":30,"lev":1,"admission":"margin","cagr":80.5,"mdd":16.7,"mar":4.83,"taken":1557,"skipped":89,"skip":5.4,"maxconc":3,"worst":-1.62,"equity":15.98},{"set":"largos","f":30,"lev":2,"admission":"margin","cagr":203.0,"mdd":31.1,"mar":6.53,"taken":1557,"skipped":89,"skip":5.4,"maxconc":3,"worst":-3.35,"equity":181.68},{"set":"largos","f":40,"lev":1,"admission":"slots","cagr":99.9,"mdd":16.8,"mar":5.96,"taken":1325,"skipped":321,"skip":19.5,"maxconc":2,"worst":-2.14,"equity":25.82},{"set":"largos","f":40,"lev":2,"admission":"slots","cagr":263.8,"mdd":31.0,"mar":8.51,"taken":1325,"skipped":321,"skip":19.5,"maxconc":2,"worst":-4.41,"equity":428.39},{"set":"largos","f":40,"lev":1,"admission":"margin","cagr":99.9,"mdd":16.8,"mar":5.96,"taken":1325,"skipped":321,"skip":19.5,"maxconc":2,"worst":-2.14,"equity":25.82},{"set":"largos","f":40,"lev":2,"admission":"margin","cagr":263.8,"mdd":31.0,"mar":8.51,"taken":1325,"skipped":321,"skip":19.5,"maxconc":2,"worst":-4.41,"equity":428.39},{"set":"largos","f":50,"lev":1,"admission":"slots","cagr":134.3,"mdd":20.5,"mar":6.54,"taken":1325,"skipped":321,"skip":19.5,"maxconc":2,"worst":-2.68,"equity":54.32},{"set":"largos","f":50,"lev":2,"admission":"slots","cagr":373.7,"mdd":37.3,"mar":10.02,"taken":1325,"skipped":321,"skip":19.5,"maxconc":2,"worst":-5.63,"equity":1477.98},{"set":"largos","f":50,"lev":1,"admission":"margin","cagr":111.9,"mdd":21.5,"mar":5.21,"taken":1240,"skipped":406,"skip":24.7,"maxconc":2,"worst":-2.66,"equity":33.89},{"set":"largos","f":50,"lev":2,"admission":"margin","cagr":290.8,"mdd":38.8,"mar":7.49,"taken":1240,"skipped":406,"skip":24.7,"maxconc":2,"worst":-5.46,"equity":599.44},{"set":"diez","f":20,"lev":1,"admission":"slots","cagr":87.4,"mdd":12.1,"mar":7.19,"taken":2097,"skipped":20,"skip":0.9,"maxconc":5,"worst":-1.08,"equity":19.06},{"set":"diez","f":20,"lev":2,"admission":"slots","cagr":235.4,"mdd":23.2,"mar":10.15,"taken":2097,"skipped":20,"skip":0.9,"maxconc":5,"worst":-2.23,"equity":292.48},{"set":"diez","f":20,"lev":1,"admission":"margin","cagr":88.1,"mdd":12.6,"mar":6.98,"taken":2074,"skipped":43,"skip":2.0,"maxconc":5,"worst":-1.08,"equity":19.39},{"set":"diez","f":20,"lev":2,"admission":"margin","cagr":238.3,"mdd":24.0,"mar":9.91,"taken":2074,"skipped":43,"skip":2.0,"maxconc":5,"worst":-2.23,"equity":304.73},{"set":"diez","f":25,"lev":1,"admission":"slots","cagr":114.1,"mdd":14.5,"mar":7.89,"taken":2049,"skipped":68,"skip":3.2,"maxconc":4,"worst":-1.36,"equity":35.6},{"set":"diez","f":25,"lev":2,"admission":"slots","cagr":328.5,"mdd":27.4,"mar":12.0,"taken":2049,"skipped":68,"skip":3.2,"maxconc":4,"worst":-2.83,"equity":923.3},{"set":"diez","f":25,"lev":1,"admission":"margin","cagr":109.7,"mdd":14.0,"mar":7.81,"taken":1999,"skipped":118,"skip":5.6,"maxconc":4,"worst":-1.35,"equity":32.28},{"set":"diez","f":25,"lev":2,"admission":"margin","cagr":312.3,"mdd":26.5,"mar":11.8,"taken":1999,"skipped":118,"skip":5.6,"maxconc":4,"worst":-2.84,"equity":770.44},{"set":"diez","f":30,"lev":1,"admission":"slots","cagr":122.7,"mdd":16.7,"mar":7.36,"taken":1911,"skipped":206,"skip":9.7,"maxconc":3,"worst":-1.62,"equity":42.82},{"set":"diez","f":30,"lev":2,"admission":"slots","cagr":354.4,"mdd":31.1,"mar":11.39,"taken":1911,"skipped":206,"skip":9.7,"maxconc":3,"worst":-3.38,"equity":1216.74},{"set":"diez","f":30,"lev":1,"admission":"margin","cagr":122.7,"mdd":16.7,"mar":7.36,"taken":1911,"skipped":206,"skip":9.7,"maxconc":3,"worst":-1.62,"equity":42.82},{"set":"diez","f":30,"lev":2,"admission":"margin","cagr":354.4,"mdd":31.1,"mar":11.39,"taken":1911,"skipped":206,"skip":9.7,"maxconc":3,"worst":-3.38,"equity":1216.74},{"set":"diez","f":40,"lev":1,"admission":"slots","cagr":146.7,"mdd":19.6,"mar":7.48,"taken":1598,"skipped":519,"skip":24.5,"maxconc":2,"worst":-2.16,"equity":69.17},{"set":"diez","f":40,"lev":2,"admission":"slots","cagr":442.6,"mdd":36.1,"mar":12.27,"taken":1598,"skipped":519,"skip":24.5,"maxconc":2,"worst":-4.53,"equity":2796.35},{"set":"diez","f":40,"lev":1,"admission":"margin","cagr":146.7,"mdd":19.6,"mar":7.48,"taken":1598,"skipped":519,"skip":24.5,"maxconc":2,"worst":-2.16,"equity":69.17},{"set":"diez","f":40,"lev":2,"admission":"margin","cagr":442.6,"mdd":36.1,"mar":12.27,"taken":1598,"skipped":519,"skip":24.5,"maxconc":2,"worst":-4.53,"equity":2796.35},{"set":"diez","f":50,"lev":1,"admission":"slots","cagr":203.6,"mdd":24.0,"mar":8.48,"taken":1598,"skipped":519,"skip":24.5,"maxconc":2,"worst":-2.71,"equity":183.42},{"set":"diez","f":50,"lev":2,"admission":"slots","cagr":671.0,"mdd":43.2,"mar":15.52,"taken":1598,"skipped":519,"skip":24.5,"maxconc":2,"worst":-5.88,"equity":14536.0},{"set":"diez","f":50,"lev":1,"admission":"margin","cagr":180.7,"mdd":24.9,"mar":7.26,"taken":1475,"skipped":642,"skip":30.3,"maxconc":2,"worst":-2.69,"equity":126.83},{"set":"diez","f":50,"lev":2,"admission":"margin","cagr":568.0,"mdd":44.6,"mar":12.74,"taken":1475,"skipped":642,"skip":30.3,"maxconc":2,"worst":-5.46,"equity":7418.22}],"curves":{"largos":[{"m":"2022-01","e":1.106},{"m":"2022-02","e":1.0789},{"m":"2022-03","e":1.1593},{"m":"2022-04","e":1.1674},{"m":"2022-05","e":1.1622},{"m":"2022-06","e":1.266},{"m":"2022-07","e":1.3268},{"m":"2022-08","e":1.3635},{"m":"2022-09","e":1.4089},{"m":"2022-10","e":1.341},{"m":"2022-11","e":1.4019},{"m":"2022-12","e":1.5432},{"m":"2023-01","e":1.5542},{"m":"2023-02","e":1.4985},{"m":"2023-03","e":1.5264},{"m":"2023-04","e":1.6341},{"m":"2023-05","e":1.7519},{"m":"2023-06","e":1.7909},{"m":"2023-07","e":1.8444},{"m":"2023-08","e":2.0984},{"m":"2023-09","e":2.1346},{"m":"2023-10","e":2.4338},{"m":"2023-11","e":2.4306},{"m":"2023-12","e":2.8118},{"m":"2024-01","e":2.8924},{"m":"2024-02","e":2.6874},{"m":"2024-03","e":2.7625},{"m":"2024-04","e":3.1269},{"m":"2024-05","e":3.3738},{"m":"2024-06","e":3.6175},{"m":"2024-07","e":3.5427},{"m":"2024-08","e":3.513},{"m":"2024-09","e":4.0689},{"m":"2024-10","e":4.3144},{"m":"2024-11","e":4.6551},{"m":"2024-12","e":5.4279},{"m":"2025-01","e":5.8707},{"m":"2025-02","e":6.4034},{"m":"2025-03","e":6.9104},{"m":"2025-04","e":6.8629},{"m":"2025-05","e":7.6933},{"m":"2025-06","e":8.1779},{"m":"2025-07","e":8.1404},{"m":"2025-08","e":9.1084},{"m":"2025-09","e":10.7554},{"m":"2025-10","e":11.6241},{"m":"2025-11","e":11.0466},{"m":"2025-12","e":12.2576},{"m":"2026-01","e":11.1514},{"m":"2026-02","e":11.8495},{"m":"2026-03","e":12.8483},{"m":"2026-04","e":14.2541},{"m":"2026-05","e":14.4148},{"m":"2026-06","e":13.8103},{"m":"2026-07","e":15.1016},{"m":"2026-08","e":15.4255},{"m":"2026-09","e":15.9822}],"diez":[{"m":"2022-01","e":1.106},{"m":"2022-02","e":1.0789},{"m":"2022-03","e":1.1593},{"m":"2022-04","e":1.1674},{"m":"2022-05","e":1.1622},{"m":"2022-06","e":1.266},{"m":"2022-07","e":1.3268},{"m":"2022-08","e":1.3635},{"m":"2022-09","e":1.4089},{"m":"2022-10","e":1.341},{"m":"2022-11","e":1.4019},{"m":"2022-12","e":1.5432},{"m":"2023-01","e":1.5542},{"m":"2023-02","e":1.4985},{"m":"2023-03","e":1.5264},{"m":"2023-04","e":1.6341},{"m":"2023-05","e":1.7519},{"m":"2023-06","e":1.7909},{"m":"2023-07","e":1.8444},{"m":"2023-08","e":2.0984},{"m":"2023-09","e":2.1346},{"m":"2023-10","e":2.4338},{"m":"2023-11","e":2.4306},{"m":"2023-12","e":2.8118},{"m":"2024-01","e":2.8924},{"m":"2024-02","e":2.6874},{"m":"2024-03","e":2.7625},{"m":"2024-04","e":3.1269},{"m":"2024-05","e":3.3738},{"m":"2024-06","e":3.6175},{"m":"2024-07","e":3.5427},{"m":"2024-08","e":3.513},{"m":"2024-09","e":4.0689},{"m":"2024-10","e":4.3144},{"m":"2024-11","e":4.8428},{"m":"2024-12","e":5.6247},{"m":"2025-01","e":5.8778},{"m":"2025-02","e":6.4921},{"m":"2025-03","e":7.4056},{"m":"2025-04","e":7.7295},{"m":"2025-05","e":9.3125},{"m":"2025-06","e":10.7093},{"m":"2025-07","e":10.2388},{"m":"2025-08","e":12.6293},{"m":"2025-09","e":14.5355},{"m":"2025-10","e":16.8166},{"m":"2025-11","e":15.4756},{"m":"2025-12","e":17.6474},{"m":"2026-01","e":17.0093},{"m":"2026-02","e":18.7539},{"m":"2026-03","e":21.4212},{"m":"2026-04","e":25.4973},{"m":"2026-05","e":28.5254},{"m":"2026-06","e":27.2036},{"m":"2026-07","e":33.6325},{"m":"2026-08","e":38.9944},{"m":"2026-09","e":42.8241}],"largos_juntos":[{"m":"2024-11","e":1.079},{"m":"2024-12","e":1.2581},{"m":"2025-01","e":1.3607},{"m":"2025-02","e":1.4842},{"m":"2025-03","e":1.6017},{"m":"2025-04","e":1.5907},{"m":"2025-05","e":1.7832},{"m":"2025-06","e":1.8955},{"m":"2025-07","e":1.8868},{"m":"2025-08","e":2.1112},{"m":"2025-09","e":2.4929},{"m":"2025-10","e":2.6942},{"m":"2025-11","e":2.5604},{"m":"2025-12","e":2.8411},{"m":"2026-01","e":2.5847},{"m":"2026-02","e":2.7465},{"m":"2026-03","e":2.978},{"m":"2026-04","e":3.3038},{"m":"2026-05","e":3.3411},{"m":"2026-06","e":3.201},{"m":"2026-07","e":3.5003},{"m":"2026-08","e":3.5753},{"m":"2026-09","e":3.7044}],"diez_juntos":[{"m":"2024-11","e":1.1225},{"m":"2024-12","e":1.3037},{"m":"2025-01","e":1.3624},{"m":"2025-02","e":1.5047},{"m":"2025-03","e":1.7165},{"m":"2025-04","e":1.7915},{"m":"2025-05","e":2.1585},{"m":"2025-06","e":2.4822},{"m":"2025-07","e":2.3732},{"m":"2025-08","e":2.9272},{"m":"2025-09","e":3.3691},{"m":"2025-10","e":3.8978},{"m":"2025-11","e":3.5869},{"m":"2025-12","e":4.0903},{"m":"2026-01","e":3.9424},{"m":"2026-02","e":4.3468},{"m":"2026-03","e":4.965},{"m":"2026-04","e":5.9098},{"m":"2026-05","e":6.6117},{"m":"2026-06","e":6.3053},{"m":"2026-07","e":7.7954},{"m":"2026-08","e":9.0382},{"m":"2026-09","e":9.9258}]},"ventana":{"largos":{"completa":{"cagr":80.5,"mdd":16.7,"mar":4.83,"taken":1557,"skipped":89,"skip":5.4,"maxconc":3,"worst":-1.62,"equity":15.98},"juntos":{"cagr":101.7,"mdd":14.9,"mar":6.84,"taken":625,"skipped":41,"skip":6.2,"maxconc":3,"worst":-1.6,"equity":3.7},"desde":"2022-01","hasta":"2026-09"},"diez":{"completa":{"cagr":122.7,"mdd":16.7,"mar":7.36,"taken":1911,"skipped":206,"skip":9.7,"maxconc":3,"worst":-1.62,"equity":42.82},"juntos":{"cagr":242.1,"mdd":15.1,"mar":16.03,"taken":979,"skipped":158,"skip":13.9,"maxconc":3,"worst":-1.62,"equity":9.93},"desde":"2022-01","hasta":"2026-09"}},"boundary":{"largos":[20,25,50],"diez":[20,25,50]},"exposure":{"largos":{"0":48.2,"1":28.7,"2":14.4,"3":6.7,"4":1.8,"5":0.3},"diez":{"0":44.7,"1":28.7,"2":15.6,"3":7.5,"4":2.7,"5":0.6,"6":0.1,"7":0.0}},"loo":{"largos":[{"p":"completa","cagr":80.5},{"p":"SFP","cagr":47.2},{"p":"AAVE","cagr":66.7},{"p":"STX","cagr":68.5},{"p":"BAT","cagr":73.5},{"p":"NEO","cagr":73.9}],"diez":[{"p":"completa","cagr":122.7},{"p":"SFP","cagr":83.2},{"p":"AAVE","cagr":114.3},{"p":"STX","cagr":115.4},{"p":"BAT","cagr":115.7},{"p":"NEO","cagr":126.8},{"p":"ACU","cagr":118.7},{"p":"PNUT","cagr":114.0},{"p":"BAN","cagr":115.0},{"p":"AGT","cagr":110.2},{"p":"JELLYJELLY","cagr":112.2}]},"corr":{"SFP":{"SFP":null,"AAVE":0.16,"STX":0.03,"BAT":-0.27,"NEO":0.13,"ACU":null,"PNUT":-0.41,"BAN":0.31,"AGT":0.01,"JELLYJELLY":0.08},"AAVE":{"SFP":0.16,"AAVE":null,"STX":0.08,"BAT":0.0,"NEO":0.12,"ACU":null,"PNUT":0.04,"BAN":-0.03,"AGT":0.16,"JELLYJELLY":0.42},"STX":{"SFP":0.03,"AAVE":0.08,"STX":null,"BAT":0.25,"NEO":0.11,"ACU":null,"PNUT":0.46,"BAN":0.03,"AGT":0.02,"JELLYJELLY":0.47},"BAT":{"SFP":-0.27,"AAVE":0.0,"STX":0.25,"BAT":null,"NEO":0.11,"ACU":null,"PNUT":0.41,"BAN":-0.47,"AGT":-0.25,"JELLYJELLY":0.29},"NEO":{"SFP":0.13,"AAVE":0.12,"STX":0.11,"BAT":0.11,"NEO":null,"ACU":null,"PNUT":0.07,"BAN":-0.05,"AGT":-0.01,"JELLYJELLY":0.32},"ACU":{"SFP":null,"AAVE":null,"STX":null,"BAT":null,"NEO":null,"ACU":null,"PNUT":null,"BAN":null,"AGT":null,"JELLYJELLY":null},"PNUT":{"SFP":-0.41,"AAVE":0.04,"STX":0.46,"BAT":0.41,"NEO":0.07,"ACU":null,"PNUT":null,"BAN":-0.35,"AGT":0.08,"JELLYJELLY":0.03},"BAN":{"SFP":0.31,"AAVE":-0.03,"STX":0.03,"BAT":-0.47,"NEO":-0.05,"ACU":null,"PNUT":-0.35,"BAN":null,"AGT":0.12,"JELLYJELLY":-0.27},"AGT":{"SFP":0.01,"AAVE":0.16,"STX":0.02,"BAT":-0.25,"NEO":-0.01,"ACU":null,"PNUT":0.08,"BAN":0.12,"AGT":null,"JELLYJELLY":-0.26},"JELLYJELLY":{"SFP":0.08,"AAVE":0.42,"STX":0.47,"BAT":0.29,"NEO":0.32,"ACU":null,"PNUT":0.03,"BAN":-0.27,"AGT":-0.26,"JELLYJELLY":null}},"corr_n":{"SFP":{"SFP":57,"AAVE":57,"STX":44,"BAT":57,"NEO":57,"ACU":8,"PNUT":23,"BAN":21,"AGT":17,"JELLYJELLY":19},"AAVE":{"SFP":57,"AAVE":57,"STX":44,"BAT":57,"NEO":57,"ACU":8,"PNUT":23,"BAN":21,"AGT":17,"JELLYJELLY":19},"STX":{"SFP":44,"AAVE":44,"STX":44,"BAT":44,"NEO":44,"ACU":8,"PNUT":23,"BAN":21,"AGT":17,"JELLYJELLY":19},"BAT":{"SFP":57,"AAVE":57,"STX":44,"BAT":57,"NEO":57,"ACU":8,"PNUT":23,"BAN":21,"AGT":17,"JELLYJELLY":19},"NEO":{"SFP":57,"AAVE":57,"STX":44,"BAT":57,"NEO":57,"ACU":8,"PNUT":23,"BAN":21,"AGT":17,"JELLYJELLY":19},"ACU":{"SFP":8,"AAVE":8,"STX":8,"BAT":8,"NEO":8,"ACU":8,"PNUT":8,"BAN":7,"AGT":8,"JELLYJELLY":8},"PNUT":{"SFP":23,"AAVE":23,"STX":23,"BAT":23,"NEO":23,"ACU":8,"PNUT":23,"BAN":21,"AGT":17,"JELLYJELLY":19},"BAN":{"SFP":21,"AAVE":21,"STX":21,"BAT":21,"NEO":21,"ACU":7,"PNUT":21,"BAN":21,"AGT":16,"JELLYJELLY":17},"AGT":{"SFP":17,"AAVE":17,"STX":17,"BAT":17,"NEO":17,"ACU":8,"PNUT":17,"BAN":16,"AGT":17,"JELLYJELLY":17},"JELLYJELLY":{"SFP":19,"AAVE":19,"STX":19,"BAT":19,"NEO":19,"ACU":8,"PNUT":19,"BAN":17,"AGT":17,"JELLYJELLY":19}},"altas":[{"p":"SFP","m":"2022-01"},{"p":"AAVE","m":"2022-01"},{"p":"BAT","m":"2022-01"},{"p":"NEO","m":"2022-01"},{"p":"STX","m":"2023-02"},{"p":"PNUT","m":"2024-11"},{"p":"BAN","m":"2024-11"},{"p":"JELLYJELLY","m":"2025-03"},{"p":"AGT","m":"2025-05"},{"p":"ACU","m":"2026-02"}],"embudo":{"exports":70,"bybit":5,"binance":65,"validados":65,"finos":18,"t2":10,"largos":5},"trades_total":2117,"ruido_esperado":1.5};
+const AUDIT = "https://claude.ai/code/artifact/2825ce90-ae5b-4926-aae6-07cafbc85b12";
+const $ = (id) => document.getElementById(id);
+const pct = (v, d) => (v === null || v === undefined || Number.isNaN(v)) ? "—" : v.toFixed(d === undefined ? 1 : d) + "%";
+const num = (v, d) => (v === null || v === undefined) ? "—" : v.toFixed(d === undefined ? 2 : d);
+const esMes = (m) => {
+  const n = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  return n[parseInt(m.slice(5), 10) - 1] + " " + m.slice(2, 4);
+};
+
+$("link-audit").href = AUDIT;
+$("ruido").textContent = D.ruido_esperado.toFixed(1).replace(".", ",");
+
+/* --- encabezado --- */
+const facts = [
+  [D.embudo.exports, "backtests recibidos"],
+  [D.embudo.binance, "pares evaluados"],
+  [D.embudo.finos, "estimados a 5 minutos"],
+  [D.embudo.t2, "con ventaja estadística"],
+  [D.embudo.largos, "con historia multi-régimen"],
+  [D.trades_total.toLocaleString("es-AR"), "operaciones replayadas"]
+];
+$("facts").innerHTML = facts.map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join("");
+
+/* --- embudo --- */
+const pasos = [
+  [D.embudo.exports, "backtests", "Uno por par, exportados de la Strategy Tester."],
+  [D.embudo.binance, "en Binance", "Cinco pares son de Bybit y quedaron fuera de esta vuelta."],
+  [D.embudo.validados, "validados", "Se verificó símbolo, zona horaria, y que las reglas reprodujeran el export a 4 horas. Todos superaron el 98%, salvo BTC con 91%."],
+  [D.embudo.finos, "a 5 minutos", "Solo los que a 30 minutos quedaron por encima de t = 2. Los demás no podían mejorar bajando de resolución."],
+  [D.embudo.t2, "con t > 2 a 5m", "La estimación fina se lleva entre 10% y 39% del total, y con ella ocho candidatos."],
+  [D.embudo.largos, "con historia larga", "Los otros cinco cotizan desde fines de 2024 o después: vieron un solo régimen de mercado."]
+];
+$("funnel").innerHTML = pasos.map(([b, w, y], i) =>
+  `<div class="step${i === pasos.length - 1 ? " last" : ""}"><b>${b}</b><span class="what">${w}</span><span class="why">${y}</span></div>`).join("");
+
+/* --- tabla de pares --- */
+(() => {
+  // Una sola etiqueta por par. Antes eran dos -la cartera a la izquierda y el
+  // ciclo a la derecha- y decían lo mismo: los pares que solo entran en la de
+  // diez son exactamente los que cotizan desde fines de 2024.
+  const evidencia = (p) => p.set === "largos" ? ["ok", "dos ciclos"]
+    : p.set === "diez" ? ["warn", "ciclo único"] : ["muted", "sin ventaja"];
+  const rows = D.pairs.map((p) => {
+    const [tono, texto] = evidencia(p);
+    return `<tr class="${p.set ? "hl" : "dead"}">
+      <td>${p.p}</td><td class="ev"><span class="badge ${tono}">${texto}</span></td>
+      <td>${p.n}</td><td>${pct(p.tot4, 0)}</td><td>${pct(p.tot30, 0)}</td>
+      <td class="grp">${pct(p.tot5, 0)}</td><td>${num(p.t30)}</td><td><b>${num(p.t)}</b></td>
+      <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td><td>${esMes(p.desde)}</td></tr>`;
+  }).join("");
+  $("tbl-pairs").innerHTML = `<thead>
+    <tr><th></th><th></th><th></th><th colspan="2">lo que reporta TradingView</th><th class="grp" colspan="5">estimación a 5 minutos</th><th></th></tr>
+    <tr><th>par</th><th class="ev">evidencia</th><th>ops</th><th>4h</th><th>30m</th><th class="grp">total</th><th>t 30m</th><th>t 5m</th><th>anual</th><th>caída máx</th><th>desde</th></tr>
+    </thead><tbody>${rows}</tbody>`;
+})();
+
+/* --- curvas --- */
+const W = 980, H = 320, M = { t: 14, r: 16, b: 28, l: 52 };
+function curva(view) {
+  const key = view === "win" ? "_juntos" : "";
+  const a = D.curves["largos" + key], b = D.curves["diez" + key];
+  const meses = b.map((x) => x.m);
+  const base = { largos: a[0].e, diez: b[0].e };
+  const vals = a.map((x) => x.e / base.largos).concat(b.map((x) => x.e / base.diez));
+  const lo = Math.min(0.9, ...vals), hi = Math.max(...vals);
+  const X = (i) => M.l + (i / (meses.length - 1)) * (W - M.l - M.r);
+  const Y = (v) => {
+    const t = (Math.log(v) - Math.log(lo)) / (Math.log(hi) - Math.log(lo));
+    return H - M.b - t * (H - M.t - M.b);
+  };
+  const idx = Object.fromEntries(meses.map((m, i) => [m, i]));
+  const path = (serie, div) => serie.filter((x) => idx[x.m] !== undefined)
+    .map((x, i) => (i ? "L" : "M") + X(idx[x.m]).toFixed(1) + " " + Y(x.e / div).toFixed(1)).join(" ");
+  const ticks = [];
+  for (let e = Math.ceil(Math.log10(lo)); Math.pow(10, e) <= hi; e++) {
+    for (const mlt of [1, 2, 5]) {
+      const v = mlt * Math.pow(10, e);
+      if (v >= lo && v <= hi) ticks.push(v);
+    }
+  }
+  const gy = ticks.map((v) =>
+    `<line x1="${M.l}" y1="${Y(v).toFixed(1)}" x2="${W - M.r}" y2="${Y(v).toFixed(1)}" stroke="var(--rule-soft)" stroke-width="1"/>
+     <text x="${M.l - 8}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end" fill="var(--ink-3)" font-size="11" font-family="IBM Plex Mono, monospace">${v >= 1 ? v + "x" : v + "x"}</text>`).join("");
+  const paso = Math.max(1, Math.round(meses.length / 8));
+  const gx = meses.map((m, i) => (i % paso === 0 || i === meses.length - 1)
+    ? `<text x="${X(i).toFixed(1)}" y="${H - M.b + 17}" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-family="IBM Plex Mono, monospace">${esMes(m)}</text>` : "").join("");
+  const altas = D.altas.filter((x) => idx[x.m] !== undefined && idx[x.m] > 0).map((x) => {
+    const px = X(idx[x.m]);
+    return `<line x1="${px.toFixed(1)}" y1="${M.t}" x2="${px.toFixed(1)}" y2="${H - M.b}" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="2 4" opacity=".65"/>
+      <text x="${(px + 4).toFixed(1)}" y="${M.t + 11}" fill="var(--ink-3)" font-size="10" font-family="IBM Plex Mono, monospace">${x.p}</text>`;
+  }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Capital acumulado de las dos carteras">
+    ${gy}${gx}${altas}
+    <path d="${path(b, base.diez)}" fill="none" stroke="var(--c2)" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="${path(a, base.largos)}" fill="none" stroke="var(--c1)" stroke-width="2.2" stroke-linejoin="round"/>
+    <line x1="${M.l}" y1="${H - M.b}" x2="${W - M.r}" y2="${H - M.b}" stroke="var(--rule)" stroke-width="1"/>
+  </svg>`;
+}
+function stats(view) {
+  const k = view === "win" ? "juntos" : "completa";
+  const cards = [["largos", "Cinco de historia larga", "var(--c1)"], ["diez", "Diez pares", "var(--c2)"]];
+  return cards.map(([set, label, color]) => {
+    const m = D.ventana[set][k];
+    const dosx = D.sizing.find((r) => r.set === set && r.f === 30 && r.lev === 2 && r.admission === "slots");
+    return `<div><div class="who"><i style="background:${color}"></i>${label}</div><dl>
+      <dt>Rendimiento anual</dt><dd>${pct(m.cagr)}</dd>
+      <dt>Caída máxima</dt><dd class="risk">${pct(m.mdd)}</dd>
+      <dt>MAR</dt><dd>${num(m.mar)}</dd>
+      <dt>Capital final</dt><dd>${num(m.equity, 1)}x</dd>
+      <dt>Operaciones tomadas</dt><dd>${m.taken}</dd>
+      <dt>Señales perdidas</dt><dd>${pct(m.skip)}</dd>
+      ${view === "win" ? "" : `<dt>Anual con 2x</dt><dd>${pct(dosx.cagr)}</dd><dt>Caída máxima con 2x</dt><dd class="risk">${pct(dosx.mdd)}</dd>`}
+      </dl></div>`;
+  }).join("");
+}
+/* La caída bajo el agua. Sin esto el gráfico solo muestra la recompensa, y la
+   lectura inevitable es que más margen siempre conviene. */
+function bajoElAgua(serie) {
+  let peak = 0;
+  return serie.map((p) => { peak = Math.max(peak, p.e); return { m: p.m, dd: 100 * (1 - p.e / peak) }; });
+}
+function caida(view) {
+  const key = view === "win" ? "_juntos" : "";
+  const a = bajoElAgua(D.curves["largos" + key]), b = bajoElAgua(D.curves["diez" + key]);
+  const meses = D.curves["diez" + key].map((x) => x.m);
+  const HH = 152, T = 12, B = 30, ih = HH - T - B;
+  const worst = Math.max(10, Math.max(...a.concat(b).map((p) => p.dd)) * 1.12);
+  const X = (i) => M.l + (i / (meses.length - 1)) * (W - M.l - M.r);
+  const Y = (v) => T + (v / worst) * ih;
+  const idx = Object.fromEntries(meses.map((m, i) => [m, i]));
+  const step = worst > 40 ? 20 : (worst > 20 ? 10 : 5);
+  let grid = "";
+  for (let v = 0; v <= worst; v += step) {
+    grid += `<line x1="${M.l}" y1="${Y(v).toFixed(1)}" x2="${W - M.r}" y2="${Y(v).toFixed(1)}" stroke="${v === 0 ? "var(--ink-3)" : "var(--rule-soft)"}" stroke-width="1"/>
+      <text x="${M.l - 9}" y="${(Y(v) + 3.5).toFixed(1)}" text-anchor="end" fill="var(--ink-3)" font-size="10" font-family="IBM Plex Mono, monospace">${v === 0 ? "0%" : "−" + v + "%"}</text>`;
+  }
+  const anios = meses.map((m, i) => m.slice(5) === "01"
+    ? `<line x1="${X(i).toFixed(1)}" y1="${T}" x2="${X(i).toFixed(1)}" y2="${T + ih}" stroke="var(--rule)" stroke-width="1"/>` : "").join("");
+  const capas = [[b, "var(--c2)"], [a, "var(--c1)"]].map(([arr, col]) => {
+    const pts = arr.map((p) => X(idx[p.m]).toFixed(1) + " " + Y(p.dd).toFixed(1)).join("L");
+    return `<path d="M${X(0).toFixed(1)} ${Y(0).toFixed(1)}L${pts}L${X(meses.length - 1).toFixed(1)} ${Y(0).toFixed(1)}Z" fill="${col}" opacity=".22"/>
+      <path d="M${pts}" fill="none" stroke="${col}" stroke-width="1.6"/>`;
+  }).join("");
+  return `<svg viewBox="0 0 ${W} ${HH}" role="img" aria-label="Cuánto por debajo de su máximo anterior estuvo el capital, mes a mes">
+    ${grid}${anios}${capas}
+    <text x="${M.l}" y="${HH - 8}" fill="var(--ink-3)" font-size="9.5" font-family="IBM Plex Mono, monospace">cuánto por debajo del máximo anterior estuvo el capital, mes a mes</text>
+  </svg>`;
+}
+
+let view = "full";
+function render() {
+  $("eq").innerHTML = curva(view);
+  $("underwater").innerHTML = caida(view);
+  $("eqstats").innerHTML = stats(view);
+  $("eq-sub").textContent = view === "win"
+    ? "Margen 30%, sin apalancamiento, desde que los diez pares cotizan. Las dos carteras arrancan en 1x para poder compararlas."
+    : "Margen 30%, sin apalancamiento. Las marcas indican cuándo entra cada par nuevo: hasta ahí las dos carteras son idénticas.";
+  $("btn-full").setAttribute("aria-pressed", String(view === "full"));
+  $("btn-win").setAttribute("aria-pressed", String(view === "win"));
+  // El área dibuja cierres de mes; las fichas miden operación por operación.
+  // Sin esta aclaración los dos números parecen contradecirse.
+  const key = view === "win" ? "_juntos" : "", k = view === "win" ? "juntos" : "completa";
+  const mensual = Math.max(...["largos", "diez"].map((s) => Math.max(...bajoElAgua(D.curves[s + key]).map((p) => p.dd))));
+  const real = Math.max(D.ventana.largos[k].mdd, D.ventana.diez[k].mdd);
+  $("uw-note").textContent = "El área mide cierres de mes: a esa resolución la peor caída es de "
+    + pct(mensual) + ". La caída máxima de las fichas, " + pct(real)
+    + ", ocurre dentro de un mes —entre una operación y otra— y por eso no llega a dibujarse acá. "
+    + "Las dos son la misma cartera medida con distinta lupa, y la que importa para dimensionar el riesgo es la segunda.";
+}
+$("btn-full").addEventListener("click", () => { view = "full"; render(); });
+$("btn-win").addEventListener("click", () => { view = "win"; render(); });
+render();
+$("c-win").textContent = pct(D.ventana.diez.juntos.cagr, 0) + " contra " + pct(D.ventana.largos.juntos.cagr, 0) + " anual";
+$("c-mar").textContent = num(D.ventana.diez.juntos.mar, 0);
+
+/* --- tamaño de posición --- */
+(() => {
+  const sets = [["largos", "Cinco"], ["diez", "Diez"]];
+  const rows = [];
+  for (const [set, label] of sets) {
+    for (const f of D.fractions) {
+      const a = D.sizing.find((r) => r.set === set && r.f === f && r.lev === 1 && r.admission === "slots");
+      const b = D.sizing.find((r) => r.set === set && r.f === f && r.lev === 2 && r.admission === "slots");
+      const borde = D.boundary[set].includes(f);
+      rows.push(`<tr class="${borde ? "dead" : f === 30 ? "hl" : ""}">
+        <td>${label}</td><td>${f}%</td><td>${a.maxconc}</td><td>${pct(a.skip)}</td>
+        <td class="grp">${pct(a.cagr)}</td><td>${pct(a.mdd)}</td><td>${num(a.mar)}</td>
+        <td class="grp">${pct(b.cagr)}</td><td>${pct(b.mdd)}</td>
+        <td>${borde ? '<span class="badge no">borde</span>' : ""}</td></tr>`);
+    }
+  }
+  $("tbl-sizing").innerHTML = `<thead>
+    <tr><th></th><th></th><th></th><th></th><th class="grp" colspan="3">sin apalancamiento</th><th class="grp" colspan="2">con 2x</th><th></th></tr>
+    <tr><th>cartera</th><th>margen</th><th>máx. simult.</th><th>señales perdidas</th>
+    <th class="grp">anual</th><th>caída máx</th><th>MAR</th><th class="grp">anual</th><th>caída máx</th><th></th></tr>
+    </thead><tbody>${rows.join("")}</tbody>`;
+})();
+
+/* --- contribución --- */
+for (const set of ["largos", "diez"]) {
+  const rows = D.loo[set];
+  const base = rows[0].cagr;
+  const max = Math.max(...rows.map((r) => r.cagr));
+  $("loo-" + set).innerHTML = rows.map((r, i) => {
+    const d = r.cagr - base;
+    const nm = i === 0 ? "cartera entera" : "sin " + r.p;
+    return `<div class="loorow${i === 0 ? " base" : ""}">
+      <span class="nm">${nm}</span>
+      <span class="track"><span class="bar" style="width:${(100 * r.cagr / max).toFixed(1)}%"></span></span>
+      <span class="val">${pct(r.cagr)}${i === 0 ? "" : ` <i class="${d > 0 ? "up" : ""}">${d > 0 ? "+" : ""}${d.toFixed(1)}</i>`}</span></div>`;
+  }).join("");
+}
+
+/* --- correlaciones --- */
+(() => {
+  const names = Object.keys(D.corr);
+  const color = (v) => v === null ? "var(--panel-2)"
+    : `color-mix(in srgb, var(--${v > 0 ? "c1" : "neg"}) ${Math.round(Math.abs(v) * 70)}%, var(--panel-2))`;
+  const head = `<tr><th></th>${names.map((n) => `<th class="col">${n}</th>`).join("")}</tr>`;
+  const body = names.map((a) => `<tr><th>${a}</th>${names.map((b) => {
+    const v = a === b ? null : D.corr[a][b];
+    return `<td><div style="background:${color(v)}">${v === null ? (a === b ? "·" : "—") : v.toFixed(2)}</div></td>`;
+  }).join("")}</tr>`).join("");
+  $("tbl-corr").innerHTML = `<thead>${head}</thead><tbody>${body}</tbody>`;
+})();
+
+/* --- mes a mes --- */
+const MES = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+const shade = (v) => {
+  const t = Math.max(-1, Math.min(1, v / 15));
+  return "color-mix(in srgb," + (t >= 0 ? "var(--c1)" : "var(--neg)") + " " + (12 + Math.abs(t) * 80).toFixed(0) + "%, var(--mid))";
+};
+function retornos(set) {
+  let prev = 1;
+  return D.curves[set].map((p) => { const r = 100 * (p.e / prev - 1); prev = p.e; return { m: p.m, r: r }; });
+}
+function heatmap(set) {
+  const rows = retornos(set), map = {};
+  rows.forEach((r) => { map[r.m] = r.r; });
+  const anios = [];
+  rows.forEach((r) => { const y = r.m.slice(0, 4); if (anios.indexOf(y) < 0) anios.push(y); });
+  const cw = 58, ch = 32, gap = 3, L = 46, T = 22, RW = 78;
+  const WH = L + 12 * (cw + gap) + RW, HH = T + anios.length * (ch + gap) + 8;
+  let s = MES.map((m, i) => `<text x="${L + i * (cw + gap) + cw / 2}" y="14" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-3)">${m}</text>`).join("");
+  s += `<text x="${L + 12 * (cw + gap) + RW - 6}" y="14" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--ink-3)">AÑO</text>`;
+  anios.forEach((yr, r) => {
+    const y = T + r * (ch + gap);
+    s += `<text x="${L - 10}" y="${y + ch / 2 + 4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)">${yr}</text>`;
+    let tot = 1, any = false;
+    for (let i = 0; i < 12; i++) {
+      const k = yr + "-" + String(i + 1).padStart(2, "0"), x = L + i * (cw + gap);
+      if (!(k in map)) {
+        s += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="2" fill="none" stroke="var(--rule-soft)" stroke-width="1" stroke-dasharray="2 3"/>`;
+        continue;
+      }
+      const v = map[k];
+      tot *= 1 + v / 100; any = true;
+      s += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="2" fill="${shade(v)}" stroke="var(--panel)" stroke-width="1"/>
+        <text x="${x + cw / 2}" y="${y + ch / 2 + 4}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="500" fill="${Math.abs(v) > 8 ? "var(--panel)" : "var(--ink)"}">${v.toFixed(1)}</text>`;
+    }
+    if (any) {
+      const tv = 100 * (tot - 1);
+      s += `<text x="${L + 12 * (cw + gap) + RW - 6}" y="${y + ch / 2 + 4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="${tv >= 0 ? "var(--c1)" : "var(--neg)"}">${tv >= 0 ? "+" : ""}${tv.toFixed(1)}%</text>`;
+    }
+  });
+  $("heatmap").innerHTML = `<svg viewBox="0 0 ${WH} ${HH}" width="${WH}" style="min-width:${WH}px;max-width:100%" role="img" aria-label="Retorno mensual de la cartera por año y mes">${s}</svg>`;
+  const vals = rows.map((r) => r.r), pos = vals.filter((v) => v > 0).length;
+  let racha = 0, peor = 0;
+  vals.forEach((v) => { if (v <= 0) { racha++; peor = Math.max(peor, racha); } else racha = 0; });
+  const ord = vals.slice().sort((a, b) => a - b);
+  $("hm-stats").innerHTML = `<b>${pos} de ${vals.length} meses positivos</b> (${(100 * pos / vals.length).toFixed(0)}%) · `
+    + `mediana <span class="mono">${ord[Math.floor(vals.length / 2)].toFixed(2)}%</span> · `
+    + `mejor <span class="mono">${Math.max(...vals).toFixed(1)}%</span> · `
+    + `peor <span class="mono">${Math.min(...vals).toFixed(1)}%</span> · `
+    + `racha negativa más larga <b>${peor} ${peor === 1 ? "mes" : "meses"}</b>`;
+}
+heatmap("largos");
+document.querySelectorAll(".seg button[data-hm]").forEach((b) => {
+  b.addEventListener("click", function () {
+    document.querySelectorAll(".seg button[data-hm]").forEach((o) => o.setAttribute("aria-pressed", String(o === this)));
+    heatmap(this.dataset.hm);
+  });
+});
+
+/* --- límites --- */
+const limites = [
+  ["5 minutos no es la realidad", "Cada paso más fino de resolución es más pesimista, porque expone retrocesos que disparan el trailing antes. De 30 a 5 minutos se perdió entre 10% y 39% del total según el par. No hay motivo para creer que 5 minutos sea el final de esa caída."],
+  ["Deslizamiento sin modelar", "Todos los stops se ejecutan a su precio exacto. Es el supuesto que más pesa, y pesa más cuanto más ancho el stop."],
+  ["Un solo ciclo de mercado", "Cinco de los diez pares cotizan desde fines de 2024. Su rendimiento describe un mercado alcista, no una ventaja comprobada."],
+  ["Concentración en SFP", "Sin SFP, la cartera de cinco baja de 80% a 47% anual. Es el par más fuerte del conjunto y también el riesgo más grande de la cartera."],
+  ["Muestras cortas", "ACU tiene 33 operaciones en siete meses. Su rendimiento anual de tres dígitos es aritmética, no evidencia."],
+  ["Liquidación con 2x", "Las columnas de 2x escalan el resultado de cada operación, pero no modelan una llamada de margen. Con el pool comprometido al máximo, el margen libre real es menor al que muestra esta simulación."]
+];
+$("limits").innerHTML = limites.map(([h, p]) => `<div class="mini"><h3>${h}</h3><p>${p}</p></div>`).join("");
+</script>
