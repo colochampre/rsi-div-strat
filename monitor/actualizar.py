@@ -253,8 +253,16 @@ def main():
         if st is None:
             print("%-14s sin historia suficiente" % sym)
             continue
-        previo = estado["pares"].get(sym, {}).get("t")
+        anterior = estado["pares"].get(sym, {})
+        previo = anterior.get("t")
         estado["pares"][sym] = st
+        # Lo corroborado lo escribe corroborar.py desde los exports y no se
+        # recalcula acá. Sobreescribir la fila entera lo borraba en la corrida
+        # siguiente: la pagina se quedaba sin las columnas del export y los
+        # avisos volvian a ser nominaciones hasta correr la corroboracion otra
+        # vez. El registro no se pierde, pero el estado si.
+        if anterior.get("corroborado"):
+            estado["pares"][sym]["corroborado"] = anterior["corroborado"]
         serie = estado["historia"].setdefault(sym, [])
         if serie and serie[-1]["m"] == mes:
             serie[-1] = dict(m=mes, t=st["t"], n=st["n"], total=st["total"])
