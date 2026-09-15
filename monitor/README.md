@@ -78,15 +78,34 @@ El registro guarda también los parámetros con los que se midió. Si cambiás e
 stop o el trailing, se niega a mezclar: las operaciones viejas describen otra
 estrategia.
 
-De ahí salen dos números, y conviene mirar los dos:
+### El número que decide: descontado, no cortado
 
-- **acumulado** — todo lo registrado. Es el sólido, y el que decide.
-- **últimos 18 meses** — el que se entera cuando un par se apaga. Con cinco años
-  adentro, un año malo casi no mueve el acumulado.
+De lo registrado salen dos medidas. El **acumulado** toma todas las operaciones
+por igual y tarda años en enterarse de que un par se apagó. El **descontado**
+pesa cada operación según su antigüedad, con una **vida media de 24 meses**: una
+operación de hace dos años vale la mitad que una de hoy, y una de enero de 2022
+todavía vale un quinto.
 
-Cuando el acumulado sostiene a un par de la cartera pero la ventana corta se
-cayó, aparece un aviso de **vigilar**: no decide nada, pero no deja que pase
-desapercibido.
+Ese es el que decide, y reemplaza a la ventana con corte duro que había antes.
+El corte duro tenía dos defectos, y los dos se pagaron caro:
+
+- **Tiraba el pasado de golpe.** Un par que sobrevivió el mercado difícil de 2022
+  no recibía ningún crédito por eso.
+- **Castigaba la historia larga.** El `t` crece con la raíz del tamaño de
+  muestra, así que quedarse con 107 operaciones en vez de 259 baja el `t` a la
+  mitad aunque la ventaja sea idéntica. A STX casi lo saca de la cartera por
+  nada: su `t` caía de 2,45 a 1,20 con la ventana, pero descontando queda en
+  2,39 y su ventaja por operación sigue siendo +0,6%.
+
+Descontar no tiene ninguno de los dos problemas, y de yapa resuelve el caso
+contrario: un par con poca historia acumula poco peso total, así que su **n
+efectivo** queda chico y su `t` tarda en volverse creíble. Ese n efectivo se
+informa al lado del número, porque un `t` de 2,5 sobre 95 operaciones efectivas
+no dice lo mismo que uno sobre 300.
+
+Sacar un par tampoco es una condena: el monitor lo sigue midiendo estando
+afuera, y si vuelve a rendir, su descontado sube y el mismo mecanismo lo nomina
+para volver a entrar.
 
 ---
 

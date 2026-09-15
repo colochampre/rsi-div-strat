@@ -152,9 +152,6 @@ def lado(t):
 #: año es material nuevo suficiente como para volver a mirar.
 VENCE = 6
 
-#: La ventana corta que mira corroborar.py, solo para redactar los avisos.
-VENTANA_CORTA = 18
-
 
 def _vieja(medido, ultimo_mes):
     """¿La corroboración quedó atrás en el tiempo?"""
@@ -182,31 +179,6 @@ def alertas(estado):
     """
     pool = estado.get("pool", [])
     out = []
-    meses = [l[-1]["m"] for l in estado.get("historia", {}).values() if l]
-    mes_ref = max(meses) if meses else datetime.datetime.now(
-        datetime.timezone.utc).strftime("%Y-%m")
-
-    # El acumulado tarda en enterarse: con cinco años adentro, un año malo casi
-    # no lo mueve. Si la ventana corta se apagó mientras el acumulado todavía
-    # sostiene al par, eso no decide nada, pero no puede pasar desapercibido.
-    #
-    # Esta señal sale del registro de exports, que trae su propia muestra, así
-    # que no espera las dos lecturas mensuales que piden los demás avisos.
-    for sym in sorted(pool):
-        corr = (estado.get("pares", {}).get(sym) or {}).get("corroborado")
-        if not corr or _vieja(corr.get("medido"), mes_ref):
-            continue
-        # Alcanza con que el acumulado no lo esté condenando ya: si cayó por
-        # debajo de la banda, de eso se encarga el aviso de sacarlo. Exigir que
-        # estuviera arriba de 2,2 dejaba afuera justo a los que tienen el
-        # acumulado en la banda y la ventana corta apagada.
-        if corr["t"] > MARGEN_BAJO and corr.get("t18") is not None and corr["t18"] <= MARGEN_BAJO:
-            out.append(dict(par=sym, accion="vigilar", t=corr["t18"], fuente="export",
-                            desde=corr.get("desde", ""), meses=VENTANA_CORTA,
-                            por="el acumulado lo sostiene con t de %.2f, pero en los últimos "
-                                "%d meses cae a %.2f sobre %d operaciones."
-                                % (corr["t"], VENTANA_CORTA, corr["t18"], corr["n18"])))
-
     for sym, lecturas in sorted(estado.get("historia", {}).items()):
         ultimas = lecturas[-PERSISTENCIA:]
         if len(ultimas) < PERSISTENCIA:
@@ -221,16 +193,24 @@ def alertas(estado):
         if (actual == "abajo") != dentro:
             continue                    # el simulado coincide con la cartera
         if fresca:
-            if dentro and corr["t"] <= MARGEN_BAJO:
-                out.append(dict(par=sym, accion="quitar", t=corr["t"], fuente="export",
+            # Decide el t descontado, no el acumulado: el acumulado tarda años
+            # en enterarse de que un par se apagó, y una ventana con corte duro
+            # miente al revés, castigando a los de historia larga por tener
+            # menos operaciones adentro.
+            td = corr.get("td")
+            if td is None:
+                td = corr["t"]
+            contexto = ("descontando la antigüedad queda en %.2f sobre %s operaciones "
+                        "efectivas, con el acumulado en %.2f" %
+                        (td, corr.get("n_ef", "?"), corr["t"]))
+            if dentro and td <= MARGEN_BAJO:
+                out.append(dict(par=sym, accion="quitar", t=td, fuente="export",
                                 desde=ultimas[0]["m"], meses=len(ultimas),
-                                por="el export lo confirma: t de %.2f, medido el %s"
-                                    % (corr["t"], corr["medido"])))
-            elif not dentro and corr["t"] >= MARGEN_ALTO:
-                out.append(dict(par=sym, accion="agregar", t=corr["t"], fuente="export",
+                                por="el export lo confirma: %s." % contexto))
+            elif not dentro and td >= MARGEN_ALTO:
+                out.append(dict(par=sym, accion="agregar", t=td, fuente="export",
                                 desde=ultimas[0]["m"], meses=len(ultimas),
-                                por="el export lo confirma: t de %.2f, medido el %s"
-                                    % (corr["t"], corr["medido"])))
+                                por="el export lo confirma: %s." % contexto))
             continue                    # el export ya se pronunció
         out.append(dict(par=sym, accion="corroborar", t=ultimas[-1]["t"], fuente="simulado",
                         desde=ultimas[0]["m"], meses=len(ultimas),

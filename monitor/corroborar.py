@@ -51,8 +51,10 @@ import simular                                     # noqa: E402
 CARPETA = os.path.join(RAIZ, "backtest", "corroboracion")
 REGISTRO = os.path.join(AQUI, "corroboradas.json")
 OFFSET = 3                      # los exports vienen en UTC-3
-VENTANA_MESES = 18              # la mirada corta, la que detecta apagones
-MINIMO_VENTANA = 12             # menos operaciones que esto y no se informa
+#: Vida media del descuento por antigüedad, en meses. Con 24, una operación de
+#: hace dos años pesa la mitad que una de hoy, y una de enero de 2022 todavía
+#: pesa un 20%: la historia larga cuenta, pero no manda.
+VIDA_MEDIA = 24
 TOLERANCIA = 0.01               # pp de diferencia que se acepta al reencontrar una operación
 
 
@@ -126,13 +128,47 @@ def fusionar(previas, nuevas, archivo, hoy):
     return ops, lote, choques
 
 
-def estadisticas(ops, desde=None):
-    rets = [o[2] for o in ops if desde is None or o[0] >= desde]
+def estadisticas(ops):
+    rets = [o[2] for o in ops]
     if len(rets) < 2:
         return None
     sd = statistics.pstdev(rets)
     return dict(n=len(rets), total=round(sum(rets), 1),
                 t=round(statistics.mean(rets) / (sd / math.sqrt(len(rets))), 3) if sd else 0.0)
+
+
+def descontado(ops, vida_media=VIDA_MEDIA, ahora=None):
+    """Media y t con cada operación pesada según su antigüedad.
+
+    Una ventana con corte duro tiene dos defectos y los dos importan. Tira de
+    golpe todo lo anterior, así que un par que sobrevivió un mercado difícil no
+    recibe crédito por eso. Y castiga a los pares de historia larga por tener
+    menos operaciones adentro de la ventana: el t escala con la raíz del tamaño
+    de muestra, así que pasar de 259 operaciones a 107 baja el t a la mitad
+    aunque la ventaja sea exactamente la misma. Le pasó a STX y casi lo saca de
+    la cartera por nada.
+
+    Descontar no tiene ninguno de los dos. Y de yapa resuelve lo otro: un par
+    con poca historia acumula poco peso, así que su n efectivo queda chico y su
+    t tarda en volverse creíble.
+    """
+    if len(ops) < 2:
+        return None
+    ahora = ahora or datetime.datetime.now(datetime.timezone.utc)
+    xs, ws = [], []
+    for o in ops:
+        edad = (ahora - datetime.datetime.fromisoformat(o[0])).total_seconds() / 86400.0 / 30.44
+        ws.append(0.5 ** (edad / vida_media))
+        xs.append(o[2])
+    sw = sum(ws)
+    sw2 = sum(w * w for w in ws)
+    if not sw or not sw2:
+        return None
+    mu = sum(w * x for w, x in zip(ws, xs)) / sw
+    var = sum(w * (x - mu) ** 2 for w, x in zip(ws, xs)) / sw
+    se = math.sqrt(var) * math.sqrt(sw2) / sw
+    return dict(media=round(mu, 4), t=round(mu / se, 3) if se else 0.0,
+                n_ef=int(round(sw * sw / sw2)), vida_media=vida_media)
 
 
 def main():
@@ -159,13 +195,11 @@ def main():
 
     proveedor = candles.get_provider("binance")
     hoy = datetime.date.today().isoformat()
-    corte = (datetime.datetime.now(datetime.timezone.utc)
-             - datetime.timedelta(days=VENTANA_MESES * 30.44)).isoformat()
 
-    print("corroborando %d pares | registro con %d pares guardados\n"
-          % (len(encontrados), len(registro["pares"])))
-    print("%-14s %6s %6s %8s %7s %9s %8s" % (
-        "par", "nuevas", "repet.", "acumulado", "t acum", "t 18 meses", "t simulado"))
+    print("corroborando %d pares | registro con %d pares guardados | vida media %d meses\n"
+          % (len(encontrados), len(registro["pares"]), VIDA_MEDIA))
+    print("%-14s %6s %6s %8s %7s %8s %8s %8s" % (
+        "par", "nuevas", "repet.", "acumulado", "t acum", "t desc", "n efect.", "t simul."))
     for sym in sorted(encontrados):
         try:
             nuevas = medir(sym, encontrados[sym], proveedor)
@@ -181,18 +215,17 @@ def main():
         guardado["lotes"] = [l for l in guardado["lotes"] if l["archivo"] != lote["archivo"]] + [lote]
 
         acum = estadisticas(ops)
-        corto = estadisticas(ops, corte)
-        if corto and corto["n"] < MINIMO_VENTANA:
-            corto = None
+        desc = descontado(ops)
         fila = estado["pares"].setdefault(sym, {})
         fila["corroborado"] = dict(
             n=acum["n"], total=acum["total"], t=acum["t"],
-            t18=corto["t"] if corto else None, n18=corto["n"] if corto else None,
+            td=desc["t"] if desc else None, media=desc["media"] if desc else None,
+            n_ef=desc["n_ef"] if desc else None, vida_media=VIDA_MEDIA,
             desde=ops[0][0][:7], hasta=ops[-1][1][:7], medido=hoy, lotes=len(guardado["lotes"]))
         sim = fila.get("t")
-        print("%-14s %6d %6d %8d %7.2f %9s %8s" % (
+        print("%-14s %6d %6d %8d %7.2f %8s %8s %8s" % (
             sym, lote["aporto"], lote["repetidas"], acum["n"], acum["t"],
-            "%.2f (%d)" % (corto["t"], corto["n"]) if corto else "-",
+            "%.2f" % desc["t"] if desc else "-", desc["n_ef"] if desc else "-",
             "%.2f" % sim if sim is not None else "-"))
         for momento, antes, ahora in choques:
             print("       CHOQUE en %s: guardado %+.2f%%, ahora %+.2f%%" % (momento, antes, ahora))

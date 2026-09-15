@@ -123,7 +123,9 @@ footer{border-top:1px solid var(--rule);padding-top:18px;color:var(--ink-3);font
       <h2>Uno nomina, el otro decide</h2>
     </div>
     <p class="note">La columna <b>simulado</b> se recalcula sola todos los meses: las entradas las genera una reimplementación de la estrategia y las salidas se replayan contra velas reales. Cubre los 65 pares sin que nadie mueva un dedo, pero no puede reproducir el 2,8% de operaciones que nacen del recálculo intravela de TradingView, y como esas resultaron rentables, deja el <b>t</b> entre 0,1 y 0,8 más abajo según el par. Sirve para ver quién se movió; no para decidir.</p>
-    <p class="note">La columna <b>export</b> sale de un backtest exportado a mano de TradingView y medido con las mismas reglas que el informe, así que está en su misma escala. Es la que decide. No hace falta exportar los 65: alcanza con la cartera y con los pares que el monitor haya señalado, diez o quince archivos.</p>
+    <p class="note">Las columnas de <b>export</b> salen de backtests exportados a mano de TradingView y medidos con las mismas reglas que el informe, así que están en su misma escala. Son las que deciden. No hace falta exportar los 65: alcanza con la cartera y con los pares que el monitor haya señalado, diez o quince archivos. Y lo exportado se acumula: TradingView tiene un límite de velas y su ventana se desliza, así que cada export aporta lo que falta y lo viejo queda guardado.</p>
+    <p class="note">De ahí salen dos números. El <b>acumulado</b> toma todas las operaciones por igual, y tarda años en enterarse de que un par se apagó. El <b>descontado</b> pesa cada operación según su antigüedad, con una vida media de dos años: una operación de hace dos años vale la mitad que una de hoy, y una de 2022 todavía vale un quinto. Un par que atravesó un mercado difícil conserva ese crédito, pero no se escuda en él para siempre. Ese es el número que decide.</p>
+    <p class="note">El <b>n efectivo</b> es cuántas operaciones equivale ese peso total. Importa porque el <b>t</b> crece con la raíz del tamaño de muestra: un t de 2,5 apoyado en 95 operaciones efectivas no dice lo mismo que uno apoyado en 300. Es también la razón por la que una ventana con corte duro engaña — al quedarse con menos operaciones baja el t aunque la ventaja no haya cambiado.</p>
     <p class="note">Por eso los avisos vienen en dos clases. <b>Exportar y mirar</b> es una nominación del simulador: se movió lo suficiente como para que valga la pena confirmarlo. <b>Sacar</b> y <b>sumar</b> solo aparecen cuando hay un export reciente que lo respalda, y esos sí son decisiones. Las dos columnas nunca se comparan entre sí dentro de un mismo aviso.</p>
   </section>
 
@@ -162,8 +164,7 @@ const av = D.alertas || [];
 $("avisos-titulo").textContent = av.length
   ? (av.length === 1 ? "Un par para revisar" : `${av.length} pares para revisar`)
   : "Sin cambios";
-const ETIQUETA = { quitar: "Sacar", agregar: "Sumar", corroborar: "Exportar y mirar",
-                   vigilar: "Vigilar" };
+const ETIQUETA = { quitar: "Sacar", agregar: "Sumar", corroborar: "Exportar y mirar" };
 $("avisos").innerHTML = av.length ? av.map((a) => `<div class="aviso ${a.accion}">
     <span class="que">${ETIQUETA[a.accion] || a.accion}</span>
     <span class="par">${a.par.replace("USDT", "")}</span>
@@ -195,9 +196,9 @@ function spark(sym) {
 /* --- tabla --- */
 $("tabla").innerHTML = `<thead>
     <tr><th></th><th></th><th colspan="5">simulado, todos los meses</th>
-        <th class="grp" colspan="3">export acumulado, cuando lo pedís</th><th></th><th></th></tr>
+        <th class="grp" colspan="4">export, cuando lo pedís</th><th></th><th></th></tr>
     <tr><th>par</th><th class="est">estado</th><th>ops</th><th>total</th><th>t</th><th>cambio</th>
-    <th>mes a mes</th><th class="grp">t</th><th>t 18m</th><th>medido</th>
+    <th>mes a mes</th><th class="grp">t acum</th><th>t descontado</th><th>n efectivo</th><th>medido</th>
     <th>anual</th><th>caída máx</th></tr></thead><tbody>` +
   pares.map((sym) => {
     const p = D.pares[sym], [tono, texto] = clase(sym);
@@ -211,8 +212,9 @@ $("tabla").innerHTML = `<thead>
       <td class="t">${p.t.toFixed(2)}</td>
       <td class="delta ${d === null ? "" : d > 0 ? "sube" : "baja"}">${d === null ? "—" : (d > 0 ? "+" : "") + d.toFixed(2)}</td>
       <td>${spark(sym)}</td>
-      <td class="t grp">${c ? c.t.toFixed(2) : "—"}</td>
-      <td class="${c && c.t18 !== null && c.t18 <= BAJO ? "delta baja" : ""}">${c && c.t18 !== null && c.t18 !== undefined ? c.t18.toFixed(2) : "—"}</td>
+      <td class="grp" style="color:var(--ink-3)">${c ? c.t.toFixed(2) : "—"}</td>
+      <td class="t ${c && c.td !== null && c.td !== undefined && c.td <= BAJO ? "delta baja" : ""}">${c && c.td !== null && c.td !== undefined ? c.td.toFixed(2) : "—"}</td>
+      <td style="color:var(--ink-3)">${c && c.n_ef ? c.n_ef : "—"}</td>
       <td style="color:var(--ink-3)">${c ? c.medido : "—"}</td>
       <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td></tr>`;
   }).join("") + "</tbody>";
