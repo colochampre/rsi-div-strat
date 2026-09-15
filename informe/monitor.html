@@ -51,6 +51,12 @@ header{display:flex;flex-direction:column;gap:14px;padding-bottom:22px;border-bo
 .fact:last-child{border-right:none;margin-right:0;padding-right:0}
 .fact b{display:block;font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
 .fact span{font-size:11.5px;color:var(--ink-3)}
+.recordatorio{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-top:14px;padding:11px 14px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);font-size:13px;color:var(--ink-2)}
+.recordatorio.pendiente{border-color:color-mix(in srgb,var(--c2) 45%,transparent);background:color-mix(in srgb,var(--c2) 9%,transparent)}
+.recordatorio b{color:var(--ink)}
+.recordatorio .cmd{font-family:"IBM Plex Mono",monospace;font-size:12px;padding:5px 11px;border:1px solid var(--rule);border-radius:3px;background:var(--panel-2);color:var(--ink-2);cursor:pointer}
+.recordatorio .cmd:hover{color:var(--ink);border-color:var(--ink-3)}
+.recordatorio .cmd:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
 section{display:flex;flex-direction:column;gap:16px}
 .shead{display:flex;flex-direction:column;gap:6px}
 .panel{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:20px;box-shadow:var(--shadow)}
@@ -102,6 +108,7 @@ footer{border-top:1px solid var(--rule);padding-top:18px;color:var(--ink-3);font
     <h1>Quién entra y quién sale</h1>
     <p class="lede">Cada mes se recalcula el rendimiento de todos los pares del universo contra velas reales. Cuando uno pierde su ventaja estadística, o cuando otro la gana, aparece acá.</p>
     <div class="facts" id="facts"></div>
+    <div class="recordatorio" id="recordatorio"></div>
   </header>
 
   <section>
@@ -287,6 +294,42 @@ function pintarTabla() {
   });
 }
 pintarTabla();
+
+/* --- cuándo toca la próxima corrida --- */
+(() => {
+  const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+                 "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  const COMANDO = "python monitor/actualizar.py";
+  const caja = $("recordatorio");
+  const hoy = new Date();
+  // Mediodía para que el huso horario no corra la fecha un día.
+  const ultima = D.generado ? new Date(D.generado + "T12:00:00") : null;
+  const proximo = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 1);
+  const faltan = Math.ceil((proximo - hoy) / 86400000);
+  const alDia = ultima && ultima.getFullYear() === hoy.getFullYear()
+    && ultima.getMonth() === hoy.getMonth();
+  let texto;
+  if (alDia) {
+    texto = `Corrida de ${MESES[hoy.getMonth()]} hecha el ${ultima.getDate()}. `
+      + `La próxima toca el <b>1 de ${MESES[proximo.getMonth()]}</b>, en `
+      + `<b>${faltan} ${faltan === 1 ? "día" : "días"}</b>.`;
+  } else {
+    const desde = ultima
+      ? `La última fue el ${ultima.getDate()} de ${MESES[ultima.getMonth()]}.`
+      : "Todavía no hay ninguna corrida registrada.";
+    texto = `<b>La corrida de ${MESES[hoy.getMonth()]} está pendiente.</b> ${desde}`;
+    caja.classList.add("pendiente");
+  }
+  caja.innerHTML = `<span>${texto}</span>
+    <button type="button" class="cmd" id="copiar">${COMANDO}</button>`;
+  // La página no puede correr nada en tu máquina: lo más útil que puede hacer
+  // es dejarte el comando listo para pegar en la terminal.
+  $("copiar").addEventListener("click", function () {
+    const listo = () => { this.textContent = "copiado ✓"; setTimeout(() => { this.textContent = COMANDO; }, 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText(COMANDO).then(listo, () => {});
+    else listo();
+  });
+})();
 
 $("pie-corrida").textContent = "Última corrida: " + D.generado
   + " · salidas replayadas a " + D.tf + " · cartera vigente: "
