@@ -159,6 +159,8 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
 .chip .tv{font-size:10.5px;opacity:.8}
 .chip[aria-pressed="true"]{background:color-mix(in srgb,var(--c1) 15%,transparent);border-color:color-mix(in srgb,var(--c1) 55%,transparent);color:var(--ink)}
 .resumen{font-size:13px;color:var(--ink-2);border-top:1px solid var(--rule-soft);padding-top:12px}
+.resumen .borde{color:var(--c2)}
+.eqstats .who .badge{font-size:9.5px;letter-spacing:.06em}
 .vacio{border:1px dashed var(--rule);border-radius:3px;padding:18px;color:var(--ink-3);font-size:13.5px;text-align:center}
 .callout.calm .eyebrow{color:var(--c1)}
 #tbl-pairs td.tv{color:var(--ink-3)}
@@ -225,7 +227,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
     <div class="shead">
       <div class="eyebrow">La cartera</div>
       <h2>Elegí qué pares participan</h2>
-      <p class="note">Los pares elegidos reparten un mismo pool de capital: cada operación toma el 30% del capital disponible como margen, y una señal que llega con el pool comprometido no entra más chica, no entra. El capital se reinvierte y un símbolo sostiene una sola posición a la vez. Todo lo que sigue —la curva, la caída, el mes a mes, el tamaño de posición, la concentración y las correlaciones— se recalcula en el navegador con las operaciones de los pares activos, con el mismo simulador que produjo los números del informe.</p>
+      <p class="note">Los pares elegidos reparten un mismo pool de capital: cada operación toma como margen el porcentaje del capital que elijas —30% por defecto—, el apalancamiento multiplica el resultado de cada operación sin pedir más margen, y una señal que llega con el pool comprometido no entra más chica, no entra. El capital se reinvierte y un símbolo sostiene una sola posición a la vez. Todo lo que sigue —la curva, la caída, el mes a mes, el tamaño de posición, la concentración y las correlaciones— se recalcula en el navegador con las operaciones de los pares activos, con el mismo simulador que produjo los números del informe.</p>
     </div>
     <div class="panel selector">
       <div class="presets" role="group" aria-label="Carteras predefinidas">
@@ -236,6 +238,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
         <button type="button" class="btnp" data-preset="ninguno">Ninguno</button>
       </div>
       <div class="grupos" id="chips"></div>
+      <div class="grupos" id="controles"></div>
       <div class="resumen" id="resumen"></div>
     </div>
 
@@ -263,7 +266,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
           <div class="chart-sub" style="margin-bottom:0">Acá lo que importa no es el total sino la textura: cuántos meses en rojo, si vienen seguidos, y qué queda del año cuando se encadenan. La columna de la derecha es el año entero, compuesto. Sigue la misma ventana que la curva.</div>
         </div>
       </div>
-      <div class="hm-scale" style="margin-bottom:14px"><span>−15%</span><span class="hm-bar"></span><span>+15%</span></div>
+      <div class="hm-scale" style="margin-bottom:14px"><span id="hm-min">−15%</span><span class="hm-bar"></span><span id="hm-max">+15%</span></div>
       <div class="scroller"><div id="heatmap"></div></div>
       <div id="hm-stats" style="margin-top:16px;font-size:13px;color:var(--ink-2)"></div>
     </div>
@@ -275,7 +278,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
     <div class="shead">
       <div class="eyebrow">Tamaño de posición</div>
       <h2>Cuánto capital por operación</h2>
-      <p class="note">Más margen por operación significa menos posiciones simultáneas y más señales perdidas, y suele rendir más: el capital se concentra donde hay señal en vez de repartirse en una posición que llega tarde. Las fracciones marcadas como borde son las que dividen el pool exacto <i>y</i> llegan a llenarse: ahí el resultado pasa a depender de cómo se cuente el margen en vez de depender de la estrategia. Cuáles son bordes depende de la cartera — con pocos pares, los slots de sobra nunca se ocupan y la fracción deja de ser inestable. Se mide sobre la historia completa.</p>
+      <p class="note">Más margen por operación significa menos posiciones simultáneas y más señales perdidas, y suele rendir más: el capital se concentra donde hay señal en vez de repartirse en una posición que llega tarde. Las fracciones marcadas como borde son las que dividen el pool exacto <i>y</i> llegan a llenarse: ahí el resultado pasa a depender de cómo se cuente el margen en vez de depender de la estrategia. Cuáles son bordes depende de la cartera — con pocos pares, los slots de sobra nunca se ocupan y la fracción deja de ser inestable. Se mide sobre la historia completa, y la fila resaltada es el margen elegido.</p>
     </div>
     <div class="panel scroller">
       <table id="tbl-sizing"></table>
@@ -286,7 +289,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
     <div class="shead">
       <div class="eyebrow">Concentración</div>
       <h2>Qué pasa si sacamos un par</h2>
-      <p class="note">Cada barra es el rendimiento anual de la cartera elegida sin ese par, con margen 30% y sobre la historia completa. Un par cuya ausencia casi no mueve el resultado es reemplazable; uno que se lleva un tercio del rendimiento es una apuesta concentrada disfrazada de cartera diversificada.</p>
+      <p class="note">Cada barra es el rendimiento anual de la cartera elegida sin ese par, con el margen y el apalancamiento elegidos y sobre la historia completa. Un par cuya ausencia casi no mueve el resultado es reemplazable; uno que se lleva un tercio del rendimiento es una apuesta concentrada disfrazada de cartera diversificada.</p>
     </div>
     <div class="panel">
       <div class="loo" id="loo"></div>
@@ -470,7 +473,19 @@ try {
   if (Array.isArray(guardada)) seleccion = new Set(guardada.filter((p) => POR_NOMBRE[p]));
 } catch (e) { /* sin almacenamiento: queda la seleccion por defecto */ }
 let ventana = "full";
-const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(Array.from(seleccion))); } catch (e) { /* nada */ } };
+let margen = 30, apal = 1;
+try {
+  const m = parseInt(localStorage.getItem("de70a3.margen"), 10);
+  if (D.fracciones.includes(m)) margen = m;
+  if (localStorage.getItem("de70a3.apal") === "2") apal = 2;
+} catch (e) { /* sin almacenamiento: margen 30% sin apalancamiento */ }
+const guardar = () => {
+  try {
+    localStorage.setItem(CLAVE, JSON.stringify(Array.from(seleccion)));
+    localStorage.setItem("de70a3.margen", String(margen));
+    localStorage.setItem("de70a3.apal", String(apal));
+  } catch (e) { /* nada */ }
+};
 
 /* --- encabezado y embudo --- */
 $("facts").innerHTML = [
@@ -537,6 +552,27 @@ document.querySelectorAll(".btnp[data-preset]").forEach((b) => b.addEventListene
   seleccion = new Set(PRESETS[b.dataset.preset]);
   cambio();
 }));
+
+/* --- margen y apalancamiento --- */
+function pintarControles() {
+  $("controles").innerHTML = `<div class="fila-chips">
+      <span class="grupo">Margen</span>
+      <div class="chips" role="group" aria-label="Margen por operación">${D.fracciones.map((f) =>
+        `<button type="button" class="chip" data-margen="${f}" aria-pressed="${f === margen}">${f}%</button>`).join("")}</div>
+    </div>
+    <div class="fila-chips">
+      <span class="grupo">Apalancamiento</span>
+      <div class="chips"><button type="button" class="chip" data-apal="2" aria-pressed="${apal === 2}">2x</button></div>
+    </div>`;
+  $("controles").querySelectorAll("[data-margen]").forEach((b) => b.addEventListener("click", () => {
+    margen = parseInt(b.dataset.margen, 10);
+    guardar(); pintarControles(); recalcular();
+  }));
+  $("controles").querySelectorAll("[data-apal]").forEach((b) => b.addEventListener("click", () => {
+    apal = apal === 2 ? 1 : 2;
+    guardar(); pintarControles(); recalcular();
+  }));
+}
 
 /* --- operaciones de la seleccion, en el orden canonico de los datos --- */
 function elegidos() { return PARES.filter((p) => seleccion.has(p.p)); }
@@ -608,8 +644,8 @@ function caida(meses) {
     <text x="${M.l}" y="${HH - 8}" fill="var(--ink-3)" font-size="9.5" font-family="IBM Plex Mono, monospace">cuánto por debajo del máximo anterior estuvo el capital, mes a mes</text>
   </svg>`;
 }
-function fichas(uno, dos) {
-  const card = (r, titulo) => `<div><div class="who">${titulo}</div><dl>
+function fichas(uno, dos, activo) {
+  const card = (r, titulo, enGrafico) => `<div><div class="who">${titulo}${enGrafico ? ' <span class="badge ok">en el gráfico</span>' : ""}</div><dl>
       <dt>Rendimiento anual</dt><dd>${pct(r.cagr)}</dd>
       <dt>Caída máxima</dt><dd class="risk">${pct(r.mdd)}</dd>
       <dt>MAR</dt><dd>${num(r.mar)}</dd>
@@ -619,13 +655,16 @@ function fichas(uno, dos) {
       <dt>Señales perdidas</dt><dd>${pct(r.skip)}</dd>
       <dt>Máximo simultáneo</dt><dd>${r.maxConc}</dd>
     </dl></div>`;
-  return card(uno, "Sin apalancamiento") + card(dos, "Con 2x");
+  return card(uno, "Sin apalancamiento", activo === 1) + card(dos, "Con 2x", activo === 2);
 }
 
 /* --- mes a mes --- */
 const MES = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+// La escala sigue al riesgo elegido: con 50% y 2x, un rango fijo de ±15%
+// saturaria casi todas las celdas y el mes a mes dejaria de tener textura.
+let escalaMensual = 15;
 const shade = (v) => {
-  const t = Math.max(-1, Math.min(1, v / 15));
+  const t = Math.max(-1, Math.min(1, v / escalaMensual));
   return "color-mix(in srgb," + (t >= 0 ? "var(--c1)" : "var(--neg)") + " " + (12 + Math.abs(t) * 80).toFixed(0) + "%, var(--mid))";
 };
 function heatmap(meses) {
@@ -651,7 +690,7 @@ function heatmap(meses) {
       const v = map[k];
       tot *= 1 + v / 100; any = true;
       s += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="2" fill="${shade(v)}" stroke="var(--panel)" stroke-width="1"/>
-        <text x="${x + cw / 2}" y="${y + ch / 2 + 4}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="500" fill="${Math.abs(v) > 8 ? "var(--panel)" : "var(--ink)"}">${v.toFixed(1)}</text>`;
+        <text x="${x + cw / 2}" y="${y + ch / 2 + 4}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="500" fill="${Math.abs(v) > escalaMensual * 0.55 ? "var(--panel)" : "var(--ink)"}">${v.toFixed(1)}</text>`;
     }
     if (any) {
       const tv = 100 * (tot - 1);
@@ -689,18 +728,19 @@ function tamanio(ts) {
     <th class="grp">anual</th><th>caída máx</th><th>MAR</th><th class="grp">anual</th><th>caída máx</th><th></th></tr>
     </thead><tbody>${filas.map(([f, r]) => {
       const borde = bordes.includes(f), a = r.slots1, b = r.slots2;
-      return `<tr class="${borde ? "dead" : f === 30 ? "hl" : ""}">
+      return `<tr class="${f === margen ? "hl" : borde ? "dead" : ""}">
         <td>${f}%</td><td>${a.maxConc}</td><td>${pct(a.skip)}</td>
         <td class="grp">${pct(a.cagr)}</td><td>${pct(a.mdd)}</td><td>${num(a.mar)}</td>
         <td class="grp">${pct(b.cagr)}</td><td>${pct(b.mdd)}</td>
         <td>${borde ? '<span class="badge no">borde</span>' : ""}</td></tr>`;
     }).join("")}</tbody>`;
+  return bordes;
 }
 function concentracion(pares) {
   if (pares.length < 2) { $("loo").innerHTML = '<div class="vacio">Con un solo par no hay concentración que medir.</div>'; return; }
-  const base = SimPool.simulate(operaciones(pares, null), 0.3, 1, "slots", true).cagr;
+  const base = SimPool.simulate(operaciones(pares, null), margen / 100, apal, "slots", true).cagr;
   const filas = [{ p: null, cagr: base }].concat(pares.map((q) => ({
-    p: q.p, cagr: SimPool.simulate(operaciones(pares.filter((x) => x !== q), null), 0.3, 1, "slots", true).cagr
+    p: q.p, cagr: SimPool.simulate(operaciones(pares.filter((x) => x !== q), null), margen / 100, apal, "slots", true).cagr
   })));
   const max = Math.max(...filas.map((r) => r.cagr).filter((v) => !Number.isNaN(v)), 1);
   $("loo").innerHTML = filas.map((r, i) => {
@@ -750,6 +790,7 @@ function aviso(pares, completa, juntos, desde) {
 function cambio() {
   guardar();
   pintarSelector();
+  pintarControles();
   pintarPares();
   recalcular();
 }
@@ -769,25 +810,31 @@ function recalcular() {
     correlaciones(pares);
     return;
   }
+  const f = margen / 100;
   const comun = Math.max(...pares.map(primeraEntrada));
   const tsFull = operaciones(pares, null);
   const tsVentana = ventana === "win" ? operaciones(pares, comun) : tsFull;
-  const completa = SimPool.simulate(tsFull, 0.3, 1, "slots", true);
-  const juntos = SimPool.simulate(operaciones(pares, comun), 0.3, 1, "slots", true);
-  const uno = ventana === "win" ? juntos : completa;
-  const dos = SimPool.simulate(tsVentana, 0.3, 2, "slots", true);
+  const completa = SimPool.simulate(tsFull, f, apal, "slots", true);
+  const juntos = SimPool.simulate(operaciones(pares, comun), f, apal, "slots", true);
+  const r1 = SimPool.simulate(tsVentana, f, 1, "slots", true);
+  const r2 = SimPool.simulate(tsVentana, f, 2, "slots", true);
+  const uno = apal === 2 ? r2 : r1;
   const meses = SimPool.monthly(uno);
   const inicio = SimPool.mes(comun);
+  const config = `Margen ${margen}%, ${apal === 2 ? "con 2x" : "sin apalancamiento"}`;
+  escalaMensual = Math.max(5, Math.round(15 * margen * apal / 30));
+  $("hm-min").textContent = "−" + escalaMensual + "%";
+  $("hm-max").textContent = "+" + escalaMensual + "%";
 
   $("resumen").innerHTML = `<b>${pares.length} ${pares.length === 1 ? "par" : "pares"}</b>: ${pares.map((p) => p.p).join(", ")} · `
     + `${tsFull.length.toLocaleString("es-AR")} operaciones · cotizan todos desde ${esMes(inicio)}`;
   $("btn-win").textContent = "Desde " + esMes(inicio);
   $("eq-sub").textContent = ventana === "win"
-    ? `Margen 30%, sin apalancamiento, desde ${esMes(inicio)}, cuando ya cotizan todos los pares elegidos.`
-    : "Margen 30%, sin apalancamiento. Las marcas indican cuándo empieza a operar cada par.";
+    ? `${config}, desde ${esMes(inicio)}, cuando ya cotizan todos los pares elegidos.`
+    : `${config}. Las marcas indican cuándo empieza a operar cada par.`;
   $("eq").innerHTML = curva(meses, pares);
   $("underwater").innerHTML = caida(meses);
-  $("eqstats").innerHTML = fichas(uno, dos);
+  $("eqstats").innerHTML = fichas(r1, r2, apal);
   const mensual = meses.length ? Math.max(...bajoElAgua(meses).map((p) => p.dd)) : 0;
   // El área dibuja cierres de mes; las fichas miden operación por operación.
   $("uw-note").textContent = "El área mide cierres de mes: a esa resolución la peor caída es de "
@@ -796,7 +843,10 @@ function recalcular() {
     + "Las dos son la misma cartera medida con distinta lupa, y la que importa para dimensionar el riesgo es la segunda.";
   heatmap(meses);
   aviso(pares, completa, juntos, comun);
-  tamanio(tsFull);
+  const bordes = tamanio(tsFull);
+  if (bordes.includes(margen)) {
+    $("resumen").innerHTML += ` · <span class="borde">${margen}% es borde para esta cartera: su resultado depende de cómo se cuente el margen</span>`;
+  }
   concentracion(pares);
   correlaciones(pares);
 }
