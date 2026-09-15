@@ -1,0 +1,337 @@
+<title>Quién entra y quién sale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F2F5F7; --panel:#FBFCFD; --panel-2:#E9EEF1;
+  --ink:#0F171E; --ink-2:#3D4E5C; --ink-3:#6B7D8B;
+  --rule:#D3DCE2; --rule-soft:#E4EAEE;
+  --c1:#0295A8; --c2:#BC6A00; --c3:#7048C4;
+  --neg:#C4442E; --mid:#E3E8EB;
+  --good:#1F6F47; --bad:#A8371F;
+  --shadow:0 1px 2px rgba(15,23,30,.05),0 8px 24px -16px rgba(15,23,30,.22);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1116; --panel:#141B22; --panel-2:#1B242C;
+    --ink:#E7EDF1; --ink-2:#A9B8C3; --ink-3:#7A8C99;
+    --rule:#28333C; --rule-soft:#1E272F;
+    --c1:#1FA6B8; --c2:#CE8018; --c3:#8E6FDC;
+    --neg:#E0644B; --mid:#1E272F;
+    --good:#4FBF87; --bad:#E8735A;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1116; --panel:#141B22; --panel-2:#1B242C;
+  --ink:#E7EDF1; --ink-2:#A9B8C3; --ink-3:#7A8C99;
+  --rule:#28333C; --rule-soft:#1E272F;
+  --c1:#1FA6B8; --c2:#CE8018; --c3:#8E6FDC;
+  --neg:#E0644B; --mid:#1E272F;
+  --good:#4FBF87; --bad:#E8735A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
+/* Mas ancho que las otras dos paginas del informe a proposito: esta tiene una
+   tabla de trece columnas y con 1080 la ultima quedaba cortada. */
+.wrap{max-width:1200px;margin:0 auto;padding-block:40px 72px;padding-left:24px;padding-right:24px;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:Archivo,ui-sans-serif,system-ui,sans-serif;text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(28px,4.2vw,40px);font-weight:700;line-height:1.05}
+h2{font-size:19px;font-weight:600}
+p{margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.lede{color:var(--ink-2);font-size:16px;max-width:66ch}
+.note{color:var(--ink-3);font-size:13px;text-align:justify}
+header{display:flex;flex-direction:column;gap:14px;padding-bottom:22px;border-bottom:2px solid var(--ink)}
+.facts{display:flex;flex-wrap:wrap;justify-content:space-evenly;gap:14px 0;border-top:1px solid var(--rule);padding-top:14px;margin-top:4px}
+.fact{padding-right:26px;margin-right:26px;border-right:1px solid var(--rule-soft)}
+.fact:last-child{border-right:none;margin-right:0;padding-right:0}
+.fact b{display:block;font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.fact span{font-size:11.5px;color:var(--ink-3)}
+.recordatorio{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-top:14px;padding:11px 14px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);font-size:13px;color:var(--ink-2)}
+.recordatorio.pendiente{border-color:color-mix(in srgb,var(--c2) 45%,transparent);background:color-mix(in srgb,var(--c2) 9%,transparent)}
+.recordatorio b{color:var(--ink)}
+.recordatorio .cmd{font-family:"IBM Plex Mono",monospace;font-size:12px;padding:5px 11px;border:1px solid var(--rule);border-radius:3px;background:var(--panel-2);color:var(--ink-2);cursor:pointer}
+.recordatorio .cmd:hover{color:var(--ink);border-color:var(--ink-3)}
+.recordatorio .cmd:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+section{display:flex;flex-direction:column;gap:16px}
+.shead{display:flex;flex-direction:column;gap:6px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:20px;box-shadow:var(--shadow)}
+.scroller{overflow-x:auto}
+/* avisos */
+.avisos{display:flex;flex-direction:column;gap:10px}
+.aviso{display:flex;gap:14px;align-items:baseline;border:1px solid var(--rule);border-left:3px solid var(--c2);border-radius:3px;background:var(--panel);padding:14px 18px}
+.aviso.quitar{border-left-color:var(--neg)}
+.aviso.agregar{border-left-color:var(--good)}
+.aviso .que{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.aviso.quitar .que{color:var(--neg)}
+.aviso.agregar .que{color:var(--good)}
+.aviso .par{font-family:Archivo,sans-serif;font-weight:700;font-size:16px}
+.aviso .por{color:var(--ink-2);font-size:13.5px}
+.calma{border:1px dashed var(--rule);border-radius:3px;padding:16px 18px;color:var(--ink-3);font-size:13.5px}
+/* tabla */
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:right;padding:7px 10px;border-bottom:1px solid var(--rule-soft);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--rule)}
+tbody td{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:"IBM Plex Sans",sans-serif}
+tbody tr:last-child td{border-bottom:none}
+thead th[data-col]{cursor:pointer;user-select:none}
+thead th[data-col]:hover{color:var(--ink)}
+thead th[data-col]:focus-visible{outline:2px solid var(--c1);outline-offset:-2px}
+thead th[data-col] .flecha{color:var(--c1);font-weight:600}
+th.grp,td.grp{border-left:2px solid var(--rule)}
+thead tr:first-child th[colspan]{text-align:center;color:var(--ink-2);font-weight:600;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase}
+tr.pool td{background:color-mix(in srgb,var(--c1) 9%,transparent)}
+tr.fuera td{color:var(--ink-3)}
+td.t{font-weight:600}
+td.est{text-align:left;width:1%;padding-left:12px}
+.badge{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;display:inline-block;min-width:96px;text-align:center}
+.badge.pool{background:color-mix(in srgb,var(--c1) 15%,transparent);color:var(--c1);border:1px solid color-mix(in srgb,var(--c1) 42%,transparent)}
+.badge.cand{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
+.badge.vig{background:color-mix(in srgb,var(--c2) 13%,transparent);color:var(--c2);border:1px solid color-mix(in srgb,var(--c2) 38%,transparent)}
+.badge.no{background:var(--panel-2);color:var(--ink-3);border:1px solid var(--rule)}
+.spark{display:block}
+.delta.sube{color:var(--good)}
+.delta.baja{color:var(--neg)}
+footer{border-top:1px solid var(--rule);padding-top:18px;color:var(--ink-3);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">RSI Divergence Strategy · monitoreo mensual</div>
+    <h1>Quién entra y quién sale</h1>
+    <p class="lede">Cada mes se recalcula el rendimiento de todos los pares del universo contra velas reales. Cuando uno pierde su ventaja estadística, o cuando otro la gana, aparece acá.</p>
+    <div class="facts" id="facts"></div>
+    <div class="recordatorio" id="recordatorio"></div>
+  </header>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Avisos</div>
+      <h2 id="avisos-titulo">Sin cambios</h2>
+    </div>
+    <div class="avisos" id="avisos"></div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Estado por par</div>
+      <h2>El universo completo</h2>
+      <p class="note">El estadístico <b>t</b> mide cuántos errores estándar separa del cero al retorno promedio por operación. Por debajo de 2 el resultado no se distingue de la suerte. La banda entre 1,8 y 2,2 es zona de nadie a propósito: un corte seco haría entrar y salir pares por el ruido de una sola operación. La miniatura muestra cómo se movió el <b>t</b> mes a mes, con la línea del umbral. Se puede ordenar por cualquier columna haciendo clic en su título.</p>
+    </div>
+    <div class="panel scroller">
+      <table id="tabla"></table>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Cómo leerlo</div>
+      <h2>Uno nomina, el otro decide</h2>
+    </div>
+    <p class="note">La columna <b>simulado</b> se recalcula sola todos los meses: las entradas las genera una reimplementación de la estrategia y las salidas se replayan contra velas reales. Cubre los 65 pares sin que nadie mueva un dedo, pero no puede reproducir el 2,8% de operaciones que nacen del recálculo intravela de TradingView, y como esas resultaron rentables, deja el <b>t</b> entre 0,1 y 0,8 más abajo según el par. Sirve para ver quién se movió; no para decidir.</p>
+    <p class="note">Las columnas de <b>export</b> salen de backtests exportados a mano de TradingView y medidos con las mismas reglas que el informe, así que están en su misma escala. Son las que deciden. No hace falta exportar los 65: alcanza con la cartera y con los pares que el monitor haya señalado, diez o quince archivos. Y lo exportado se acumula: TradingView tiene un límite de velas y su ventana se desliza, así que cada export aporta lo que falta y lo viejo queda guardado.</p>
+    <p class="note">De ahí salen dos números. El <b>acumulado</b> toma todas las operaciones por igual, y tarda años en enterarse de que un par se apagó. El <b>descontado</b> pesa cada operación según su antigüedad, con una vida media de dos años: una operación de hace dos años vale la mitad que una de hoy, y una de 2022 todavía vale un quinto. Un par que atravesó un mercado difícil conserva ese crédito, pero no se escuda en él para siempre. Ese es el número que decide.</p>
+    <p class="note">El <b>n efectivo</b> es cuántas operaciones equivale ese peso total. Importa porque el <b>t</b> crece con la raíz del tamaño de muestra: un t de 2,5 apoyado en 95 operaciones efectivas no dice lo mismo que uno apoyado en 300. Es también la razón por la que una ventana con corte duro engaña — al quedarse con menos operaciones baja el t aunque la ventaja no haya cambiado.</p>
+    <p class="note">Por eso los avisos vienen en dos clases. <b>Exportar y mirar</b> es una nominación del simulador: se movió lo suficiente como para que valga la pena confirmarlo. <b>Sacar</b> y <b>sumar</b> solo aparecen cuando hay un export reciente que lo respalda, y esos sí son decisiones. Las dos columnas nunca se comparan entre sí dentro de un mismo aviso.</p>
+  </section>
+
+  <footer>
+    <div id="pie-corrida"></div>
+    <div>Entradas generadas desde la lógica de divergencia de la estrategia; salidas replayadas contra velas de Binance con el <a href="https://github.com/colochampre/bar-magnifier-estimator">bar-magnifier-estimator</a>. Incluye comisiones y funding real.</div>
+  </footer>
+</div>
+
+<script>
+const D = {"tf":"5m","generado":"2026-09-14","pares":{"1INCHUSDT":{"n":370,"total":-26.5,"t":-0.349,"cagr":-11.2,"mdd":66.5,"desde":"2022-01","hasta":"2026-09"},"AAVEUSDT":{"n":367,"total":185.9,"t":2.537,"cagr":40.3,"mdd":28.5,"desde":"2022-01","hasta":"2026-09","corroborado":{"n":368,"total":197.9,"t":2.704,"td":3.136,"media":0.6708,"n_ef":307,"vida_media":24,"desde":"2022-01","hasta":"2026-09","medido":"2026-09-15","lotes":1}},"ACUUSDT":{"n":33,"total":53.6,"t":2.865,"cagr":146.7,"mdd":15.8,"desde":"2026-02","hasta":"2026-09","corroborado":{"n":33,"total":52.5,"t":2.817,"td":2.831,"media":1.5988,"n_ef":33,"vida_media":24,"desde":"2026-02","hasta":"2026-09","medido":"2026-09-15","lotes":1}},"AEROUSDT":{"n":150,"total":46.1,"t":0.96,"cagr":21.8,"mdd":31.5,"desde":"2024-12","hasta":"2026-09"},"AGTUSDT":{"n":97,"total":98.6,"t":2.262,"cagr":96.8,"mdd":28.8,"desde":"2025-05","hasta":"2026-09","corroborado":{"n":97,"total":98.6,"t":2.263,"td":2.591,"media":1.175,"n_ef":95,"vida_media":24,"desde":"2025-05","hasta":"2026-09","medido":"2026-09-15","lotes":1}},"AKEUSDT":{"n":90,"total":-17.8,"t":-0.444,"cagr":-25.8,"mdd":34.4,"desde":"2025-10","hasta":"2026-09"},"ALICEUSDT":{"n":357,"total":134.8,"t":1.746,"cagr":25.2,"mdd":34.2,"desde":"2022-01","hasta":"2026-09"},"APEUSDT":{"n":335,"total":14.5,"t":0.196,"cagr":-2.9,"mdd":49.6,"desde":"2022-03","hasta":"2026-09"},"ARCUSDT":{"n":147,"total":-16.6,"t":-0.323,"cagr":-17.3,"mdd":55.5,"desde":"2025-01","hasta":"2026-08"},"ARUSDT":{"n":424,"total":68.1,"t":0.84,"cagr":7.7,"mdd":48.2,"desde":"2022-01","hasta":"2026-09"},"BANUSDT":{"n":108,"total":91.0,"t":2.111,"cagr":58.1,"mdd":30.3,"desde":"2024-11","hasta":"2026-09"},"BASUSDT":{"n":104,"total":28.1,"t":0.674,"cagr":21.6,"mdd":32.3,"desde":"2025-08","hasta":"2026-08"},"BATUSDT":{"n":351,"total":135.3,"t":1.817,"cagr":25.7,"mdd":35.6,"desde":"2022-01","hasta":"2026-09","corroborado":{"n":355,"total":177.1,"t":2.38,"td":1.472,"media":0.3418,"n_ef":293,"vida_media":24,"desde":"2022-01","hasta":"2026-09","medido":"2026-09-15","lotes":1}},"BLURUSDT":{"n":266,"total":29.4,"t":0.44,"cagr":2.1,"mdd":46.8,"desde":"2023-05","hasta":"2026-09"},"BRUSDT":{"n":107,"total":33.3,"t":0.508,"cagr":10.5,"mdd":45.3,"desde":"2025-03","hasta":"2026-09"},"BTCUSDT":{"n":222,"total":-44.8,"t":-0.755,"cagr":-12.6,"mdd":63.3,"desde":"2022-01","hasta":"2026-08"},"BUSDT":{"n":116,"total":39.2,"t":0.876,"cagr":26.1,"mdd":27.9,"desde":"2025-06","hasta":"2026-09"},"CELOUSDT":{"n":417,"total":130.9,"t":1.64,"cagr":23.3,"mdd":42.0,"desde":"2022-01","hasta":"2026-09"},"CFXUSDT":{"n":242,"total":121.1,"t":1.808,"cagr":32.3,"mdd":32.6,"desde":"2023-02","hasta":"2026-09"},"CHRUSDT":{"n":369,"total":56.4,"t":0.733,"cagr":5.8,"mdd":39.1,"desde":"2022-01","hasta":"2026-09"},"CKBUSDT":{"n":270,"total":-11.1,"t":-0.158,"cagr":-9.7,"mdd":57.6,"desde":"2023-03","hasta":"2026-09"},"COAIUSDT":{"n":74,"total":62.2,"t":1.792,"cagr":81.8,"mdd":20.6,"desde":"2025-10","hasta":"2026-09"},"COMPUSDT":{"n":339,"total":17.0,"t":0.231,"cagr":-2.2,"mdd":61.5,"desde":"2022-01","hasta":"2026-09"},"CRVUSDT":{"n":437,"total":89.4,"t":1.041,"cagr":11.8,"mdd":59.7,"desde":"2022-01","hasta":"2026-09"},"DASHUSDT":{"n":336,"total":92.6,"t":1.228,"cagr":14.6,"mdd":47.5,"desde":"2022-01","hasta":"2026-09"},"DOGSUSDT":{"n":146,"total":75.1,"t":1.671,"cagr":37.6,"mdd":22.3,"desde":"2024-09","hasta":"2026-09"},"EIGENUSDT":{"n":192,"total":31.5,"t":0.56,"cagr":8.4,"mdd":36.7,"desde":"2024-10","hasta":"2026-09"},"ETCUSDT":{"n":335,"total":3.4,"t":0.047,"cagr":-4.7,"mdd":54.3,"desde":"2022-01","hasta":"2026-09"},"ETHUSDT":{"n":277,"total":60.0,"t":0.918,"cagr":8.5,"mdd":49.7,"desde":"2022-01","hasta":"2026-09"},"FARTCOINUSDT":{"n":168,"total":53.9,"t":1.048,"cagr":26.6,"mdd":35.3,"desde":"2024-12","hasta":"2026-09"},"FLOWUSDT":{"n":375,"total":-27.7,"t":-0.358,"cagr":-11.9,"mdd":60.2,"desde":"2022-02","hasta":"2026-09"},"GASUSDT":{"n":190,"total":-2.1,"t":-0.04,"cagr":-5.7,"mdd":50.6,"desde":"2023-10","hasta":"2026-09"},"HUSDT":{"n":112,"total":62.4,"t":1.506,"cagr":56.4,"mdd":26.0,"desde":"2025-07","hasta":"2026-09"},"JASMYUSDT":{"n":345,"total":86.9,"t":1.177,"cagr":14.5,"mdd":30.1,"desde":"2022-04","hasta":"2026-09"},"JELLYJELLYUSDT":{"n":83,"total":53.6,"t":1.506,"cagr":38.2,"mdd":23.1,"desde":"2025-03","hasta":"2026-09"},"JTOUSDT":{"n":242,"total":42.0,"t":0.688,"cagr":9.0,"mdd":47.7,"desde":"2023-12","hasta":"2026-09"},"LDOUSDT":{"n":339,"total":-2.4,"t":-0.033,"cagr":-7.3,"mdd":51.3,"desde":"2022-09","hasta":"2026-09"},"MASKUSDT":{"n":366,"total":60.8,"t":0.785,"cagr":6.7,"mdd":35.2,"desde":"2022-01","hasta":"2026-09"},"MINAUSDT":{"n":286,"total":80.4,"t":1.196,"cagr":17.4,"mdd":38.4,"desde":"2023-02","hasta":"2026-09"},"NEARUSDT":{"n":388,"total":65.8,"t":0.856,"cagr":8.0,"mdd":52.0,"desde":"2022-01","hasta":"2026-09"},"NEOUSDT":{"n":352,"total":119.3,"t":1.632,"cagr":21.7,"mdd":28.4,"desde":"2022-01","hasta":"2026-09","corroborado":{"n":352,"total":151.8,"t":2.096,"td":1.627,"media":0.37,"n_ef":289,"vida_media":24,"desde":"2022-01","hasta":"2026-09","medido":"2026-09-15","lotes":1}},"ONTUSDT":{"n":365,"total":59.0,"t":0.782,"cagr":6.6,"mdd":51.6,"desde":"2022-01","hasta":"2026-09"},"ORDIUSDT":{"n":195,"total":55.9,"t":1.022,"cagr":15.5,"mdd":50.7,"desde":"2023-11","hasta":"2026-09"},"PNUTUSDT":{"n":148,"total":107.5,"t":2.329,"cagr":69.2,"mdd":23.1,"desde":"2024-11","hasta":"2026-09","corroborado":{"n":147,"total":113.4,"t":2.474,"td":2.489,"media":0.783,"n_ef":142,"vida_media":24,"desde":"2024-11","hasta":"2026-09","medido":"2026-09-15","lotes":1}},"ROSEUSDT":{"n":397,"total":25.8,"t":0.324,"cagr":-1.3,"mdd":56.3,"desde":"2022-01","hasta":"2026-09"},"RUNEUSDT":{"n":379,"total":21.5,"t":0.276,"cagr":-2.0,"mdd":68.9,"desde":"2022-01","hasta":"2026-08"},"SAFEUSDT":{"n":145,"total":8.3,"t":0.174,"cagr":-1.8,"mdd":27.4,"desde":"2024-10","hasta":"2026-09"},"SFPUSDT":{"n":316,"total":357.9,"t":4.55,"cagr":101.0,"mdd":21.6,"desde":"2022-01","hasta":"2026-09","corroborado":{"n":314,"total":394.0,"t":4.969,"td":4.665,"media":1.3923,"n_ef":251,"vida_media":24,"desde":"2022-01","hasta":"2026-09","medido":"2026-09-15","lotes":1}},"SKYUSDT":{"n":67,"total":46.5,"t":1.539,"cagr":54.5,"mdd":15.0,"desde":"2025-09","hasta":"2026-09"},"SNXUSDT":{"n":386,"total":79.2,"t":1.001,"cagr":10.7,"mdd":42.6,"desde":"2022-01","hasta":"2026-09"},"SOLUSDT":{"n":368,"total":-77.3,"t":-0.991,"cagr":-20.8,"mdd":74.6,"desde":"2022-01","hasta":"2026-08"},"SPXUSDT":{"n":160,"total":-21.2,"t":-0.422,"cagr":-18.0,"mdd":40.7,"desde":"2024-12","hasta":"2026-09"},"STABLEUSDT":{"n":63,"total":46.2,"t":1.495,"cagr":64.5,"mdd":24.3,"desde":"2025-11","hasta":"2026-09"},"STRKUSDT":{"n":214,"total":-24.5,"t":-0.429,"cagr":-15.1,"mdd":52.7,"desde":"2024-03","hasta":"2026-09"},"STXUSDT":{"n":256,"total":132.6,"t":2.097,"cagr":37.3,"mdd":28.2,"desde":"2023-02","hasta":"2026-09","corroborado":{"n":259,"total":156.0,"t":2.451,"td":2.386,"media":0.6109,"n_ef":231,"vida_media":24,"desde":"2023-02","hasta":"2026-09","medido":"2026-09-15","lotes":1}},"SUSHIUSDT":{"n":377,"total":35.0,"t":0.45,"cagr":0.9,"mdd":59.4,"desde":"2022-01","hasta":"2026-09"},"TRBUSDT":{"n":376,"total":-26.4,"t":-0.337,"cagr":-11.5,"mdd":72.0,"desde":"2022-01","hasta":"2026-09"},"TURBOUSDT":{"n":186,"total":24.2,"t":0.445,"cagr":4.2,"mdd":47.8,"desde":"2024-06","hasta":"2026-09"},"USELESSUSDT":{"n":112,"total":20.3,"t":0.491,"cagr":11.9,"mdd":32.9,"desde":"2025-08","hasta":"2026-09"},"VETUSDT":{"n":364,"total":63.7,"t":0.819,"cagr":7.4,"mdd":43.2,"desde":"2022-01","hasta":"2026-09"},"VVVUSDT":{"n":142,"total":77.7,"t":1.625,"cagr":51.0,"mdd":27.6,"desde":"2025-02","hasta":"2026-09"},"WALUSDT":{"n":116,"total":56.4,"t":1.281,"cagr":38.1,"mdd":19.0,"desde":"2025-04","hasta":"2026-09"},"WIFUSDT":{"n":239,"total":38.6,"t":0.642,"cagr":8.0,"mdd":47.8,"desde":"2024-01","hasta":"2026-09"},"ZECUSDT":{"n":390,"total":-23.5,"t":-0.29,"cagr":-11.3,"mdd":73.5,"desde":"2022-01","hasta":"2026-09"},"ZETAUSDT":{"n":206,"total":73.0,"t":1.313,"cagr":24.9,"mdd":27.8,"desde":"2024-02","hasta":"2026-09"}},"historia":{"1INCHUSDT":[{"m":"2026-09","t":-0.349,"n":370,"total":-26.5}],"AAVEUSDT":[{"m":"2026-09","t":2.537,"n":367,"total":185.9}],"ACUUSDT":[{"m":"2026-09","t":2.865,"n":33,"total":53.6}],"AEROUSDT":[{"m":"2026-09","t":0.96,"n":150,"total":46.1}],"AGTUSDT":[{"m":"2026-09","t":2.262,"n":97,"total":98.6}],"AKEUSDT":[{"m":"2026-09","t":-0.444,"n":90,"total":-17.8}],"ALICEUSDT":[{"m":"2026-09","t":1.746,"n":357,"total":134.8}],"APEUSDT":[{"m":"2026-09","t":0.196,"n":335,"total":14.5}],"ARCUSDT":[{"m":"2026-09","t":-0.323,"n":147,"total":-16.6}],"ARUSDT":[{"m":"2026-09","t":0.84,"n":424,"total":68.1}],"BANUSDT":[{"m":"2026-09","t":2.111,"n":108,"total":91.0}],"BASUSDT":[{"m":"2026-09","t":0.674,"n":104,"total":28.1}],"BATUSDT":[{"m":"2026-09","t":1.817,"n":351,"total":135.3}],"BLURUSDT":[{"m":"2026-09","t":0.44,"n":266,"total":29.4}],"BRUSDT":[{"m":"2026-09","t":0.508,"n":107,"total":33.3}],"BTCUSDT":[{"m":"2026-09","t":-0.755,"n":222,"total":-44.8}],"BUSDT":[{"m":"2026-09","t":0.876,"n":116,"total":39.2}],"CELOUSDT":[{"m":"2026-09","t":1.64,"n":417,"total":130.9}],"CFXUSDT":[{"m":"2026-09","t":1.808,"n":242,"total":121.1}],"CHRUSDT":[{"m":"2026-09","t":0.733,"n":369,"total":56.4}],"CKBUSDT":[{"m":"2026-09","t":-0.158,"n":270,"total":-11.1}],"COAIUSDT":[{"m":"2026-09","t":1.792,"n":74,"total":62.2}],"COMPUSDT":[{"m":"2026-09","t":0.231,"n":339,"total":17.0}],"CRVUSDT":[{"m":"2026-09","t":1.041,"n":437,"total":89.4}],"DASHUSDT":[{"m":"2026-09","t":1.228,"n":336,"total":92.6}],"DOGSUSDT":[{"m":"2026-09","t":1.671,"n":146,"total":75.1}],"EIGENUSDT":[{"m":"2026-09","t":0.56,"n":192,"total":31.5}],"ETCUSDT":[{"m":"2026-09","t":0.047,"n":335,"total":3.4}],"ETHUSDT":[{"m":"2026-09","t":0.918,"n":277,"total":60.0}],"FARTCOINUSDT":[{"m":"2026-09","t":1.048,"n":168,"total":53.9}],"FLOWUSDT":[{"m":"2026-09","t":-0.358,"n":375,"total":-27.7}],"GASUSDT":[{"m":"2026-09","t":-0.04,"n":190,"total":-2.1}],"HUSDT":[{"m":"2026-09","t":1.506,"n":112,"total":62.4}],"JASMYUSDT":[{"m":"2026-09","t":1.177,"n":345,"total":86.9}],"JELLYJELLYUSDT":[{"m":"2026-09","t":1.506,"n":83,"total":53.6}],"JTOUSDT":[{"m":"2026-09","t":0.688,"n":242,"total":42.0}],"LDOUSDT":[{"m":"2026-09","t":-0.033,"n":339,"total":-2.4}],"MASKUSDT":[{"m":"2026-09","t":0.785,"n":366,"total":60.8}],"MINAUSDT":[{"m":"2026-09","t":1.196,"n":286,"total":80.4}],"NEARUSDT":[{"m":"2026-09","t":0.856,"n":388,"total":65.8}],"NEOUSDT":[{"m":"2026-09","t":1.632,"n":352,"total":119.3}],"ONTUSDT":[{"m":"2026-09","t":0.782,"n":365,"total":59.0}],"ORDIUSDT":[{"m":"2026-09","t":1.022,"n":195,"total":55.9}],"PNUTUSDT":[{"m":"2026-09","t":2.329,"n":148,"total":107.5}],"ROSEUSDT":[{"m":"2026-09","t":0.324,"n":397,"total":25.8}],"RUNEUSDT":[{"m":"2026-09","t":0.276,"n":379,"total":21.5}],"SAFEUSDT":[{"m":"2026-09","t":0.174,"n":145,"total":8.3}],"SFPUSDT":[{"m":"2026-09","t":4.55,"n":316,"total":357.9}],"SKYUSDT":[{"m":"2026-09","t":1.539,"n":67,"total":46.5}],"SNXUSDT":[{"m":"2026-09","t":1.001,"n":386,"total":79.2}],"SOLUSDT":[{"m":"2026-09","t":-0.991,"n":368,"total":-77.3}],"SPXUSDT":[{"m":"2026-09","t":-0.422,"n":160,"total":-21.2}],"STABLEUSDT":[{"m":"2026-09","t":1.495,"n":63,"total":46.2}],"STRKUSDT":[{"m":"2026-09","t":-0.429,"n":214,"total":-24.5}],"STXUSDT":[{"m":"2026-09","t":2.097,"n":256,"total":132.6}],"SUSHIUSDT":[{"m":"2026-09","t":0.45,"n":377,"total":35.0}],"TRBUSDT":[{"m":"2026-09","t":-0.337,"n":376,"total":-26.4}],"TURBOUSDT":[{"m":"2026-09","t":0.445,"n":186,"total":24.2}],"USELESSUSDT":[{"m":"2026-09","t":0.491,"n":112,"total":20.3}],"VETUSDT":[{"m":"2026-09","t":0.819,"n":364,"total":63.7}],"VVVUSDT":[{"m":"2026-09","t":1.625,"n":142,"total":77.7}],"WALUSDT":[{"m":"2026-09","t":1.281,"n":116,"total":56.4}],"WIFUSDT":[{"m":"2026-09","t":0.642,"n":239,"total":38.6}],"ZECUSDT":[{"m":"2026-09","t":-0.29,"n":390,"total":-23.5}],"ZETAUSDT":[{"m":"2026-09","t":1.313,"n":206,"total":73.0}]},"pool":["SFPUSDT","AAVEUSDT","STXUSDT"],"alertas":[]};
+const $ = (id) => document.getElementById(id);
+const pct = (v, d) => (v === null || v === undefined || Number.isNaN(v)) ? "—" : v.toFixed(d === undefined ? 1 : d) + "%";
+const UMBRAL = 2.0, BAJO = 1.8, ALTO = 2.2;
+
+const pares = Object.keys(D.pares).sort((a, b) => D.pares[b].t - D.pares[a].t);
+const pool = new Set(D.pool || []);
+const clase = (sym) => {
+  const t = D.pares[sym].t;
+  if (pool.has(sym)) return ["pool", "en cartera"];
+  if (t >= ALTO) return ["cand", "candidato"];
+  if (t >= BAJO) return ["vig", "en la banda"];
+  return ["no", "sin ventaja"];
+};
+
+$("facts").innerHTML = [
+  [pares.length, "pares medidos"],
+  [pool.size, "en la cartera"],
+  [pares.filter((p) => !pool.has(p) && D.pares[p].t >= ALTO).length, "candidatos a entrar"],
+  [(D.alertas || []).length, "avisos este mes"],
+  [D.tf, "resolución de salida"]
+].map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join("");
+
+/* --- avisos --- */
+const av = D.alertas || [];
+$("avisos-titulo").textContent = av.length
+  ? (av.length === 1 ? "Un par para revisar" : `${av.length} pares para revisar`)
+  : "Sin cambios";
+const ETIQUETA = { quitar: "Sacar", agregar: "Sumar", corroborar: "Exportar y mirar" };
+$("avisos").innerHTML = av.length ? av.map((a) => `<div class="aviso ${a.accion}">
+    <span class="que">${ETIQUETA[a.accion] || a.accion}</span>
+    <span class="par">${a.par.replace("USDT", "")}</span>
+    <span class="por">${a.por}</span>
+  </div>`).join("")
+  : `<div class="calma">Ningún par sostuvo un cruce del umbral durante dos lecturas seguidas. La cartera queda como está.</div>`;
+
+/* --- miniatura del t --- */
+function spark(sym) {
+  const h = (D.historia[sym] || []).slice(-12);
+  if (h.length < 2) return '<span style="color:var(--ink-3)">—</span>';
+  const W = 84, H = 22, P = 2;
+  const vals = h.map((x) => x.t).concat([UMBRAL]);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const rango = (hi - lo) || 1;
+  const X = (i) => P + (i / (h.length - 1)) * (W - 2 * P);
+  const Y = (v) => H - P - ((v - lo) / rango) * (H - 2 * P);
+  const d = h.map((x, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(x.t).toFixed(1)).join(" ");
+  const ult = h[h.length - 1].t;
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="t mes a mes">
+    <line x1="${P}" y1="${Y(UMBRAL).toFixed(1)}" x2="${W - P}" y2="${Y(UMBRAL).toFixed(1)}"
+          stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 3"/>
+    <path d="${d}" fill="none" stroke="var(--ink-3)" stroke-width="1.4"/>
+    <circle cx="${X(h.length - 1).toFixed(1)}" cy="${Y(ult).toFixed(1)}" r="2.4"
+            fill="${ult >= UMBRAL ? "var(--c1)" : "var(--neg)"}"/>
+  </svg>`;
+}
+
+/* --- tabla --- */
+const corr = (s) => D.pares[s].corroborado;
+const tiene = (v) => v !== null && v !== undefined;
+const cambio = (s) => {
+  const h = D.historia[s] || [];
+  return h.length > 1 ? D.pares[s].t - h[h.length - 2].t : null;
+};
+// El orden ascendente del estado es el de cercanía a la cartera, no el alfabético.
+const RANGO = { pool: 0, cand: 1, vig: 2, no: 3 };
+
+const COLS = [
+  { id: "par", txt: "par", val: (s) => s.replace("USDT", "") },
+  { id: "estado", txt: "estado", th: "est", val: (s) => RANGO[clase(s)[0]] },
+  { id: "ops", txt: "ops", val: (s) => D.pares[s].n },
+  { id: "total", txt: "total", val: (s) => D.pares[s].total },
+  { id: "t", txt: "t", val: (s) => D.pares[s].t },
+  { id: "cambio", txt: "cambio", val: cambio },
+  { id: "spark", txt: "mes a mes", fijo: true },
+  { id: "tacum", txt: "t acum", th: "grp", val: (s) => corr(s) ? corr(s).t : null },
+  { id: "td", txt: "t descontado", val: (s) => corr(s) && tiene(corr(s).td) ? corr(s).td : null },
+  { id: "nef", txt: "n efectivo", val: (s) => corr(s) ? corr(s).n_ef : null },
+  { id: "medido", txt: "medido", val: (s) => corr(s) ? corr(s).medido : null },
+  { id: "anual", txt: "anual", val: (s) => D.pares[s].cagr },
+  { id: "dd", txt: "caída máx", val: (s) => D.pares[s].mdd }
+];
+
+let orden = { id: "t", dir: "desc" };
+
+function ordenados() {
+  const col = COLS.find((c) => c.id === orden.id);
+  if (!col || col.fijo) return pares;
+  const signo = orden.dir === "asc" ? 1 : -1;
+  // Los pares sin dato van al final en las dos direcciones: una raya no es
+  // ni el mejor ni el peor valor, es la ausencia de uno.
+  return pares.slice().sort((a, b) => {
+    const x = col.val(a), y = col.val(b);
+    if (!tiene(x)) return tiene(y) ? 1 : 0;
+    if (!tiene(y)) return -1;
+    return signo * (typeof x === "string" ? x.localeCompare(y, "es") : x - y);
+  });
+}
+
+function pintarTabla() {
+  const cabecera = COLS.map((c) => {
+    const activa = orden.id === c.id;
+    const flecha = activa ? ` <span class="flecha">${orden.dir === "asc" ? "↑" : "↓"}</span>` : "";
+    const clases = [c.th || "", activa ? "activa" : ""].filter(Boolean).join(" ");
+    if (c.fijo) return `<th${clases ? ` class="${clases}"` : ""}>${c.txt}</th>`;
+    return `<th${clases ? ` class="${clases}"` : ""} data-col="${c.id}" tabindex="0" role="button"
+      aria-sort="${activa ? (orden.dir === "asc" ? "ascending" : "descending") : "none"}"
+      title="Ordenar por ${c.txt}">${c.txt}${flecha}</th>`;
+  }).join("");
+
+  const filas = ordenados().map((sym) => {
+    const p = D.pares[sym], [tono, texto] = clase(sym);
+    const d = cambio(sym), c = corr(sym);
+    return `<tr class="${pool.has(sym) ? "pool" : p.t < BAJO ? "fuera" : ""}">
+      <td>${sym.replace("USDT", "")}</td>
+      <td class="est"><span class="badge ${tono}">${texto}</span></td>
+      <td>${p.n}</td><td>${pct(p.total, 0)}</td>
+      <td class="t">${p.t.toFixed(2)}</td>
+      <td class="delta ${d === null ? "" : d > 0 ? "sube" : "baja"}">${d === null ? "—" : (d > 0 ? "+" : "") + d.toFixed(2)}</td>
+      <td>${spark(sym)}</td>
+      <td class="grp" style="color:var(--ink-3)">${c ? c.t.toFixed(2) : "—"}</td>
+      <td class="t ${c && tiene(c.td) && c.td <= BAJO ? "delta baja" : ""}">${c && tiene(c.td) ? c.td.toFixed(2) : "—"}</td>
+      <td style="color:var(--ink-3)">${c && c.n_ef ? c.n_ef : "—"}</td>
+      <td style="color:var(--ink-3)">${c ? c.medido : "—"}</td>
+      <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td></tr>`;
+  }).join("");
+
+  $("tabla").innerHTML = `<thead>
+    <tr><th></th><th></th><th colspan="5">simulado, todos los meses</th>
+        <th class="grp" colspan="4">export, cuando lo pedís</th><th></th><th></th></tr>
+    <tr>${cabecera}</tr></thead><tbody>${filas}</tbody>`;
+
+  $("tabla").querySelectorAll("th[data-col]").forEach((th) => {
+    const activar = () => {
+      const id = th.dataset.col;
+      orden = { id: id, dir: orden.id === id && orden.dir === "asc" ? "desc" : "asc" };
+      pintarTabla();
+    };
+    th.addEventListener("click", activar);
+    th.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activar(); }
+    });
+  });
+}
+pintarTabla();
+
+/* --- cuándo toca la próxima corrida --- */
+(() => {
+  const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+                 "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  const COMANDO = "python monitor/actualizar.py";
+  const caja = $("recordatorio");
+  const hoy = new Date();
+  // Mediodía para que el huso horario no corra la fecha un día.
+  const ultima = D.generado ? new Date(D.generado + "T12:00:00") : null;
+  const proximo = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 1);
+  const faltan = Math.ceil((proximo - hoy) / 86400000);
+  const alDia = ultima && ultima.getFullYear() === hoy.getFullYear()
+    && ultima.getMonth() === hoy.getMonth();
+  let texto;
+  if (alDia) {
+    texto = `Corrida de ${MESES[hoy.getMonth()]} hecha el ${ultima.getDate()}. `
+      + `La próxima toca el <b>1 de ${MESES[proximo.getMonth()]}</b>, en `
+      + `<b>${faltan} ${faltan === 1 ? "día" : "días"}</b>.`;
+  } else {
+    const desde = ultima
+      ? `La última fue el ${ultima.getDate()} de ${MESES[ultima.getMonth()]}.`
+      : "Todavía no hay ninguna corrida registrada.";
+    texto = `<b>La corrida de ${MESES[hoy.getMonth()]} está pendiente.</b> ${desde}`;
+    caja.classList.add("pendiente");
+  }
+  caja.innerHTML = `<span>${texto}</span>
+    <button type="button" class="cmd" id="copiar">${COMANDO}</button>`;
+  // La página no puede correr nada en tu máquina: lo más útil que puede hacer
+  // es dejarte el comando listo para pegar en la terminal.
+  $("copiar").addEventListener("click", function () {
+    const listo = () => { this.textContent = "copiado ✓"; setTimeout(() => { this.textContent = COMANDO; }, 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText(COMANDO).then(listo, () => {});
+    else listo();
+  });
+})();
+
+$("pie-corrida").textContent = "Última corrida: " + D.generado
+  + " · salidas replayadas a " + D.tf + " · cartera vigente: "
+  + ((D.pool || []).map((s) => s.replace("USDT", "")).join(", ") || "sin definir");
+</script>

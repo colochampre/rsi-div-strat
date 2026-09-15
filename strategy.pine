@@ -52,10 +52,12 @@ enableShorts = input.bool(true, "Enable Shorts", group = "ENTRIES")
 // 3. EXITS — Inputs
 // ============================================================================
 exitOnOppositeDiv = input.bool(true,  "Exit on opposite divergence",                group = "EXITS")
-tpPerc            = input.float(3.1,  "Take Profit %",   minval = 0.0, step = 0.1,  group = "EXITS")
-slPerc            = input.float(1.9,  "Stop Loss %",     minval = 0.0, step = 0.1,  group = "EXITS")
+// Defaults definitivos: sin toma de ganancias. Con TP la estrategia corta las
+// ganancias que sostienen el resultado — el trailing las deja correr.
+tpPerc            = input.float(0.0,  "Take Profit %",   minval = 0.0, step = 0.1,  group = "EXITS")
+slPerc            = input.float(5.0,  "Stop Loss %",     minval = 0.0, step = 0.1,  group = "EXITS")
 useTrailStop      = input.bool(true,  "Trailing Stop",                              group = "EXITS")
-trailActivPerc    = input.float(1.0,  "Trailing Activation %", minval = 0.1, step = 0.1, group = "EXITS")
+trailActivPerc    = input.float(3.0,  "Trailing Activation %", minval = 0.1, step = 0.1, group = "EXITS")
 trailOffsetPerc   = input.float(0.6,  "Trailing Offset %",     minval = 0.1, step = 0.1, group = "EXITS")
 
 // ============================================================================
