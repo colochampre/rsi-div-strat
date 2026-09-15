@@ -72,6 +72,8 @@ thead th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.
 tbody td{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
 tbody td:first-child{font-family:"IBM Plex Sans",sans-serif}
 tbody tr:last-child td{border-bottom:none}
+th.grp,td.grp{border-left:2px solid var(--rule)}
+thead tr:first-child th[colspan]{text-align:center;color:var(--ink-2);font-weight:600;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase}
 tr.pool td{background:color-mix(in srgb,var(--c1) 9%,transparent)}
 tr.fuera td{color:var(--ink-3)}
 td.t{font-weight:600}
@@ -118,10 +120,11 @@ footer{border-top:1px solid var(--rule);padding-top:18px;color:var(--ink-3);font
   <section>
     <div class="shead">
       <div class="eyebrow">Cómo leerlo</div>
-      <h2>Estos números no se comparan con los del informe</h2>
+      <h2>Uno nomina, el otro decide</h2>
     </div>
-    <p class="note">El informe de selección de pares se calcula con las operaciones que TradingView exportó. Este monitor las genera por su cuenta, porque un backtest exportado a mano no se puede actualizar solo. Las operaciones que ambas vías toman dan idéntico —diferencia máxima de 0,0000 puntos—, pero el simulador no puede reproducir el 2,8% de operaciones que nacen del recálculo intravela de TradingView, y como esas resultaron rentables, deja el <b>t</b> de cada par entre 0,1 y 0,7 más abajo.</p>
-    <p class="note">Por eso la línea de base de esta página se reconstruyó con el mismo simulador, y las comparaciones son siempre entre lecturas de acá. Un termómetro que lee medio grado bajo sirve perfectamente para detectar fiebre, mientras no compares sus lecturas con las de otro termómetro.</p>
+    <p class="note">La columna <b>simulado</b> se recalcula sola todos los meses: las entradas las genera una reimplementación de la estrategia y las salidas se replayan contra velas reales. Cubre los 65 pares sin que nadie mueva un dedo, pero no puede reproducir el 2,8% de operaciones que nacen del recálculo intravela de TradingView, y como esas resultaron rentables, deja el <b>t</b> entre 0,1 y 0,8 más abajo según el par. Sirve para ver quién se movió; no para decidir.</p>
+    <p class="note">La columna <b>export</b> sale de un backtest exportado a mano de TradingView y medido con las mismas reglas que el informe, así que está en su misma escala. Es la que decide. No hace falta exportar los 65: alcanza con la cartera y con los pares que el monitor haya señalado, diez o quince archivos.</p>
+    <p class="note">Por eso los avisos vienen en dos clases. <b>Exportar y mirar</b> es una nominación del simulador: se movió lo suficiente como para que valga la pena confirmarlo. <b>Sacar</b> y <b>sumar</b> solo aparecen cuando hay un export reciente que lo respalda, y esos sí son decisiones. Las dos columnas nunca se comparan entre sí dentro de un mismo aviso.</p>
   </section>
 
   <footer>
@@ -159,15 +162,13 @@ const av = D.alertas || [];
 $("avisos-titulo").textContent = av.length
   ? (av.length === 1 ? "Un par para revisar" : `${av.length} pares para revisar`)
   : "Sin cambios";
-$("avisos").innerHTML = av.length ? av.map((a) => {
-  const quitar = a.accion === "quitar";
-  return `<div class="aviso ${quitar ? "quitar" : "agregar"}">
-    <span class="que">${quitar ? "Sacar" : "Sumar"}</span>
+const ETIQUETA = { quitar: "Sacar", agregar: "Sumar", corroborar: "Exportar y mirar" };
+$("avisos").innerHTML = av.length ? av.map((a) => `<div class="aviso ${a.accion}">
+    <span class="que">${ETIQUETA[a.accion] || a.accion}</span>
     <span class="par">${a.par.replace("USDT", "")}</span>
-    <span class="por">t de <b class="mono">${a.t.toFixed(2)}</b> sostenido desde ${a.desde}
-      — ${quitar ? "dejó de distinguirse de la suerte" : "superó el umbral estando afuera de la cartera"}.</span>
-  </div>`;
-}).join("") : `<div class="calma">Ningún par sostuvo un cruce del umbral durante dos lecturas seguidas. La cartera queda como está.</div>`;
+    <span class="por">${a.por}</span>
+  </div>`).join("")
+  : `<div class="calma">Ningún par sostuvo un cruce del umbral durante dos lecturas seguidas. La cartera queda como está.</div>`;
 
 /* --- miniatura del t --- */
 function spark(sym) {
@@ -191,13 +192,17 @@ function spark(sym) {
 }
 
 /* --- tabla --- */
-$("tabla").innerHTML = `<thead><tr>
-    <th>par</th><th class="est">estado</th><th>ops</th><th>total</th><th>t</th><th>cambio</th>
-    <th>mes a mes</th><th>anual</th><th>caída máx</th><th>desde</th></tr></thead><tbody>` +
+$("tabla").innerHTML = `<thead>
+    <tr><th></th><th></th><th colspan="5">simulado, todos los meses</th>
+        <th class="grp" colspan="2">export, cuando lo pedís</th><th></th><th></th></tr>
+    <tr><th>par</th><th class="est">estado</th><th>ops</th><th>total</th><th>t</th><th>cambio</th>
+    <th>mes a mes</th><th class="grp">t</th><th>medido</th>
+    <th>anual</th><th>caída máx</th></tr></thead><tbody>` +
   pares.map((sym) => {
     const p = D.pares[sym], [tono, texto] = clase(sym);
     const h = D.historia[sym] || [];
     const d = h.length > 1 ? p.t - h[h.length - 2].t : null;
+    const c = p.corroborado;
     return `<tr class="${pool.has(sym) ? "pool" : p.t < BAJO ? "fuera" : ""}">
       <td>${sym.replace("USDT", "")}</td>
       <td class="est"><span class="badge ${tono}">${texto}</span></td>
@@ -205,7 +210,9 @@ $("tabla").innerHTML = `<thead><tr>
       <td class="t">${p.t.toFixed(2)}</td>
       <td class="delta ${d === null ? "" : d > 0 ? "sube" : "baja"}">${d === null ? "—" : (d > 0 ? "+" : "") + d.toFixed(2)}</td>
       <td>${spark(sym)}</td>
-      <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td><td>${p.desde}</td></tr>`;
+      <td class="t grp">${c ? c.t.toFixed(2) : "—"}</td>
+      <td style="color:var(--ink-3)">${c ? c.medido : "—"}</td>
+      <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td></tr>`;
   }).join("") + "</tbody>";
 
 $("pie-corrida").textContent = "Última corrida: " + D.generado

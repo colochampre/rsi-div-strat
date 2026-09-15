@@ -19,11 +19,12 @@ clonado al lado de este repo, o `BME_PATH` apuntando a él.
 
 ---
 
-## Lo primero: este monitor se compara consigo mismo
+## Lo primero: uno nomina, el otro decide
 
-Sus números **no son intercambiables** con los del informe de selección de
-pares, que salen de los exports de TradingView. Mezclarlos produce alarmas
-falsas. El motivo está medido:
+El simulador mira los 65 pares todos los meses sin que nadie mueva un dedo, pero
+sus números **no son intercambiables** con los del informe, que salen de los
+exports de TradingView. Mezclarlos produce alarmas falsas. El motivo está
+medido:
 
 | | |
 |---|---|
@@ -41,9 +42,22 @@ auditoría del Bar Magnifier. Como esas operaciones resultaron rentables, su
 ausencia deja el `t` de cada par entre 0,1 y 0,7 más bajo que el del informe.
 
 Un termómetro que lee medio grado bajo sirve perfectamente para detectar fiebre,
-siempre que no compares sus lecturas con las de otro termómetro. Por eso la
-línea de base se reconstruye con este mismo simulador y las comparaciones son
-siempre mes contra mes.
+siempre que no compares sus lecturas con las de otro termómetro. De ahí sale el
+reparto de tareas:
+
+- **El simulador nomina.** Corre solo, cubre los 65 y avisa cuándo un par se
+  movió lo suficiente como para mirarlo en serio. Sus lecturas se comparan
+  siempre entre sí, mes contra mes.
+- **El export decide.** Exportás ese par de TradingView, lo pasás por
+  [`corroborar.py`](corroborar.py) y ahí sí el número está en la escala del
+  informe. Recién entonces el monitor dice sacar o sumar.
+
+Por eso los avisos vienen en dos clases, y la página muestra las dos columnas
+por separado sin compararlas nunca dentro de un mismo aviso.
+
+```bash
+python monitor/corroborar.py        # mide los CSV de backtest/corroboracion/
+```
 
 ---
 
@@ -72,6 +86,7 @@ correcto: el monitor avisa, la decisión es tuya.
 | `senales.py` | La divergencia del Pine traducida, con el RSI de Wilder y los extremos del swing |
 | `simular.py` | Estado de posición y salidas replayadas: produce las operaciones |
 | `actualizar.py` | La corrida mensual: mide, guarda la historia y calcula los avisos |
+| `corroborar.py` | Mide desde exports de TradingView, en la escala del informe |
 | `validar_senales.py` | Contrasta las señales contra los exports de TradingView |
 | `validar_simulacion.py` | Contrasta las estadísticas punta a punta, a 4 horas |
 | `pares.txt` | El universo monitoreado, un símbolo por línea |

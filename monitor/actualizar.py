@@ -147,24 +147,67 @@ def lado(t):
     return None
 
 
-def alertas(historia, pool):
-    """Pares que sostienen un cruce el tiempo suficiente como para avisar."""
+#: Después de cuántos meses una corroboración deja de valer. Una estrategia de
+#: 4 horas suma entre cinco y ocho operaciones por par por mes, así que medio
+#: año es material nuevo suficiente como para volver a mirar.
+VENCE = 6
+
+
+def _vieja(medido, ultimo_mes):
+    """¿La corroboración quedó atrás en el tiempo?"""
+    if not medido:
+        return True
+    a, m = int(medido[:4]), int(medido[5:7])
+    b, n = int(ultimo_mes[:4]), int(ultimo_mes[5:7])
+    return (b * 12 + n) - (a * 12 + m) >= VENCE
+
+
+def alertas(estado):
+    """Qué hacer con cada par, separando quién nomina de quién decide.
+
+    El simulador no puede decidir: su t corre entre 0,1 y 0,8 por debajo del
+    que produce un export, y la cartera se definió con exports. Lo que sí puede
+    es *nominar* — avisar que un par se movió lo suficiente como para que valga
+    la pena exportarlo y mirarlo en serio.
+
+    Así que hay dos clases de aviso:
+
+      corroborar   el simulado sostuvo un cruce que contradice a la cartera.
+                   Exportá ese par de TradingView y pasalo por corroborar.py.
+      quitar/agregar   ya hay un export reciente y dice lo mismo. Eso sí es
+                   una decisión, porque está en la escala del informe.
+    """
+    pool = estado.get("pool", [])
     out = []
-    for sym, lecturas in sorted(historia.items()):
+    for sym, lecturas in sorted(estado.get("historia", {}).items()):
         ultimas = lecturas[-PERSISTENCIA:]
         if len(ultimas) < PERSISTENCIA:
             continue
         lados = [lado(x["t"]) for x in ultimas]
         if lados[0] is None or len(set(lados)) != 1:
             continue
-        actual = lados[0]
-        dentro = sym in pool
-        if actual == "abajo" and dentro:
-            out.append(dict(par=sym, accion="quitar", t=ultimas[-1]["t"],
-                            desde=ultimas[0]["m"], meses=len(ultimas)))
-        elif actual == "arriba" and not dentro:
-            out.append(dict(par=sym, accion="agregar", t=ultimas[-1]["t"],
-                            desde=ultimas[0]["m"], meses=len(ultimas)))
+        actual, dentro = lados[0], sym in pool
+        if (actual == "abajo") != dentro:
+            continue                    # el simulado coincide con la cartera
+        corr = (estado.get("pares", {}).get(sym) or {}).get("corroborado")
+        if corr and not _vieja(corr.get("medido"), ultimas[-1]["m"]):
+            if dentro and corr["t"] <= MARGEN_BAJO:
+                out.append(dict(par=sym, accion="quitar", t=corr["t"], fuente="export",
+                                desde=ultimas[0]["m"], meses=len(ultimas),
+                                por="el export lo confirma: t de %.2f, medido el %s"
+                                    % (corr["t"], corr["medido"])))
+            elif not dentro and corr["t"] >= MARGEN_ALTO:
+                out.append(dict(par=sym, accion="agregar", t=corr["t"], fuente="export",
+                                desde=ultimas[0]["m"], meses=len(ultimas),
+                                por="el export lo confirma: t de %.2f, medido el %s"
+                                    % (corr["t"], corr["medido"])))
+            continue                    # el export ya se pronunció
+        out.append(dict(par=sym, accion="corroborar", t=ultimas[-1]["t"], fuente="simulado",
+                        desde=ultimas[0]["m"], meses=len(ultimas),
+                        por="el simulado marca %.2f desde %s, %s la cartera. Exportalo de "
+                            "TradingView para medirlo en la escala del informe."
+                            % (ultimas[-1]["t"], ultimas[0]["m"],
+                               "estando en" if dentro else "estando afuera de")))
     return out
 
 
@@ -216,7 +259,7 @@ def main():
         escribir(OPERACIONES, guardadas)
 
     estado["generado"] = ahora.strftime("%Y-%m-%d")
-    estado["alertas"] = alertas(estado["historia"], estado["pool"])
+    estado["alertas"] = alertas(estado)
     escribir(ESTADO, estado)
     escribir(OPERACIONES, guardadas)
 
@@ -224,8 +267,7 @@ def main():
     if not estado["alertas"]:
         print("sin cambios que avisar")
     for a in estado["alertas"]:
-        print("  %-8s %-12s t %.2f sostenido desde %s" % (
-            "QUITAR" if a["accion"] == "quitar" else "AGREGAR", a["par"], a["t"], a["desde"]))
+        print("  %-11s %-12s %s" % (a["accion"].upper(), a["par"], a["por"]))
     print("\npagina actualizada: %s" % render(estado))
 
 
