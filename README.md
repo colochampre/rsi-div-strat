@@ -5,8 +5,10 @@ RSI, más el instrumental para validarla: exports de backtest de TradingView y
 scripts de análisis que responden si el resultado se sostiene fuera de los datos
 donde se ajustó.
 
-El repositorio tiene dos mitades. `strategy.pine` es lo que se ejecuta en el
-gráfico; `analysis/` es lo que decide si eso merece confianza.
+El repositorio tiene tres partes. `strategy.pine` es lo que se ejecuta en el
+gráfico; `analysis/` es lo que decide si eso merece confianza; y `monitor/`
+vuelve a preguntárselo todos los meses, porque una ventaja que existió no es
+una ventaja que siga existiendo.
 
 ## Estructura del repositorio
 
@@ -16,6 +18,8 @@ gráfico; `analysis/` es lo que decide si eso merece confianza.
 | `indicators/` | Indicador auxiliar de solo visualización (`rsi-div.pine`). No participa de las órdenes. |
 | `backtest/` | Exports de la lista de operaciones de TradingView, más `configs.csv` con el resumen de corridas. Los exports de la validación 4h están versionados para que los scripts de `analysis/` sean reproducibles; corridas nuevas se regeneran desde TradingView. |
 | `analysis/` | Scripts de Python que validan esos exports. Ver [`analysis/README.md`](analysis/README.md). |
+| `monitor/` | Monitoreo mensual: reimplementa las señales para no depender de exports hechos a mano, mide los 65 pares contra velas reales y avisa cuándo sumar o sacar un par de la cartera. Ver [`monitor/README.md`](monitor/README.md). |
+| `informe/` | Los informes en HTML: la auditoría del Bar Magnifier, la selección de pares y la página del monitoreo, que se regenera sola en cada corrida. |
 
 ## Cómo está armada la estrategia
 
@@ -68,6 +72,12 @@ trailing viajan juntos en una única orden de salida por lado, reenviada en cada
 vela al mismo identificador: Pine reemplaza la orden existente en lugar de
 duplicarla.
 
+Los defaults congelados son **sin take profit** (`0.0`, que lo desactiva), stop
+en `5.0` y trailing que se activa en `3.0` con offset `0.6`. Con take profit la
+estrategia corta las ganancias que sostienen el resultado; el trailing las deja
+correr. Todos los números publicados en `informe/` salen de esa configuración,
+así que cambiarla invalida la comparación.
+
 Desde Pine v6 dispara el nivel que el precio toque primero, sin importar si es
 absoluto o relativo. En v5 los absolutos (stop y take profit) tenían prioridad
 sobre el trailing. Es un detalle que cambia la distribución de salidas de un
@@ -97,6 +107,9 @@ lado deshabilitado.
 3. Exportar la lista de operaciones a `backtest/` respetando la nomenclatura que
    documenta [`analysis/README.md`](analysis/README.md).
 4. Correr los scripts de `analysis/` para validar el resultado.
+5. Para el seguimiento mes a mes, correr `python monitor/actualizar.py`. Ese no
+   necesita exports: genera las señales por su cuenta. Solo los pide cuando un
+   par se mueve lo suficiente como para merecer una confirmación.
 
 ## Estado de la validación
 
