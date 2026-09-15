@@ -34,7 +34,9 @@
 }
 *{box-sizing:border-box}
 body{background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1080px;margin:0 auto;padding-block:40px 72px;padding-left:24px;padding-right:24px;display:flex;flex-direction:column;gap:40px}
+/* Mas ancho que las otras dos paginas del informe a proposito: esta tiene una
+   tabla de trece columnas y con 1080 la ultima quedaba cortada. */
+.wrap{max-width:1200px;margin:0 auto;padding-block:40px 72px;padding-left:24px;padding-right:24px;display:flex;flex-direction:column;gap:40px}
 h1,h2,h3{font-family:Archivo,ui-sans-serif,system-ui,sans-serif;text-wrap:balance;margin:0;letter-spacing:-.015em}
 h1{font-size:clamp(28px,4.2vw,40px);font-weight:700;line-height:1.05}
 h2{font-size:19px;font-weight:600}
@@ -72,6 +74,10 @@ thead th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.
 tbody td{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
 tbody td:first-child{font-family:"IBM Plex Sans",sans-serif}
 tbody tr:last-child td{border-bottom:none}
+thead th[data-col]{cursor:pointer;user-select:none}
+thead th[data-col]:hover{color:var(--ink)}
+thead th[data-col]:focus-visible{outline:2px solid var(--c1);outline-offset:-2px}
+thead th[data-col] .flecha{color:var(--c1);font-weight:600}
 th.grp,td.grp{border-left:2px solid var(--rule)}
 thead tr:first-child th[colspan]{text-align:center;color:var(--ink-2);font-weight:600;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase}
 tr.pool td{background:color-mix(in srgb,var(--c1) 9%,transparent)}
@@ -110,7 +116,7 @@ footer{border-top:1px solid var(--rule);padding-top:18px;color:var(--ink-3);font
     <div class="shead">
       <div class="eyebrow">Estado por par</div>
       <h2>El universo completo</h2>
-      <p class="note">El estadístico <b>t</b> mide cuántos errores estándar separa del cero al retorno promedio por operación. Por debajo de 2 el resultado no se distingue de la suerte. La banda entre 1,8 y 2,2 es zona de nadie a propósito: un corte seco haría entrar y salir pares por el ruido de una sola operación. La miniatura muestra cómo se movió el <b>t</b> mes a mes, con la línea del umbral.</p>
+      <p class="note">El estadístico <b>t</b> mide cuántos errores estándar separa del cero al retorno promedio por operación. Por debajo de 2 el resultado no se distingue de la suerte. La banda entre 1,8 y 2,2 es zona de nadie a propósito: un corte seco haría entrar y salir pares por el ruido de una sola operación. La miniatura muestra cómo se movió el <b>t</b> mes a mes, con la línea del umbral. Se puede ordenar por cualquier columna haciendo clic en su título.</p>
     </div>
     <div class="panel scroller">
       <table id="tabla"></table>
@@ -194,17 +200,61 @@ function spark(sym) {
 }
 
 /* --- tabla --- */
-$("tabla").innerHTML = `<thead>
-    <tr><th></th><th></th><th colspan="5">simulado, todos los meses</th>
-        <th class="grp" colspan="4">export, cuando lo pedís</th><th></th><th></th></tr>
-    <tr><th>par</th><th class="est">estado</th><th>ops</th><th>total</th><th>t</th><th>cambio</th>
-    <th>mes a mes</th><th class="grp">t acum</th><th>t descontado</th><th>n efectivo</th><th>medido</th>
-    <th>anual</th><th>caída máx</th></tr></thead><tbody>` +
-  pares.map((sym) => {
+const corr = (s) => D.pares[s].corroborado;
+const tiene = (v) => v !== null && v !== undefined;
+const cambio = (s) => {
+  const h = D.historia[s] || [];
+  return h.length > 1 ? D.pares[s].t - h[h.length - 2].t : null;
+};
+// El orden ascendente del estado es el de cercanía a la cartera, no el alfabético.
+const RANGO = { pool: 0, cand: 1, vig: 2, no: 3 };
+
+const COLS = [
+  { id: "par", txt: "par", val: (s) => s.replace("USDT", "") },
+  { id: "estado", txt: "estado", th: "est", val: (s) => RANGO[clase(s)[0]] },
+  { id: "ops", txt: "ops", val: (s) => D.pares[s].n },
+  { id: "total", txt: "total", val: (s) => D.pares[s].total },
+  { id: "t", txt: "t", val: (s) => D.pares[s].t },
+  { id: "cambio", txt: "cambio", val: cambio },
+  { id: "spark", txt: "mes a mes", fijo: true },
+  { id: "tacum", txt: "t acum", th: "grp", val: (s) => corr(s) ? corr(s).t : null },
+  { id: "td", txt: "t descontado", val: (s) => corr(s) && tiene(corr(s).td) ? corr(s).td : null },
+  { id: "nef", txt: "n efectivo", val: (s) => corr(s) ? corr(s).n_ef : null },
+  { id: "medido", txt: "medido", val: (s) => corr(s) ? corr(s).medido : null },
+  { id: "anual", txt: "anual", val: (s) => D.pares[s].cagr },
+  { id: "dd", txt: "caída máx", val: (s) => D.pares[s].mdd }
+];
+
+let orden = { id: "t", dir: "desc" };
+
+function ordenados() {
+  const col = COLS.find((c) => c.id === orden.id);
+  if (!col || col.fijo) return pares;
+  const signo = orden.dir === "asc" ? 1 : -1;
+  // Los pares sin dato van al final en las dos direcciones: una raya no es
+  // ni el mejor ni el peor valor, es la ausencia de uno.
+  return pares.slice().sort((a, b) => {
+    const x = col.val(a), y = col.val(b);
+    if (!tiene(x)) return tiene(y) ? 1 : 0;
+    if (!tiene(y)) return -1;
+    return signo * (typeof x === "string" ? x.localeCompare(y, "es") : x - y);
+  });
+}
+
+function pintarTabla() {
+  const cabecera = COLS.map((c) => {
+    const activa = orden.id === c.id;
+    const flecha = activa ? ` <span class="flecha">${orden.dir === "asc" ? "↑" : "↓"}</span>` : "";
+    const clases = [c.th || "", activa ? "activa" : ""].filter(Boolean).join(" ");
+    if (c.fijo) return `<th${clases ? ` class="${clases}"` : ""}>${c.txt}</th>`;
+    return `<th${clases ? ` class="${clases}"` : ""} data-col="${c.id}" tabindex="0" role="button"
+      aria-sort="${activa ? (orden.dir === "asc" ? "ascending" : "descending") : "none"}"
+      title="Ordenar por ${c.txt}">${c.txt}${flecha}</th>`;
+  }).join("");
+
+  const filas = ordenados().map((sym) => {
     const p = D.pares[sym], [tono, texto] = clase(sym);
-    const h = D.historia[sym] || [];
-    const d = h.length > 1 ? p.t - h[h.length - 2].t : null;
-    const c = p.corroborado;
+    const d = cambio(sym), c = corr(sym);
     return `<tr class="${pool.has(sym) ? "pool" : p.t < BAJO ? "fuera" : ""}">
       <td>${sym.replace("USDT", "")}</td>
       <td class="est"><span class="badge ${tono}">${texto}</span></td>
@@ -213,11 +263,30 @@ $("tabla").innerHTML = `<thead>
       <td class="delta ${d === null ? "" : d > 0 ? "sube" : "baja"}">${d === null ? "—" : (d > 0 ? "+" : "") + d.toFixed(2)}</td>
       <td>${spark(sym)}</td>
       <td class="grp" style="color:var(--ink-3)">${c ? c.t.toFixed(2) : "—"}</td>
-      <td class="t ${c && c.td !== null && c.td !== undefined && c.td <= BAJO ? "delta baja" : ""}">${c && c.td !== null && c.td !== undefined ? c.td.toFixed(2) : "—"}</td>
+      <td class="t ${c && tiene(c.td) && c.td <= BAJO ? "delta baja" : ""}">${c && tiene(c.td) ? c.td.toFixed(2) : "—"}</td>
       <td style="color:var(--ink-3)">${c && c.n_ef ? c.n_ef : "—"}</td>
       <td style="color:var(--ink-3)">${c ? c.medido : "—"}</td>
       <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td></tr>`;
-  }).join("") + "</tbody>";
+  }).join("");
+
+  $("tabla").innerHTML = `<thead>
+    <tr><th></th><th></th><th colspan="5">simulado, todos los meses</th>
+        <th class="grp" colspan="4">export, cuando lo pedís</th><th></th><th></th></tr>
+    <tr>${cabecera}</tr></thead><tbody>${filas}</tbody>`;
+
+  $("tabla").querySelectorAll("th[data-col]").forEach((th) => {
+    const activar = () => {
+      const id = th.dataset.col;
+      orden = { id: id, dir: orden.id === id && orden.dir === "asc" ? "desc" : "asc" };
+      pintarTabla();
+    };
+    th.addEventListener("click", activar);
+    th.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activar(); }
+    });
+  });
+}
+pintarTabla();
 
 $("pie-corrida").textContent = "Última corrida: " + D.generado
   + " · salidas replayadas a " + D.tf + " · cartera vigente: "
