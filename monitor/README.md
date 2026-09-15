@@ -59,6 +59,35 @@ por separado sin compararlas nunca dentro de un mismo aviso.
 python monitor/corroborar.py        # mide los CSV de backtest/corroboracion/
 ```
 
+### Por qué se acumula lo corroborado
+
+TradingView tiene un límite de velas y su ventana **se desliza**. Hoy los exports
+de 4 horas arrancan en enero de 2022 —26 de los 65 pares empiezan exactamente
+ahí, BTC y ETH incluidos, que cotizan desde mucho antes—, y dentro de un año van
+a arrancar en enero de 2023. Sin registro, cada corroboración mediría una
+ventana distinta y perdería los años más difíciles justo cuando más historia
+tenés.
+
+Por eso `corroborar.py` guarda lo medido en `corroboradas.json` y cada export
+nuevo solo aporta lo que falta. La clave es el momento de entrada, así que los
+exports pueden superponerse todo lo que quieran: la superposición es un control
+gratis, porque una operación ya conocida tiene que volver con el mismo
+resultado. Si vuelve distinta, el script avisa en vez de promediar.
+
+El registro guarda también los parámetros con los que se midió. Si cambiás el
+stop o el trailing, se niega a mezclar: las operaciones viejas describen otra
+estrategia.
+
+De ahí salen dos números, y conviene mirar los dos:
+
+- **acumulado** — todo lo registrado. Es el sólido, y el que decide.
+- **últimos 18 meses** — el que se entera cuando un par se apaga. Con cinco años
+  adentro, un año malo casi no mueve el acumulado.
+
+Cuando el acumulado sostiene a un par de la cartera pero la ventana corta se
+cayó, aparece un aviso de **vigilar**: no decide nada, pero no deja que pase
+desapercibido.
+
 ---
 
 ## Cuándo avisa
@@ -91,6 +120,7 @@ correcto: el monitor avisa, la decisión es tuya.
 | `validar_simulacion.py` | Contrasta las estadísticas punta a punta, a 4 horas |
 | `pares.txt` | El universo monitoreado, un símbolo por línea |
 | `estado.json` | Estadísticas por par, historia mensual, cartera y avisos |
+| `corroboradas.json` | Registro acumulado de operaciones corroboradas, export tras export |
 | `operaciones.json` | Las operaciones generadas, para reusar sin recalcular |
 
 Los dos JSON los escribe el script, pero solo uno se versiona. `estado.json` es

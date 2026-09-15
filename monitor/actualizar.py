@@ -152,6 +152,9 @@ def lado(t):
 #: año es material nuevo suficiente como para volver a mirar.
 VENCE = 6
 
+#: La ventana corta que mira corroborar.py, solo para redactar los avisos.
+VENTANA_CORTA = 18
+
 
 def _vieja(medido, ultimo_mes):
     """¿La corroboración quedó atrás en el tiempo?"""
@@ -179,6 +182,31 @@ def alertas(estado):
     """
     pool = estado.get("pool", [])
     out = []
+    meses = [l[-1]["m"] for l in estado.get("historia", {}).values() if l]
+    mes_ref = max(meses) if meses else datetime.datetime.now(
+        datetime.timezone.utc).strftime("%Y-%m")
+
+    # El acumulado tarda en enterarse: con cinco años adentro, un año malo casi
+    # no lo mueve. Si la ventana corta se apagó mientras el acumulado todavía
+    # sostiene al par, eso no decide nada, pero no puede pasar desapercibido.
+    #
+    # Esta señal sale del registro de exports, que trae su propia muestra, así
+    # que no espera las dos lecturas mensuales que piden los demás avisos.
+    for sym in sorted(pool):
+        corr = (estado.get("pares", {}).get(sym) or {}).get("corroborado")
+        if not corr or _vieja(corr.get("medido"), mes_ref):
+            continue
+        # Alcanza con que el acumulado no lo esté condenando ya: si cayó por
+        # debajo de la banda, de eso se encarga el aviso de sacarlo. Exigir que
+        # estuviera arriba de 2,2 dejaba afuera justo a los que tienen el
+        # acumulado en la banda y la ventana corta apagada.
+        if corr["t"] > MARGEN_BAJO and corr.get("t18") is not None and corr["t18"] <= MARGEN_BAJO:
+            out.append(dict(par=sym, accion="vigilar", t=corr["t18"], fuente="export",
+                            desde=corr.get("desde", ""), meses=VENTANA_CORTA,
+                            por="el acumulado lo sostiene con t de %.2f, pero en los últimos "
+                                "%d meses cae a %.2f sobre %d operaciones."
+                                % (corr["t"], VENTANA_CORTA, corr["t18"], corr["n18"])))
+
     for sym, lecturas in sorted(estado.get("historia", {}).items()):
         ultimas = lecturas[-PERSISTENCIA:]
         if len(ultimas) < PERSISTENCIA:
@@ -187,10 +215,12 @@ def alertas(estado):
         if lados[0] is None or len(set(lados)) != 1:
             continue
         actual, dentro = lados[0], sym in pool
+        corr = (estado.get("pares", {}).get(sym) or {}).get("corroborado")
+        fresca = corr and not _vieja(corr.get("medido"), ultimas[-1]["m"])
+
         if (actual == "abajo") != dentro:
             continue                    # el simulado coincide con la cartera
-        corr = (estado.get("pares", {}).get(sym) or {}).get("corroborado")
-        if corr and not _vieja(corr.get("medido"), ultimas[-1]["m"]):
+        if fresca:
             if dentro and corr["t"] <= MARGEN_BAJO:
                 out.append(dict(par=sym, accion="quitar", t=corr["t"], fuente="export",
                                 desde=ultimas[0]["m"], meses=len(ultimas),

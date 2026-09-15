@@ -162,7 +162,8 @@ const av = D.alertas || [];
 $("avisos-titulo").textContent = av.length
   ? (av.length === 1 ? "Un par para revisar" : `${av.length} pares para revisar`)
   : "Sin cambios";
-const ETIQUETA = { quitar: "Sacar", agregar: "Sumar", corroborar: "Exportar y mirar" };
+const ETIQUETA = { quitar: "Sacar", agregar: "Sumar", corroborar: "Exportar y mirar",
+                   vigilar: "Vigilar" };
 $("avisos").innerHTML = av.length ? av.map((a) => `<div class="aviso ${a.accion}">
     <span class="que">${ETIQUETA[a.accion] || a.accion}</span>
     <span class="par">${a.par.replace("USDT", "")}</span>
@@ -194,9 +195,9 @@ function spark(sym) {
 /* --- tabla --- */
 $("tabla").innerHTML = `<thead>
     <tr><th></th><th></th><th colspan="5">simulado, todos los meses</th>
-        <th class="grp" colspan="2">export, cuando lo pedís</th><th></th><th></th></tr>
+        <th class="grp" colspan="3">export acumulado, cuando lo pedís</th><th></th><th></th></tr>
     <tr><th>par</th><th class="est">estado</th><th>ops</th><th>total</th><th>t</th><th>cambio</th>
-    <th>mes a mes</th><th class="grp">t</th><th>medido</th>
+    <th>mes a mes</th><th class="grp">t</th><th>t 18m</th><th>medido</th>
     <th>anual</th><th>caída máx</th></tr></thead><tbody>` +
   pares.map((sym) => {
     const p = D.pares[sym], [tono, texto] = clase(sym);
@@ -211,6 +212,7 @@ $("tabla").innerHTML = `<thead>
       <td class="delta ${d === null ? "" : d > 0 ? "sube" : "baja"}">${d === null ? "—" : (d > 0 ? "+" : "") + d.toFixed(2)}</td>
       <td>${spark(sym)}</td>
       <td class="t grp">${c ? c.t.toFixed(2) : "—"}</td>
+      <td class="${c && c.t18 !== null && c.t18 <= BAJO ? "delta baja" : ""}">${c && c.t18 !== null && c.t18 !== undefined ? c.t18.toFixed(2) : "—"}</td>
       <td style="color:var(--ink-3)">${c ? c.medido : "—"}</td>
       <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td></tr>`;
   }).join("") + "</tbody>";
