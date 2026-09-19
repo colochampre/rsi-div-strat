@@ -33,34 +33,29 @@
   --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
 }
 *{box-sizing:border-box}
-body{background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1080px;margin:0 auto;padding-block:40px 72px;padding-left:24px;padding-right:24px;display:flex;flex-direction:column;gap:52px}
+body{background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;font-size:1rem;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
+.wrap{max-width:75rem;margin:0 auto;padding-block:2.5rem 4.5rem;padding-left:1.5rem;padding-right:1.5rem;display:flex;flex-direction:column;gap:3.25rem}
 h1,h2,h3{font-family:Archivo,ui-sans-serif,system-ui,sans-serif;text-wrap:balance;margin:0;letter-spacing:-.015em}
-h1{font-size:clamp(30px,4.6vw,46px);font-weight:700;line-height:1.05}
-h2{font-size:20px;font-weight:600}
-h3{font-size:15px;font-weight:600}
+h1{font-size:clamp(2rem,4.6vw,3rem);font-weight:700;line-height:1.05}
+h2{font-size:1.25rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
 p{margin:0}
 .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
-.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
-.lede{color:var(--ink-2);font-size:17px;max-width:63ch}
-.note{color:var(--ink-3);font-size:13px;max-width:85ch;text-align:justify}
-header{display:flex;flex-direction:column;gap:16px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
-.facts{display:flex;flex-wrap:wrap;gap:14px 0;border-top:1px solid var(--rule);padding-top:14px;margin-top:6px}
-.fact{padding-right:26px;margin-right:26px;border-right:1px solid var(--rule-soft)}
-.fact:last-child{border-right:none;margin-right:0;padding-right:0}
-.fact b{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
-.fact span{font-size:11.5px;color:var(--ink-3);letter-spacing:.03em}
-section{display:flex;flex-direction:column;gap:20px}
-.shead{display:flex;flex-direction:column;gap:7px}
-.panel{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:22px;box-shadow:var(--shadow)}
-.chart-title{font-family:Archivo,sans-serif;font-size:14px;font-weight:600;margin-bottom:2px}
-.chart-sub{font-size:13px;color:var(--ink-3);margin-bottom:16px;max-width:85ch;text-align:justify}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.lede{color:var(--ink-2);font-size:1.125rem;}
+.note{color:var(--ink-3);font-size:.875rem;text-align:justify}
+header{display:flex;flex-direction:column;gap:1rem;padding-bottom:1.5rem;border-bottom:2px solid var(--ink)}
+section{display:flex;flex-direction:column;gap:1.25rem}
+.shead{display:flex;flex-direction:column;gap:.5rem}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:1.375rem;box-shadow:var(--shadow)}
+.chart-title{font-family:Archivo,sans-serif;font-size:1rem;font-weight:600;margin-bottom:.125rem}
+.chart-sub{font-size:.875rem;color:var(--ink-3);margin-bottom:1rem;max-width:85ch;text-align:justify}
 svg{display:block;max-width:100%;height:auto}
 .scroller{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:13.5px}
-th,td{text-align:right;padding:8px 11px;border-bottom:1px solid var(--rule-soft);white-space:nowrap}
+table{border-collapse:collapse;width:100%;font-size:.875rem}
+th,td{text-align:right;padding:.5rem .75rem;border-bottom:1px solid var(--rule-soft);white-space:nowrap}
 th:first-child,td:first-child{text-align:left}
-thead th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--rule)}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:.625rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--rule)}
 tbody td{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
 tbody td:first-child{font-family:"IBM Plex Sans",sans-serif}
 tbody tr:last-child td{border-bottom:none}
@@ -68,100 +63,103 @@ tr.hl td{background:color-mix(in srgb,var(--c1) 10%,transparent)}
 tr.dead td{color:var(--ink-3)}
 th.grp,td.grp{border-left:2px solid var(--rule)}
 thead tr:first-child th[colspan]{text-align:center;color:var(--ink-2);font-weight:600}
-.badge{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;padding:2px 7px;border-radius:2px}
+.badge{font-family:"IBM Plex Mono",monospace;font-size:.625rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;padding:.125rem .5rem;border-radius:2px}
 .badge.ok{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good);border:1px solid color-mix(in srgb,var(--good) 42%,transparent)}
 .badge.warn{background:color-mix(in srgb,var(--c2) 13%,transparent);color:var(--c2);border:1px solid color-mix(in srgb,var(--c2) 40%,transparent)}
 .badge.no{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 34%,transparent)}
 .badge.muted{background:var(--panel-2);color:var(--ink-3);border:1px solid var(--rule)}
-#tbl-pairs th.ev,#tbl-pairs td.ev{text-align:left;width:1%;padding-left:14px;padding-right:4px}
-#tbl-pairs td.ev .badge{display:inline-block;min-width:88px;text-align:center}
-.callout{border:1px solid var(--rule);border-left:3px solid var(--neg);border-radius:3px;background:var(--panel);padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+#tbl-pairs th.ev,#tbl-pairs td.ev{text-align:left;width:1%;padding-left:1rem;padding-right:.25rem}
+#tbl-pairs td.ev .badge{display:inline-block;min-width:5.5rem;text-align:center}
+.callout{border:1px solid var(--rule);border-left:3px solid var(--neg);border-radius:3px;background:var(--panel);padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.5rem}
 .callout.calm{border-left-color:var(--c1)}
 .callout .eyebrow{color:var(--neg)}
 .callout.calm .eyebrow{color:var(--c1)}
-.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:18px}
-.mini{border-top:2px solid var(--rule);padding-top:13px;display:flex;flex-direction:column;gap:6px}
-.mini h3{font-size:14px}
-.mini p{font-size:13px;color:var(--ink-2)}
+.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem}
+.mini{border-top:2px solid var(--rule);padding-top:.75rem;display:flex;flex-direction:column;gap:.375rem}
+.mini h3{font-size:1rem}
+.mini p{font-size:.875rem;color:var(--ink-2)}
 a{color:var(--c1);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--c1) 40%,transparent)}
 a:hover{border-bottom-color:var(--c1)}
 a:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
-.intro{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0}
-.intro>div{padding:0 24px;border-left:1px solid var(--rule);display:flex;flex-direction:column;gap:10px}
+.intro{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:0}
+.intro>div{padding:0 1.5rem;border-left:1px solid var(--rule);display:flex;flex-direction:column;gap:.625rem}
 .intro>div:first-child{padding-left:0;border-left:none}
-.intro h3{font-size:14px;margin-bottom:2px}
-.intro p{font-size:13.5px;color:var(--ink-2);line-height:1.6;text-align:justify}
-@media(max-width:820px){.intro{gap:22px}.intro>div{padding:0;border-left:none;border-top:1px solid var(--rule);padding-top:16px}.intro>div:first-child{border-top:none;padding-top:0}}
-.legend{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;font-size:12.5px;color:var(--ink-2);margin-bottom:14px}
-.lg{display:flex;align-items:center;gap:7px}
-.sw{width:22px;height:3px;border-radius:2px;flex:none}
+.intro h3{font-size:1rem;margin-bottom:.125rem}
+.intro p{font-size:.875rem;color:var(--ink-2);line-height:1.6;text-align:justify}
+@media(max-width:51.25rem){.intro{gap:1.375rem}.intro>div{padding:0;border-left:none;border-top:1px solid var(--rule);padding-top:1rem}.intro>div:first-child{border-top:none;padding-top:0}}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem;align-items:center;font-size:.75rem;color:var(--ink-2);margin-bottom:.875rem}
+.lg{display:flex;align-items:center;gap:.5rem}
+.sw{width:1.375rem;height:3px;border-radius:2px;flex:none}
 .seg{display:inline-flex;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:var(--panel-2)}
-.seg button{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;letter-spacing:.03em;padding:6px 13px;border:none;background:transparent;color:var(--ink-3);cursor:pointer;border-right:1px solid var(--rule)}
+.seg button{font-family:"IBM Plex Mono",monospace;font-size:.75rem;font-weight:500;letter-spacing:.03em;padding:.375rem .75rem;border:none;background:transparent;color:var(--ink-3);cursor:pointer;border-right:1px solid var(--rule)}
 .seg button:last-child{border-right:none}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
 .seg button:focus-visible{outline:2px solid var(--c1);outline-offset:-2px}
-.chart-head{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
-.eqstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0;margin-top:18px;border-top:1px solid var(--rule);padding-top:14px}
-.eqstats>div{padding:0 20px;border-left:1px solid var(--rule-soft)}
+.chart-head{display:flex;flex-wrap:wrap;gap:.875rem;align-items:flex-start;justify-content:space-between;margin-bottom:1rem}
+.eqstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(18.75rem,1fr));gap:0;margin-top:1.125rem;border-top:1px solid var(--rule);padding-top:.875rem}
+.eqstats>div{padding:0 1.25rem;border-left:1px solid var(--rule-soft)}
 .eqstats>div:first-child{padding-left:0;border-left:none}
-.eqstats .who{font-family:Archivo,sans-serif;font-size:13px;font-weight:700;margin-bottom:7px;display:flex;align-items:center;gap:8px}
-.eqstats .who i{width:14px;height:3px;border-radius:2px;flex:none;display:inline-block}
-.eqstats dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0;font-size:12.5px}
+.eqstats .who{font-family:Archivo,sans-serif;font-size:.875rem;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.eqstats .who i{width:1rem;height:3px;border-radius:2px;flex:none;display:inline-block}
+.eqstats dl{display:grid;grid-template-columns:auto 1fr;gap:.125rem .75rem;margin:0;font-size:.75rem}
 .eqstats dt{color:var(--ink-3)}
 .eqstats dd{margin:0;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink)}
 .eqstats dd.risk{color:var(--neg)}
 /* embudo */
-.funnel{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0}
-.step{padding:0 18px;border-left:1px solid var(--rule);display:flex;flex-direction:column;gap:5px}
+.funnel{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:0}
+.step{padding:0 1.125rem;border-left:1px solid var(--rule);display:flex;flex-direction:column;gap:.375rem}
 .step:first-child{padding-left:0;border-left:none}
-.step b{font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
-.step .what{font-size:12.5px;color:var(--ink-2);font-weight:600}
-.step .why{font-size:12px;color:var(--ink-3);line-height:1.5}
+.step b{font-family:"IBM Plex Mono",monospace;font-size:1.625rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.step .what{font-size:.75rem;color:var(--ink-2);font-weight:600}
+.step .why{font-size:.75rem;color:var(--ink-3);line-height:1.5}
 .step.last b{color:var(--c1)}
-@media(max-width:700px){.funnel{gap:14px}.step{padding:0;border-left:none;border-top:1px solid var(--rule);padding-top:12px}.step:first-child{border-top:none;padding-top:0}}
+@media(max-width:43.75rem){.funnel{gap:.875rem}.step{padding:0;border-left:none;border-top:1px solid var(--rule);padding-top:.75rem}.step:first-child{border-top:none;padding-top:0}}
 /* barras de contribucion */
-.loo{display:flex;flex-direction:column;gap:9px}
-.loorow{display:grid;grid-template-columns:96px 1fr 112px;gap:12px;align-items:center;font-size:12.5px}
+.loo{display:flex;flex-direction:column;gap:.5rem}
+.loorow{display:grid;grid-template-columns:6rem 1fr 7rem;gap:.75rem;align-items:center;font-size:.75rem}
 .loorow .nm{font-weight:600}
-.loorow .track{height:15px;background:var(--panel-2);border-radius:2px;position:relative;overflow:hidden}
+.loorow .track{height:1rem;background:var(--panel-2);border-radius:2px;position:relative;overflow:hidden}
 .loorow .bar{position:absolute;top:0;bottom:0;left:0;background:color-mix(in srgb,var(--c1) 55%,transparent)}
 .loorow.base .bar{background:var(--ink-3)}
 .loorow .val{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink-2)}
 .loorow .val i{font-style:normal;color:var(--neg)}
 .loorow .val i.up{color:var(--good)}
 /* matriz */
-.hm{border-collapse:separate;border-spacing:2px;font-size:11.5px}
+.hm{border-collapse:separate;border-spacing:.125rem;font-size:.75rem}
 .hm td,.hm th{padding:0;border:none;white-space:nowrap}
-.hm th{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);font-weight:500;text-align:right;padding:0 6px}
-.hm th.col{text-align:center;padding-bottom:4px}
-.hm td div{width:100%;min-width:42px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:2px;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
-.hm-scale{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace}
-.hm-bar{width:120px;height:9px;border-radius:2px;background:linear-gradient(90deg,var(--neg),var(--mid),var(--c1))}
-footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.hm th{font-family:"IBM Plex Mono",monospace;font-size:.625rem;color:var(--ink-3);font-weight:500;text-align:right;padding:0 .375rem}
+/* la columna de etiquetas se encoge a su contenido: sin esto, el ancho sobrante
+ * se reparte entre las cuatro columnas y la matriz queda corrida a la derecha */
+.hm th:not(.col){width:1%}
+.hm th.col{text-align:center;padding-bottom:.25rem}
+.hm td div{width:100%;min-width:2.5rem;height:1.5rem;display:flex;align-items:center;justify-content:center;border-radius:2px;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
+.hm-scale{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--ink-3);font-family:"IBM Plex Mono",monospace}
+.hm-bar{width:7.5rem;height:.5rem;border-radius:2px;background:linear-gradient(90deg,var(--neg),var(--mid),var(--c1))}
+footer{border-top:1px solid var(--rule);padding-top:1.25rem;color:var(--ink-3);font-size:.75rem;display:flex;flex-direction:column;gap:.375rem}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <style>
 /* selector de cartera */
-.selector{display:flex;flex-direction:column;gap:14px}
-.presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.presets .lbl,.grupo{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-.presets .lbl{margin-right:4px}
-.btnp{font-family:"IBM Plex Mono",monospace;font-size:12px;padding:6px 12px;border:1px solid var(--rule);border-radius:3px;background:var(--panel-2);color:var(--ink-2);cursor:pointer}
+.selector{display:flex;flex-direction:column;gap:.875rem}
+.presets{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.presets .lbl,.grupo{font-family:"IBM Plex Mono",monospace;font-size:.625rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.presets .lbl{margin-right:.25rem}
+.btnp{font-family:"IBM Plex Mono",monospace;font-size:.75rem;padding:.375rem .75rem;border:1px solid var(--rule);border-radius:3px;background:var(--panel-2);color:var(--ink-2);cursor:pointer}
 .btnp:hover{color:var(--ink);border-color:var(--ink-3)}
 .btnp[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
 .btnp:focus-visible,.chip:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
-.grupos{display:flex;flex-direction:column;gap:10px}
-.fila-chips{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start}
-@media(max-width:640px){.fila-chips{grid-template-columns:1fr;gap:6px}}
-.chips{display:flex;flex-wrap:wrap;gap:6px 8px}
-.chip{font-family:"IBM Plex Mono",monospace;font-size:12px;padding:5px 10px;border-radius:3px;border:1px solid var(--rule);background:transparent;color:var(--ink-3);cursor:pointer;display:inline-flex;gap:7px;align-items:baseline}
-.chip .tv{font-size:10.5px;opacity:.8}
+.grupos{display:flex;flex-direction:column;gap:.625rem}
+.fila-chips{display:grid;grid-template-columns:7rem 1fr;gap:.625rem;align-items:start}
+@media(max-width:40rem){.fila-chips{grid-template-columns:1fr;gap:.375rem}}
+.chips{display:flex;flex-wrap:wrap;gap:.375rem .5rem}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:.75rem;padding:.25rem .625rem;border-radius:3px;border:1px solid var(--rule);background:transparent;color:var(--ink-3);cursor:pointer;display:inline-flex;gap:.5rem;align-items:baseline}
+.chip .tv{font-size:.625rem;opacity:.8}
 .chip[aria-pressed="true"]{background:color-mix(in srgb,var(--c1) 15%,transparent);border-color:color-mix(in srgb,var(--c1) 55%,transparent);color:var(--ink)}
-.resumen{font-size:13px;color:var(--ink-2);border-top:1px solid var(--rule-soft);padding-top:12px}
+.resumen{font-size:.875rem;color:var(--ink-2);border-top:1px solid var(--rule-soft);padding-top:.75rem}
 .resumen .borde{color:var(--c2)}
-.eqstats .who .badge{font-size:9.5px;letter-spacing:.06em}
-.vacio{border:1px dashed var(--rule);border-radius:3px;padding:18px;color:var(--ink-3);font-size:13.5px;text-align:center}
+.eqstats .who .badge{font-size:.625rem;letter-spacing:.06em}
+.vacio{border:1px dashed var(--rule);border-radius:3px;padding:1.125rem;color:var(--ink-3);font-size:.875rem;text-align:center}
 .callout.calm .eyebrow{color:var(--c1)}
 #tbl-pairs td.tv{color:var(--ink-3)}
 #tbl-pairs td.tv.baja{color:var(--neg)}
@@ -172,7 +170,6 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
     <div class="eyebrow">RSI Divergence Strategy · selección de pares</div>
     <h1>De 70 pares a 3</h1>
     <p class="lede">Se probaron 70 backtests de la misma estrategia, uno por par, y se estimó qué habría hecho cada uno con velas de 5 minutos. Diez pasan el corte estadístico, cinco atravesaron más de un régimen de mercado, y midiendo con más peso a lo reciente quedan tres: SFP, AAVE y STX. Más abajo, la cartera se arma con los pares que elijas.</p>
-    <div class="facts" id="facts"></div>
   </header>
 
   <section>
@@ -186,12 +183,16 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
         <p><a href="https://www.tradingview.com/script/pn6hOL4l-RSI-Divergence-Strategy/" target="_blank" rel="noopener">RSI Divergence Strategy</a> en gráfico de 4 horas, con los parámetros definitivos: sin toma de ganancias, stop de 5,0%, trailing que se activa a 3,0% con 0,6% de distancia. Comisión 0,05% por lado. Un export de TradingView por par.</p>
       </div>
       <div>
+        <h3>Por qué no alcanza el Strategy Tester</h3>
+        <p>El Strategy Tester corre <b>un símbolo por vez</b> y supone que tenés todo el capital disponible siempre. Si operás varios símbolos desde una misma cuenta, esos informes no se suman: las operaciones se pisan en el tiempo y compiten por la misma plata. Cuando llega una señal y el capital ya está comprometido, esa operación <b>no entra</b>, y TradingView no puede mostrártelo porque no sabe que los demás símbolos existen.</p>
+      </div>
+      <div>
         <h3>Cómo se estimó</h3>
-        <p>TradingView no dice qué pasó dentro de cada vela de 4 horas. Cada operación se volvió a recorrer contra las velas reales de Binance a 5 minutos, aplicando las mismas reglas de salida. Se incluye el funding histórico real de cada posición.</p>
+        <p>TradingView no sabe en qué orden recorrió el precio cada vela de 4 horas: lo supone. Si la apertura está más cerca del máximo, asume que el precio fue primero al máximo; si está más cerca del mínimo, primero al mínimo. Y no hace falta que la operación abra y cierre en la misma vela para que eso pese —eso pasa en el <b id="misma-vela">—</b> de los casos—: el trailing se mueve dentro de cada vela que la operación atraviesa. Las <b id="n-ops">—</b> operaciones se volvieron a recorrer contra las velas reales de Binance a 5 minutos, con el funding histórico real de cada posición.</p>
       </div>
       <div>
         <h3>Qué no se midió</h3>
-        <p>Deslizamiento: se asume que cada stop se ejecuta a su precio exacto. Tampoco se modela la liquidación con apalancamiento. Y 5 minutos sigue siendo una aproximación: adentro de esas velas también se adivina. Ver <a id="link-audit" href="#" target="_blank" rel="noopener">la auditoría del Bar Magnifier</a>.</p>
+        <p>Deslizamiento: se asume que cada stop se ejecuta a su precio exacto. Tampoco se modela la liquidación con apalancamiento. Y 5 minutos sigue siendo una aproximación: adentro de esas velas también se adivina, con la misma regla de recorrido.</p>
       </div>
     </div>
   </section>
@@ -200,7 +201,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
     <div class="shead">
       <div class="eyebrow">El embudo</div>
       <h2>Setenta backtests, tres pares</h2>
-      <p class="note">Cada paso descarta por un motivo distinto, y el orden importa: primero se verifica que los datos sean lo que dicen ser, después se mide la ventaja, y recién al final se juzga si esa ventaja se puede creer y si sigue vigente. Saltear el primer paso invalida todo lo que sigue.</p>
+      <p class="note">Cada paso descarta por un motivo distinto, y el orden importa: primero se verifica que los datos sean lo que dicen ser —símbolo, zona horaria y reglas que reproducen el export a 4 horas, donde los 65 superaron el 98% de coincidencia salvo BTC con 91%—, después se mide la ventaja, y recién al final se juzga si esa ventaja se puede creer y si sigue vigente. Saltear esa verificación invalida todo lo que sigue.</p>
     </div>
     <div class="panel">
       <div class="funnel" id="funnel"></div>
@@ -215,7 +216,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
     <div class="shead">
       <div class="eyebrow">Por par</div>
       <h2>Los 18 que llegaron a 5 minutos</h2>
-      <p class="note">La columna <b>5m</b> es la estimación realista; <b>30m</b> es lo que reportaría TradingView con el Bar Magnifier encendido. El estadístico <b>t</b> mide cuántos errores estándar separa del cero al retorno promedio por operación: abajo de 2, el resultado no se distingue de la suerte. El <b>t vigente</b> lo calcula el monitoreo mensual pesando cada operación por su antigüedad, con vida media de dos años; solo existe para los pares corroborados con export. Las filas marcadas son las que están en la cartera que armes más abajo.</p>
+      <p class="note">La columna <b>5m</b> es la estimación realista; <b>30m</b> es lo que reportaría TradingView con el Bar Magnifier encendido. <b>pp/trade</b> son los puntos porcentuales que deja cada operación en promedio sobre el nocional, estimados a 5 minutos y netos de comisión y funding: es el ladrillo de todo lo demás, porque el total, el anual y el <b>t</b> salen de ahí. El estadístico <b>t</b> mide cuántos errores estándar separan del cero a ese promedio: abajo de 2, el resultado no se distingue de la suerte. El <b>t vigente</b> lo calcula el monitoreo mensual pesando cada operación por su antigüedad, con vida media de dos años; solo existe para los pares corroborados con export. Las filas marcadas son las que están en la cartera que armes más abajo.</p>
     </div>
     <div class="panel scroller">
       <table id="tbl-pairs"></table>
@@ -254,10 +255,12 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
         </div>
       </div>
       <div id="eq"></div>
-      <div id="underwater" style="margin-top:4px"></div>
+      <div id="underwater" style="margin-top:.25rem"></div>
       <div class="eqstats" id="eqstats"></div>
-      <p class="note" id="uw-note" style="margin-top:14px"></p>
+      <p class="note" id="uw-note" style="margin-top:.875rem"></p>
     </div>
+
+    <div class="callout calm" id="pool-dentro"></div>
 
     <div class="panel">
       <div class="chart-head">
@@ -266,9 +269,9 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
           <div class="chart-sub" style="margin-bottom:0">Acá lo que importa no es el total sino la textura: cuántos meses en rojo, si vienen seguidos, y qué queda del año cuando se encadenan. La columna de la derecha es el año entero, compuesto. Sigue la misma ventana que la curva.</div>
         </div>
       </div>
-      <div class="hm-scale" style="margin-bottom:14px"><span id="hm-min">−15%</span><span class="hm-bar"></span><span id="hm-max">+15%</span></div>
+      <div class="hm-scale" style="margin-bottom:.875rem"><span id="hm-min">−15%</span><span class="hm-bar"></span><span id="hm-max">+15%</span></div>
       <div class="scroller"><div id="heatmap"></div></div>
-      <div id="hm-stats" style="margin-top:16px;font-size:13px;color:var(--ink-2)"></div>
+      <div id="hm-stats" style="margin-top:1rem;font-size:.875rem;color:var(--ink-2)"></div>
     </div>
 
     <div class="callout" id="aviso-seleccion"></div>
@@ -278,7 +281,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
     <div class="shead">
       <div class="eyebrow">Tamaño de posición</div>
       <h2>Cuánto capital por operación</h2>
-      <p class="note">Más margen por operación significa menos posiciones simultáneas y más señales perdidas, y suele rendir más: el capital se concentra donde hay señal en vez de repartirse en una posición que llega tarde. Las fracciones marcadas como borde son las que dividen el pool exacto <i>y</i> llegan a llenarse: ahí el resultado pasa a depender de cómo se cuente el margen en vez de depender de la estrategia. Cuáles son bordes depende de la cartera — con pocos pares, los slots de sobra nunca se ocupan y la fracción deja de ser inestable. Se mide sobre la historia completa, y la fila resaltada es el margen elegido.</p>
+      <p class="note">Más margen por operación significa menos posiciones simultáneas y más señales perdidas, y suele rendir más: el capital se concentra donde hay señal en vez de repartirse en una posición que llega tarde. Las fracciones marcadas como borde son las que dividen el pool exacto <i>y</i> llegan a llenarse: ahí el resultado pasa a depender de cómo se cuente el margen en vez de depender de la estrategia. Cuáles son bordes depende de la cartera — con pocos pares, los slots de sobra nunca se ocupan y la fracción deja de ser inestable. Se mide sobre la historia completa, y la fila resaltada es el margen elegido. <b>MAR</b> es el rendimiento anual dividido por la caída máxima: cuánto retorno te pagan por cada punto de caída en el peor momento. No dice si la ventaja es real —eso lo dice <span class="mono">t</span>—, solo si la forma del camino conviene.</p>
     </div>
     <div class="panel scroller">
       <table id="tbl-sizing"></table>
@@ -305,6 +308,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
     <div class="panel scroller" id="corr-panel">
       <table class="hm" id="tbl-corr"></table>
     </div>
+    <p class="note" id="corr-lectura"></p>
   </section>
 
   <section>
@@ -313,6 +317,7 @@ footer{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font
       <h2>Lo que estos números no dicen</h2>
     </div>
     <div class="cards3" id="limits"></div>
+    <p class="note">Los parámetros de la estrategia —el stop de 5,0%, la activación del trailing, el offset— salieron de una búsqueda en grilla sobre estos mismos datos. Que el replay a 5 minutos regenere un conjunto de salidas distinto del que reporta TradingView ayuda como validación parcial, pero es el mismo mercado y el mismo período: nada de lo que hay acá es fuera de muestra.</p>
   </section>
 
   <footer>
@@ -451,7 +456,6 @@ const SimPool = (() => {
 
 if (typeof module !== "undefined") module.exports = SimPool;
 
-const AUDIT = "https://claude.ai/code/artifact/2825ce90-ae5b-4926-aae6-07cafbc85b12";
 const $ = (id) => document.getElementById(id);
 const pct = (v, d) => (v === null || v === undefined || Number.isNaN(v)) ? "—" : v.toFixed(d === undefined ? 1 : d) + "%";
 const num = (v, d) => (v === null || v === undefined || Number.isNaN(v)) ? "—" : v.toFixed(d === undefined ? 2 : d);
@@ -459,11 +463,20 @@ const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "o
 const esMes = (m) => MESES[parseInt(m.slice(5), 10) - 1] + " " + m.slice(2, 4);
 const EV = { dos: ["ok", "dos ciclos"], ciclo: ["warn", "ciclo único"], sin: ["muted", "sin ventaja"] };
 const PARES = D.pares;
+/* pp/trade: puntos porcentuales que deja cada operacion en promedio, sobre las
+ * mismas operaciones a 5 minutos de las que salen el total, el anual y el t. */
+const PP = new Map(PARES.map((p) => [p.p, p.ops.length ? p.ops.reduce((a, o) => a + o[2], 0) / p.ops.length : null]));
 const POR_NOMBRE = Object.fromEntries(PARES.map((p) => [p.p, p]));
 const PRESETS = { monitor: D.monitor, largos: D.largos, diez: D.diez, ninguno: [] };
 
-$("link-audit").href = AUDIT;
 $("ruido").textContent = D.ruido_esperado.toFixed(1).replace(".", ",");
+
+const PALABRA = ["cero", "una", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"];
+const cuantas = (n) => (PALABRA[n] || n) + (n === 1 ? " sola posición" : " posiciones");
+const rango = (vals, fmt) => {
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  return lo === hi ? fmt(lo) : fmt(lo) + " y " + fmt(hi);
+};
 
 /* --- estado: la seleccion se recuerda por visitante, si el navegador deja --- */
 const CLAVE = "de70a3.seleccion";
@@ -488,20 +501,16 @@ const guardar = () => {
 };
 
 /* --- encabezado y embudo --- */
-$("facts").innerHTML = [
-  [D.embudo.exports, "backtests recibidos"],
-  [D.embudo.binance, "pares evaluados"],
-  [D.embudo.finos, "estimados a 5 minutos"],
-  [D.embudo.t2, "con t > 2"],
-  [D.embudo.largos, "con dos ciclos"],
-  [D.embudo.monitor, "con ventaja vigente"],
-  [D.trades_total.toLocaleString("es-AR"), "operaciones replayadas"]
-].map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join("");
+$("n-ops").textContent = D.trades_total.toLocaleString("es-AR");
+(function mismaVela() {
+  let dentro = 0, total = 0;
+  for (const p of PARES) for (const [e, x] of p.ops) { total++; if (Math.floor(e / 240) === Math.floor(x / 240)) dentro++; }
+  $("misma-vela").textContent = pct(100 * dentro / total, 0);
+})();
 
 const pasos = [
   [D.embudo.exports, "backtests", "Uno por par, exportados de la Strategy Tester."],
   [D.embudo.binance, "en Binance", "Cinco eran de Bybit; evaluados aparte, ninguno llega a t = 2."],
-  [D.embudo.validados, "validados", "Símbolo, zona horaria, y reglas que reproducen el export a 4 horas. Todos superaron el 98%, salvo BTC con 91%."],
   [D.embudo.finos, "a 5 minutos", "Solo los que a 30 minutos quedaron por encima de t = 2."],
   [D.embudo.t2, "con t > 2 a 5m", "La estimación fina se lleva entre 10% y 39% del total, y con ella ocho candidatos."],
   [D.embudo.largos, "con dos ciclos", "Los otros cinco cotizan desde fines de 2024: vieron un solo régimen de mercado."],
@@ -517,15 +526,16 @@ function pintarPares() {
     const clase = seleccion.has(p.p) ? "hl" : p.ev === "sin" ? "dead" : "";
     const tv = p.td === null || p.td === undefined ? "—" : p.td.toFixed(2);
     return `<tr class="${clase}">
-      <td>${p.p}</td><td class="ev"><span class="badge ${tono}">${texto}</span></td>
-      <td>${p.n}</td><td>${pct(p.tot4, 0)}</td><td>${pct(p.tot30, 0)}</td>
+      <td title="El replay a 4 horas reproduce el export de TradingView en un ${num(p.match, 1)}%">${p.p}</td><td class="ev"><span class="badge ${tono}">${texto}</span></td>
+      <td>${p.n}</td><td>${num(PP.get(p.p), 3)}</td>
+      <td class="grp">${pct(p.tot4, 0)}</td><td>${pct(p.tot30, 0)}</td>
       <td class="grp">${pct(p.tot5, 0)}</td><td>${num(p.t30)}</td><td><b>${num(p.t)}</b></td>
       <td class="tv${p.td !== null && p.td !== undefined && p.td < 2 ? " baja" : ""}">${tv}</td>
       <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td><td>${esMes(p.desde)}</td></tr>`;
   }).join("");
   $("tbl-pairs").innerHTML = `<thead>
-    <tr><th></th><th></th><th></th><th colspan="2">lo que reporta TradingView</th><th class="grp" colspan="6">estimación a 5 minutos</th><th></th></tr>
-    <tr><th>par</th><th class="ev">evidencia</th><th>ops</th><th>4h</th><th>30m</th><th class="grp">total</th><th>t 30m</th><th>t 5m</th><th>t vigente</th><th>anual</th><th>caída máx</th><th>desde</th></tr>
+    <tr><th></th><th></th><th></th><th></th><th class="grp" colspan="2">lo que reporta TradingView</th><th class="grp" colspan="6">estimación a 5 minutos</th><th></th></tr>
+    <tr><th>par</th><th class="ev">evidencia</th><th>ops</th><th>pp/trade</th><th class="grp">4h</th><th>30m</th><th class="grp">total</th><th>t 30m</th><th>t 5m</th><th>t vigente</th><th>anual</th><th>caída máx</th><th>desde</th></tr>
     </thead><tbody>${filas}</tbody>`;
 }
 
@@ -752,7 +762,11 @@ function concentracion(pares) {
   }).join("");
 }
 function correlaciones(pares) {
-  if (pares.length < 2) { $("tbl-corr").innerHTML = '<tbody><tr><td><div class="vacio">Elegí al menos dos pares para ver cómo se mueven entre sí.</div></td></tr></tbody>'; return; }
+  if (pares.length < 2) {
+    $("tbl-corr").innerHTML = '<tbody><tr><td><div class="vacio">Elegí al menos dos pares para ver cómo se mueven entre sí.</div></td></tr></tbody>';
+    $("corr-lectura").textContent = "";
+    return;
+  }
   const names = pares.map((p) => p.p);
   const color = (v) => v === null ? "var(--panel-2)"
     : `color-mix(in srgb, var(--${v > 0 ? "c1" : "neg"}) ${Math.round(Math.abs(v) * 70)}%, var(--panel-2))`;
@@ -762,6 +776,83 @@ function correlaciones(pares) {
     return `<td><div style="background:${color(v)}">${v === null ? (a === b ? "·" : "—") : v.toFixed(2)}</div></td>`;
   }).join("")}</tr>`).join("");
   $("tbl-corr").innerHTML = `<thead>${head}</thead><tbody>${body}</tbody>`;
+  const peores = names.map((a) => {
+    const vs = names.filter((b) => b !== a).map((b) => D.corr[a][b]).filter((v) => v !== null && v !== undefined);
+    return vs.length ? { p: a, v: Math.max(...vs) } : null;
+  }).filter(Boolean);
+  if (!peores.length) { $("corr-lectura").textContent = ""; return; }
+  const top = peores.reduce((a, b) => (b.v > a.v ? b : a));
+  $("corr-lectura").innerHTML = "La lectura que decide no es la celda suelta sino el <b>parecido más alto de cada par "
+    + "contra cualquier otro de la cartera</b>: de poco sirve ser independiente de dos si sos el gemelo del tercero. "
+    + "Acá el más comprometido es <b>" + top.p + "</b>, con " + num(top.v) + " contra su par más parecido"
+    + (top.v >= 0.5 ? ": lo suficiente como para que no esté diversificando, esté duplicando una apuesta."
+                    : ", bastante lejos de 1: ningún par elegido está duplicando a otro.");
+}
+
+/* --- el pool por dentro: cuanto tiempo hay posiciones abiertas, y cuanto se
+ * cancelan las caidas entre si. Las dos cosas dependen de que pares elegiste. --- */
+function exposicion(pares) {
+  const ev = [];
+  for (const p of pares) for (const [e, x] of p.ops) { ev.push([e, 1]); ev.push([x, -1]); }
+  if (!ev.length) return null;
+  // A igual minuto, los cierres antes que las aperturas: mismo orden que el simulador.
+  ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const tiempo = new Map();
+  let abiertas = 0, prev = ev[0][0];
+  for (const [t, d] of ev) {
+    if (t > prev) { tiempo.set(abiertas, (tiempo.get(abiertas) || 0) + (t - prev)); prev = t; }
+    abiertas += d;
+  }
+  const total = ev[ev.length - 1][0] - ev[0][0];
+  if (!total) return null;
+  const reparto = [];
+  for (const [n, t] of [...tiempo.entries()].sort((a, b) => a[0] - b[0])) {
+    const cuanto = 100 * t / total;
+    if (n > 0 && cuanto >= 0.5) reparto.push([n, cuanto]);
+  }
+  return { efectivo: 100 * (tiempo.get(0) || 0) / total, reparto: reparto };
+}
+function amortiguacion(pares, f, lev) {
+  if (pares.length < 2) return null;
+  const solos = pares.map((p) => SimPool.simulate(operaciones([p], null), f, lev, "slots", true)).filter(Boolean);
+  if (solos.length < 2) return null;
+  return {
+    dds: solos.map((s) => s.mdd),
+    suma: solos.reduce((a, s) => a + s.mdd, 0),
+    cagrs: solos.map((s) => s.cagr),
+    mars: solos.map((s) => s.mar),
+    pool: SimPool.simulate(operaciones(pares, null), f, lev, "slots", true)
+  };
+}
+function poolPorDentro(pares, f, lev) {
+  const caja = $("pool-dentro");
+  const e = exposicion(pares), a = amortiguacion(pares, f, lev);
+  const partes = [];
+  if (e) {
+    const detalle = e.reparto.map(([n, c]) =>
+      pct(c) + " con " + cuantas(n));
+    partes.push("Hay al menos una posición abierta el <b>" + pct(100 - e.efectivo)
+      + "</b> del calendario: " + pct(e.efectivo) + " del tiempo la cuenta está en efectivo"
+      + (detalle.length ? ", " + detalle.join(", ") : "")
+      + (pares.length > 1
+          ? ". Que los símbolos se pisen poco es lo que permite ponerle más margen a cada orden sin quedarse sin capital."
+          : ". Con un solo símbolo nunca hay dos posiciones compitiendo por el capital, así que ninguna señal se pierde por falta de margen."));
+  }
+  if (a) {
+    const masHondo = a.pool.mdd > Math.max(...a.dds);
+    partes.push("Con este mismo margen, cada par por su cuenta cae entre <span class=\"mono\">"
+      + rango(a.dds, (v) => pct(v)) + "</span>, y sumadas esas caídas darían <span class=\"mono\">"
+      + pct(a.suma) + "</span>. El pool cae <b>" + pct(a.pool.mdd)
+      + "</b>: los pares no tocan fondo el mismo mes, así que buena parte del dolor se cancela.");
+    partes.push((masHondo
+        ? "Ojo con la lectura fácil: <b>el pool cae más hondo que cualquier par individual</b>, no menos. Junto no es más tranquilo, es más rentable por unidad de caída. "
+        : "")
+      + "Un par solo rinde entre " + rango(a.cagrs, (v) => pct(v, 0)) + " anual con MAR entre "
+      + rango(a.mars, (v) => num(v, 1)) + "; el pool rinde <span class=\"mono\">" + pct(a.pool.cagr, 0)
+      + "</span> con MAR <span class=\"mono\">" + num(a.pool.mar, 1) + "</span>.");
+  }
+  caja.innerHTML = '<div class="eyebrow">El pool por dentro</div>'
+    + partes.map((t) => '<p style="font-size:.875rem;color:var(--ink-2)">' + t + "</p>").join("");
 }
 
 /* --- aviso segun lo que se eligio --- */
@@ -807,6 +898,8 @@ function recalcular() {
     $("eq-sub").textContent = "";
     $("aviso-seleccion").className = "callout calm";
     $("aviso-seleccion").innerHTML = '<div class="eyebrow">Sin cartera</div><p>Activá pares arriba, o elegí una de las carteras rápidas.</p>';
+    $("pool-dentro").innerHTML = "";
+    $("corr-lectura").textContent = "";
     correlaciones(pares);
     return;
   }
@@ -842,6 +935,7 @@ function recalcular() {
     + ", ocurre dentro de un mes —entre una operación y otra— y por eso no llega a dibujarse acá. "
     + "Las dos son la misma cartera medida con distinta lupa, y la que importa para dimensionar el riesgo es la segunda.";
   heatmap(meses);
+  poolPorDentro(pares, f, apal);
   aviso(pares, completa, juntos, comun);
   const bordes = tamanio(tsFull);
   if (bordes.includes(margen)) {
@@ -860,7 +954,7 @@ const limites = [
   ["La ventaja vigente es una lectura, no una garantía", "Los tres pares se eligieron porque su ventaja sigue viva pesando más lo reciente. El monitoreo mensual vuelve a medirlo; un par puede salir, y otro entrar."],
   ["Concentración", "Con pocos pares, uno solo puede sostener buena parte del rendimiento. La sección de concentración muestra cuánto cae la cartera sin cada uno."],
   ["Muestras cortas", "Los pares de ciclo único tienen entre 33 y 150 operaciones. Un rendimiento anual de tres dígitos sobre esa base es aritmética, no evidencia."],
-  ["Liquidación con 2x", "Las fichas con 2x escalan el resultado de cada operación, pero no modelan una llamada de margen. Con el pool comprometido al máximo, el margen libre real es menor al que muestra esta simulación."]
+  ["Liquidación con 2x", "A 2x el margen cubre la mitad del nocional, así que haría falta un movimiento cercano al −50% para liquidar y el stop está en −5%: una operación suelta no liquida. El riesgo real es un hueco de precio que saltee el stop, y que con el pool comprometido al máximo el margen libre sea menor al que muestra esta simulación."]
 ];
 $("limits").innerHTML = limites.map(([h, p]) => `<div class="mini"><h3>${h}</h3><p>${p}</p></div>`).join("");
 
