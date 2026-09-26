@@ -199,6 +199,36 @@ footer{border-top:1px solid var(--rule);padding-top:1.25rem;color:var(--ink-3);f
 
   <section>
     <div class="shead">
+      <div class="eyebrow">Antes de los números</div>
+      <h2>Cómo leer las columnas</h2>
+      <p class="note">Una vez verificado que los datos de cada par son los correctos —símbolo, zona horaria y un replay que reproduce el export de TradingView—, cada par responde cuatro preguntas, en este orden. Ayuda pensarlo como elegir un restaurante por sus reseñas: no alcanza con la nota promedio, también importa cuántas reseñas hay, qué tan de cerca se miró y si son recientes.</p>
+    </div>
+    <div class="cards3">
+      <div class="mini">
+        <h3>1 · Cuánto deja cada operación</h3>
+        <p>La estrategia hizo cientos de operaciones en cada par: algunas ganaron y otras perdieron. El promedio de todas es el <b>pp/trade</b>. En SFP, cada entrada deja en promedio 1,25% del tamaño de la posición, ya descontadas comisiones y funding. Es la nota promedio del restaurante.</p>
+      </div>
+      <div class="mini">
+        <h3>2 · Si esa ganancia es creíble</h3>
+        <p>Un 7 sobre 10 con tres reseñas no vale lo mismo que un 7 con trescientas, y no es igual que todas digan 7 a que la mitad diga 4 y la otra mitad 10. El <b>t</b> junta las dos cosas: cuántas operaciones hay y qué tan parejos son sus resultados. Por encima de 2, es difícil que la ganancia sea casualidad; por debajo, no alcanza para descartar que lo sea.</p>
+      </div>
+      <div class="mini">
+        <h3>3 · Mirado con lupa</h3>
+        <p>Para saber si una operación tocó primero el stop o la ganancia, hay que reconstruir cómo se movió el precio. TradingView lo mira en tramos de 30 minutos; acá se miró en tramos de 5, que es más fino y más realista. Con la lupa más fuerte la ganancia casi siempre baja, por eso el <b>t 5m</b> queda por debajo del <b>t 30m</b>. El que decide es el de 5 minutos.</p>
+      </div>
+      <div class="mini">
+        <h3>4 · Si sigue funcionando hoy</h3>
+        <p>Un restaurante pudo ser excelente en 2022 y haber cambiado de cocinero. El <b>t vigente</b> hace la misma cuenta, pero cada operación pesa según su antigüedad: una de hace dos años vale la mitad que una de hoy. BAT y NEO pasan el corte con toda su historia, pero rindieron mejor hace años y en 2026 vienen perdiendo: cuando pesa lo reciente, caen por debajo de 2.</p>
+      </div>
+    </div>
+    <div class="callout calm">
+      <div class="eyebrow">En una frase</div>
+      <p>Primero se mide cuánto gana cada operación, después si esa ganancia se puede creer, después se la mira con lupa, y al final se comprueba que siga siendo cierta hoy. Solo los pares con datos verificados que pasan las cuatro pruebas llegan a los tres del final.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
       <div class="eyebrow">El embudo</div>
       <h2>Setenta backtests, tres pares</h2>
       <p class="note">Cada paso descarta por un motivo distinto, y el orden importa: primero se verifica que los datos sean lo que dicen ser —símbolo, zona horaria y reglas que reproducen el export a 4 horas, donde los 65 superaron el 98% de coincidencia salvo BTC con 91%—, después se mide la ventaja, y recién al final se juzga si esa ventaja se puede creer y si sigue vigente. Saltear esa verificación invalida todo lo que sigue.</p>
