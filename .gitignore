@@ -7,3 +7,7 @@
 monitor/operaciones.json
 
 __pycache__/
+
+# Metricas anotadas a mano desde TradingView: son apuntes de trabajo y nada
+# en el repo las lee.
+backtest/All pairs - bar magnifier normal/
