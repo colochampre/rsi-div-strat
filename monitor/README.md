@@ -74,6 +74,15 @@ exports pueden superponerse todo lo que quieran: la superposición es un control
 gratis, porque una operación ya conocida tiene que volver con el mismo
 resultado. Si vuelve distinta, el script avisa en vez de promediar.
 
+TradingView a veces exporta los precios con menos decimales de los que tiene el
+par: AGT, que cotiza cerca de 0,01, salió con 6 decimales en septiembre y con 5
+en noviembre. Como el stop y el trailing se calculan desde el precio de entrada,
+ese redondeo alcanzaba para que una operación conocida volviera distinta. Por
+eso, cuando la apertura de la vela de 4 horas en Binance, redondeada a los
+decimales del export, da el precio del CSV, `corroborar.py` usa la apertura, y
+la salida dice cuántos precios tomó así. Las entradas que nacen del recálculo
+intravela se llenan a otro precio y quedan como vienen.
+
 El registro guarda también los parámetros con los que se midió. Si cambiás el
 stop o el trailing, se niega a mezclar: las operaciones viejas describen otra
 estrategia.

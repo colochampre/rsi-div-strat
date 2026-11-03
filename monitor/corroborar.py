@@ -26,6 +26,7 @@ Uso:
     python monitor/corroborar.py ruta/a/otra/carpeta
     python monitor/corroborar.py --rehacer     # descarta el registro previo
 """
+import csv
 import datetime
 import glob
 import io
@@ -80,24 +81,67 @@ def archivos(carpeta):
     return out
 
 
+def decimales(path):
+    """Cuántos decimales usa el export para escribir los precios."""
+    with io.open(path, encoding="utf-8-sig") as f:
+        precios = [r["Price USDT"] for r in csv.DictReader(f)]
+    return max((len(p.split(".")[1]) if "." in p else 0) for p in precios) if precios else 0
+
+
+def precisar(sym, trades, path, proveedor):
+    """Devuelve las entradas con el precio exacto de Binance cuando el export lo redondeó.
+
+    TradingView exporta los precios con menos decimales de los que tiene el
+    par: AGT, cerca de 0,01, salió con 6 decimales en septiembre y con 5 en
+    noviembre, y eso corre la entrada hasta un 0,15%. Como el replay calcula el
+    stop y el trailing desde el precio de entrada, una operación ya conocida
+    volvía con otro resultado y aparecía como choque.
+
+    La mayoría de las entradas se llenan en la apertura de la vela de 4 horas,
+    así que, si la apertura de Binance redondeada a los decimales del export da
+    el precio del CSV, se usa la apertura. Las que nacen del recálculo intravela
+    se llenan a otro precio, no coinciden y quedan como vienen. Con un export
+    que trae todos los decimales, no cambia nada.
+    """
+    if not trades:
+        return trades, 0
+    dec = decimales(path)
+    paso = datetime.timedelta(seconds=candles.SECONDS[simular.CHART_TF])
+    desde = min(t.entry_time for t in trades)
+    hasta = max(t.entry_time for t in trades) + paso
+    apertura = {v.time: v.open for v in proveedor.series(sym, simular.CHART_TF, desde, hasta).candles}
+    out, ajustadas = [], 0
+    for t in trades:
+        abre = apertura.get(int(t.entry_time.timestamp() * 1000))
+        if abre is not None and abre != t.entry_price and round(abre, dec) == round(t.entry_price, dec):
+            t = t._replace(entry_price=abre)
+            ajustadas += 1
+        out.append(t)
+    return out, ajustadas
+
+
 def medir(sym, path, proveedor):
-    """Las operaciones del export, con las mismas reglas y costos que el informe."""
+    """Las operaciones del export, con las mismas reglas y costos que el informe.
+
+    Devuelve las filas y cuántos precios de entrada se tomaron de Binance.
+    """
     trades = tradingview.read_trades(path, OFFSET)
     trades = [t for t in trades if t.entry_time >= actualizar.MEDIR_DESDE]
     if len(trades) < 2:
-        return []
+        return [], 0
+    trades, ajustadas = precisar(sym, trades, path, proveedor)
     res = estimate.run(trades, proveedor, sym, simular.FINE_TF,
                        simular.reglas(), simular.COMISION)
     llenas = [(t, f) for t, f in res.pairs if f is not None]
     if not llenas:
-        return []
+        return [], ajustadas
     fee = estimate.funding_cost([t for t, _f in llenas], proveedor, sym)
     paso = datetime.timedelta(seconds=candles.SECONDS[simular.FINE_TF])
     filas = []
     for (t, f), c in zip(llenas, fee):
         filas.append([t.entry_time.isoformat(), (t.entry_time + paso * f.bars).isoformat(),
                       round(f.pct - c, 5), t.long, f.signal])
-    return filas
+    return filas, ajustadas
 
 
 def fusionar(previas, nuevas, archivo, hoy):
@@ -202,7 +246,7 @@ def main():
         "par", "nuevas", "repet.", "acumulado", "t acum", "t desc", "n efect.", "t simul."))
     for sym in sorted(encontrados):
         try:
-            nuevas = medir(sym, encontrados[sym], proveedor)
+            nuevas, ajustadas = medir(sym, encontrados[sym], proveedor)
         except Exception as exc:
             print("%-14s ERROR %s: %s" % (sym, type(exc).__name__, exc))
             continue
@@ -227,6 +271,9 @@ def main():
             sym, lote["aporto"], lote["repetidas"], acum["n"], acum["t"],
             "%.2f" % desc["t"] if desc else "-", desc["n_ef"] if desc else "-",
             "%.2f" % sim if sim is not None else "-"))
+        if ajustadas:
+            print("       %d precios de entrada tomados de Binance: el export los trae redondeados"
+                  % ajustadas)
         for momento, antes, ahora in choques:
             print("       CHOQUE en %s: guardado %+.2f%%, ahora %+.2f%%" % (momento, antes, ahora))
         actualizar.escribir(REGISTRO, registro)
