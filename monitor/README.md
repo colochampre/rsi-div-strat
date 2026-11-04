@@ -150,6 +150,7 @@ correcto: el monitor avisa, la decisión es tuya.
 | `corroborar.py` | Mide desde exports de TradingView, en la escala del informe |
 | `validar_senales.py` | Contrasta las señales contra los exports de TradingView |
 | `validar_simulacion.py` | Contrasta las estadísticas punta a punta, a 4 horas |
+| `plantilla.html` | La página "Los pares vigentes": avisos, armador de cartera, los 65 pares y cómo se eligieron. `render()` la llena con `estado.json` y las operaciones de `corroboradas.json` y la deja en `informe/monitor.html` |
 | `pares.txt` | El universo monitoreado, un símbolo por línea |
 | `estado.json` | Estadísticas por par, historia mensual, cartera y avisos |
 | `corroboradas.json` | Registro acumulado de operaciones corroboradas, export tras export |

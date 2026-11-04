@@ -46,6 +46,7 @@ PARES = os.path.join(AQUI, "pares.txt")
 ESTADO = os.path.join(AQUI, "estado.json")
 OPERACIONES = os.path.join(AQUI, "operaciones.json")
 PLANTILLA = os.path.join(AQUI, "plantilla.html")
+REGISTRO = os.path.join(AQUI, "corroboradas.json")    # lo escribe corroborar.py
 PAGINA = os.path.join(RAIZ, "informe", "monitor.html")
 INICIO = datetime.datetime(2021, 9, 1, tzinfo=datetime.timezone.utc)
 #: Desde cuándo cuentan las operaciones. Las velas anteriores son calentamiento
@@ -89,6 +90,27 @@ def escribir(path, datos):
     json.dump(datos, io.open(path, "w", encoding="utf-8"), separators=(",", ":"))
 
 
+def _minutos(iso):
+    return int(datetime.datetime.fromisoformat(iso).timestamp() // 60)
+
+
+def datos_pagina(estado):
+    """El estado más lo que la página necesita para armar la cartera en el navegador.
+
+    Las operaciones salen del registro de corroborar.py, en la escala del
+    informe: entrada y salida en minutos desde epoch y el retorno neto. Los
+    umbrales viajan con los datos para que la página no repita ningún número
+    que se decide acá.
+    """
+    datos = dict(estado)
+    registro = leer(REGISTRO, {}).get("pares", {})
+    datos["ops"] = {sym: [[_minutos(o[0]), _minutos(o[1]), o[2]] for o in r["ops"]]
+                    for sym, r in sorted(registro.items()) if r.get("ops")}
+    datos["umbral"] = dict(umbral=UMBRAL, bajo=MARGEN_BAJO, alto=MARGEN_ALTO,
+                           muestra=MUESTRA_MINIMA, persistencia=PERSISTENCIA)
+    return datos
+
+
 def render(estado):
     """Vuelca el estado dentro de la plantilla y deja la página lista.
 
@@ -97,7 +119,7 @@ def render(estado):
     JSON al lado.
     """
     plantilla = io.open(PLANTILLA, encoding="utf-8").read()
-    html = plantilla.replace("__DATA__", json.dumps(estado, separators=(",", ":")))
+    html = plantilla.replace("__DATA__", json.dumps(datos_pagina(estado), separators=(",", ":")))
     if "__DATA__" in html:
         raise RuntimeError("la plantilla no tiene marcador __DATA__")
     io.open(PAGINA, "w", encoding="utf-8", newline="\n").write(html)

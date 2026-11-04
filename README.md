@@ -19,7 +19,7 @@ una ventaja que siga existiendo.
 | `backtest/` | Exports de la lista de operaciones de TradingView, más `configs.csv` con el resumen de corridas. Los exports de la validación 4h están versionados para que los scripts de `analysis/` sean reproducibles; corridas nuevas se regeneran desde TradingView. |
 | `analysis/` | Scripts de Python que validan esos exports. Ver [`analysis/README.md`](analysis/README.md). |
 | `monitor/` | Monitoreo mensual: reimplementa las señales para no depender de exports hechos a mano, mide los 65 pares contra velas reales y avisa cuándo sumar o sacar un par de la cartera. Ver [`monitor/README.md`](monitor/README.md). |
-| `informe/` | Los informes en HTML: la auditoría del Bar Magnifier, la selección de pares y la página del monitoreo, que se regenera sola en cada corrida. |
+| `informe/` | `monitor.html`, la página "Los pares vigentes": cómo se eligieron los pares, la cartera y el monitoreo mensual. Se regenera sola en cada corrida. |
 
 ## Cómo está armada la estrategia
 
