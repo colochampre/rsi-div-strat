@@ -16,10 +16,10 @@ Branch: feat/pares-vigentes · Delivery: ask-on-risk · Test runner: none in rep
 
 ## Tasks
 
-- [ ] T1 · S8 · inline · corroborate 65 pairs (Sep, then Nov 4) · commit: -
-- [x] T2 · S7 · inline · minimum sample for the add notice in `actualizar.alertas` + README · commit: -
-- [x] T3 · S1-S6 · inline · unified template, render embeds registry trades · commit: -
-- [ ] T4 · S1 · inline · publish, docs, remove superseded selection page · commit: -
+- [x] T1 · S8 · inline · corroborate 65 pairs (Sep, then Nov 4) · commit: a7602c9
+- [x] T2 · S7 · inline · minimum sample for the add notice in `actualizar.alertas` + README · commit: 3b95b1f
+- [x] T3 · S1-S6 · inline · unified template, render embeds registry trades · commit: 2a6d428
+- [x] T4 · S1 · inline · publish, docs, remove superseded selection page · commit: 2a6d428
 
 ## Log
 
@@ -31,3 +31,4 @@ Branch: feat/pares-vigentes · Delivery: ask-on-risk · Test runner: none in rep
 - L6: T3 decisions. Table: 15 rows per page, columns simulated (t, change, sparkline) and export at 5m (ops, pp/op, total, t, discounted t, effective n, annual, max drawdown); the 4h/30m columns of the old selection table are dropped (static history, not produced by the scripts). Builder: presets "La cartera vigente", "t descontado >= 2", "t >= 2 con toda la historia", "Ninguno"; the no-edge pairs fold behind "mostrar N". Correlation computed in the browser as the sum of returns by entry month, which reproduces the old precomputed values exactly (-0.41, 0.46, 0.16, 0.08). The copy-command reminder is gone. The page script runs clean against a DOM stub in 200 ms.
 - L8: T1 run stopped by Claude Code for low system memory during pass 1, after SNXUSDT (14:34). The registry is written per pair and still parses: 51 pairs. One CHOQUE (2023-01-13, -5.10% vs -5.08%). Restarted on the user's go-ahead (2026-11-04: "Dale, relanzalo"). `medir` replays every export regardless of the registry, so pass 1b runs only the 15 September exports not yet measured (SOL..ZETA), then pass 2 runs on the folder.
 - L7: `informe/seleccion-de-pares.html` removed (superseded; remains in git history). Artifact BmA8JmKeQTm8xaVxUc4dra is left untouched.
+- L9: Both passes exited 0; registry and estado cover 65 pairs. 8 CHOQUE (7 BRUSDT, 1 FLOWUSDT), all under 0.2 pp; stored values kept. 594 entry prices taken from Binance. Only notice this month: ACU "observar". Page script runs clean on the final page (242 ms); published as version 17 of 65SZoCmMhztps4xfW12eTs. RDD off (global); assess: medium, under_budget. Branch not pushed.
