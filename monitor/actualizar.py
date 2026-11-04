@@ -60,6 +60,10 @@ MEDIR_DESDE = datetime.datetime(2022, 1, 1, tzinfo=datetime.timezone.utc)
 UMBRAL = 2.0
 MARGEN_BAJO, MARGEN_ALTO = 1.8, 2.2
 PERSISTENCIA = 2                # lecturas seguidas del mismo lado para avisar
+#: Operaciones efectivas que tiene que tener un export para que el aviso diga
+#: sumar. Con 33 operaciones un t de 2,8 se sostiene en un puñado de ganadoras;
+#: con cinco a ocho operaciones por mes, 100 son entre uno y dos años de historia.
+MUESTRA_MINIMA = 100
 PASO = datetime.timedelta(hours=4)
 
 #: funding_cost espera entry_time / exit_time / long.
@@ -176,6 +180,8 @@ def alertas(estado):
                    Exportá ese par de TradingView y pasalo por corroborar.py.
       quitar/agregar   ya hay un export reciente y dice lo mismo. Eso sí es
                    una decisión, porque está en la escala del informe.
+      observar     el export pasa el corte para sumar, pero con menos de
+                   MUESTRA_MINIMA operaciones efectivas: se muestra, no se decide.
     """
     pool = estado.get("pool", [])
     out = []
@@ -208,9 +214,19 @@ def alertas(estado):
                                 desde=ultimas[0]["m"], meses=len(ultimas),
                                 por="el export lo confirma: %s." % contexto))
             elif not dentro and td >= MARGEN_ALTO:
-                out.append(dict(par=sym, accion="agregar", t=td, fuente="export",
-                                desde=ultimas[0]["m"], meses=len(ultimas),
-                                por="el export lo confirma: %s." % contexto))
+                n_ef = corr.get("n_ef") or corr.get("n") or 0
+                if n_ef < MUESTRA_MINIMA:
+                    # Pasa el corte, pero sobre una muestra que todavía no alcanza
+                    # para decidir: se muestra sin la etiqueta de sumar.
+                    out.append(dict(par=sym, accion="observar", t=td, fuente="export",
+                                    desde=ultimas[0]["m"], meses=len(ultimas),
+                                    por="%s. Hacen falta %d operaciones efectivas para "
+                                        "sumarlo." % (contexto[0].upper() + contexto[1:],
+                                                      MUESTRA_MINIMA)))
+                else:
+                    out.append(dict(par=sym, accion="agregar", t=td, fuente="export",
+                                    desde=ultimas[0]["m"], meses=len(ultimas),
+                                    por="el export lo confirma: %s." % contexto))
             continue                    # el export ya se pronunció
         out.append(dict(par=sym, accion="corroborar", t=ultimas[-1]["t"], fuente="simulado",
                         desde=ultimas[0]["m"], meses=len(ultimas),

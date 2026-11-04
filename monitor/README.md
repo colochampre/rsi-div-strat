@@ -127,6 +127,10 @@ operación, así que el aviso pide **margen y memoria**:
 - cruzar **2,2** hacia arriba estando afuera → candidato a entrar
 - y sostenerlo **dos lecturas seguidas**
 
+Para entrar hace falta además muestra: un export con menos de **100 operaciones
+efectivas** (`MUESTRA_MINIMA`) no genera "sumar" sino "en observación". Con 33
+operaciones, un `t` de 2,8 se sostiene en un puñado de ganadoras.
+
 Entre 1,8 y 2,2 no se decide nada. Una estrategia de 4 horas suma unas cinco a
 ocho operaciones por par por mes, así que el `t` se mueve despacio y los avisos
 son raros: eso es lo buscado.
