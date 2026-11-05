@@ -75,7 +75,8 @@ svg{display:block;max-width:100%;height:auto}
 .info:hover{color:var(--ink);border-color:var(--ink-3)}
 .info[aria-expanded="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
 .info:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
-.explica{background:var(--panel-2);border-radius:3px;padding:.875rem 1.125rem;display:flex;flex-direction:column;gap:.625rem;font-size:.875rem;color:var(--ink-2);max-width:80ch}
+.explica{background:var(--panel-2);border-radius:3px;padding:.875rem 1.125rem;display:flex;flex-direction:column;gap:.625rem;font-size:.875rem;color:var(--ink-2)}
+.explica p{text-align:justify;hyphens:auto}
 .explica h3{font-size:.875rem}
 /* notices */
 .avisos{display:flex;flex-direction:column;gap:.625rem}
@@ -198,12 +199,12 @@ td.est .badge{min-width:6.25rem}
 @media(max-width:43.75rem){.funnel{gap:.875rem}.step{padding:.75rem 0 0;border-left:none;border-top:1px solid var(--rule)}.step:first-child{border-top:none;padding-top:0}}
 .limites{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem}
 .mini{border-top:2px solid var(--rule);padding-top:.625rem;display:flex;flex-direction:column;gap:.25rem}
-.mini p{font-size:.8125rem;color:var(--ink-2)}
+.mini p{font-size:.8125rem;color:var(--ink-2);text-align:justify;hyphens:auto}
 footer{border-top:1px solid var(--rule);padding-top:1.125rem;color:var(--ink-3);font-size:.75rem;display:flex;flex-direction:column;gap:.375rem}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
-<div class="wrap">
+<div class="wrap" lang="es">
   <header>
     <div class="eyebrow">RSI Divergence Strategy · cartera y monitoreo mensual</div>
     <h1>Los pares vigentes</h1>
