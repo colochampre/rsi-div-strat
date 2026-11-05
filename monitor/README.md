@@ -127,6 +127,10 @@ operación, así que el aviso pide **margen y memoria**:
 - cruzar **2,2** hacia arriba estando afuera → candidato a entrar
 - y sostenerlo **dos lecturas seguidas**
 
+Para entrar hace falta además muestra: un export con menos de **100 operaciones
+efectivas** (`MUESTRA_MINIMA`) no genera "sumar" sino "en observación". Con 33
+operaciones, un `t` de 2,8 se sostiene en un puñado de ganadoras.
+
 Entre 1,8 y 2,2 no se decide nada. Una estrategia de 4 horas suma unas cinco a
 ocho operaciones por par por mes, así que el `t` se mueve despacio y los avisos
 son raros: eso es lo buscado.
@@ -146,6 +150,7 @@ correcto: el monitor avisa, la decisión es tuya.
 | `corroborar.py` | Mide desde exports de TradingView, en la escala del informe |
 | `validar_senales.py` | Contrasta las señales contra los exports de TradingView |
 | `validar_simulacion.py` | Contrasta las estadísticas punta a punta, a 4 horas |
+| `plantilla.html` | La página "Los pares vigentes": avisos, armador de cartera, los 65 pares y cómo se eligieron. `render()` la llena con `estado.json` y las operaciones de `corroboradas.json` y la deja en `informe/monitor.html` |
 | `pares.txt` | El universo monitoreado, un símbolo por línea |
 | `estado.json` | Estadísticas por par, historia mensual, cartera y avisos |
 | `corroboradas.json` | Registro acumulado de operaciones corroboradas, export tras export |

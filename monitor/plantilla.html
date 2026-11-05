@@ -1,8 +1,12 @@
-<title>Quién entra y quién sale</title>
+<title>Los pares vigentes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
+/* Layout: one reading column of stacked sections; the summary (notices, portfolio)
+   comes before the detail (all pairs, how they were chosen). Explanations sit
+   behind (i) buttons next to each heading. */
 :root{
   --ground:#F2F5F7; --panel:#FBFCFD; --panel-2:#E9EEF1;
   --ink:#0F171E; --ink-2:#3D4E5C; --ink-3:#6B7D8B;
@@ -11,6 +15,9 @@
   --neg:#C4442E; --mid:#E3E8EB;
   --good:#1F6F47; --bad:#A8371F;
   --shadow:0 1px 2px rgba(15,23,30,.05),0 8px 24px -16px rgba(15,23,30,.22);
+  --f-display:Archivo,ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -21,6 +28,7 @@
     --neg:#E0644B; --mid:#1E272F;
     --good:#4FBF87; --bad:#E8735A;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+    color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
@@ -31,260 +39,662 @@
   --neg:#E0644B; --mid:#1E272F;
   --good:#4FBF87; --bad:#E8735A;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
-/* Mas ancho que las otras dos paginas del informe a proposito: esta tiene una
-   tabla de trece columnas y con 1080 la ultima quedaba cortada. */
-.wrap{max-width:1200px;margin:0 auto;padding-block:40px 72px;padding-left:24px;padding-right:24px;display:flex;flex-direction:column;gap:40px}
-h1,h2,h3{font-family:Archivo,ui-sans-serif,system-ui,sans-serif;text-wrap:balance;margin:0;letter-spacing:-.015em}
-h1{font-size:clamp(28px,4.2vw,40px);font-weight:700;line-height:1.05}
-h2{font-size:19px;font-weight:600}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.6;margin:0;-webkit-font-smoothing:antialiased}
+.wrap{max-width:75rem;margin:0 auto;padding-block:2.5rem 4.5rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:3rem}
+@media(min-width:48rem){.wrap{padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(2rem,4.6vw,3rem);font-weight:700;line-height:1.05}
+h2{font-size:1.25rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
 p{margin:0}
-.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
-.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
-.lede{color:var(--ink-2);font-size:16px;max-width:66ch}
-.note{color:var(--ink-3);font-size:13px;text-align:justify}
-header{display:flex;flex-direction:column;gap:14px;padding-bottom:22px;border-bottom:2px solid var(--ink)}
-.facts{display:flex;flex-wrap:wrap;justify-content:space-evenly;gap:14px 0;border-top:1px solid var(--rule);padding-top:14px;margin-top:4px}
-.fact{padding-right:26px;margin-right:26px;border-right:1px solid var(--rule-soft)}
+b{font-weight:600}
+.mono{font-family:var(--f-data);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-data);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.lede{color:var(--ink-2);font-size:1.0625rem;max-width:66ch}
+.note{color:var(--ink-3);font-size:.875rem;max-width:80ch}
+a{color:var(--c1);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--c1) 40%,transparent)}
+a:hover{border-bottom-color:var(--c1)}
+a:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+header{display:flex;flex-direction:column;gap:1rem;padding-bottom:1.5rem;border-bottom:2px solid var(--ink)}
+.facts{display:flex;flex-wrap:wrap;gap:.875rem 0;border-top:1px solid var(--rule);padding-top:.875rem;margin-top:.25rem}
+.fact{padding-right:1.625rem;margin-right:1.625rem;border-right:1px solid var(--rule-soft);min-width:0}
 .fact:last-child{border-right:none;margin-right:0;padding-right:0}
-.fact b{display:block;font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
-.fact span{font-size:11.5px;color:var(--ink-3)}
-.recordatorio{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-top:14px;padding:11px 14px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);font-size:13px;color:var(--ink-2)}
-.recordatorio.pendiente{border-color:color-mix(in srgb,var(--c2) 45%,transparent);background:color-mix(in srgb,var(--c2) 9%,transparent)}
-.recordatorio b{color:var(--ink)}
-.recordatorio .cmd{font-family:"IBM Plex Mono",monospace;font-size:12px;padding:5px 11px;border:1px solid var(--rule);border-radius:3px;background:var(--panel-2);color:var(--ink-2);cursor:pointer}
-.recordatorio .cmd:hover{color:var(--ink);border-color:var(--ink-3)}
-.recordatorio .cmd:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
-section{display:flex;flex-direction:column;gap:16px}
-.shead{display:flex;flex-direction:column;gap:6px}
-.panel{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:20px;box-shadow:var(--shadow)}
+.fact b{display:block;font-family:var(--f-data);font-size:1.0625rem;font-weight:600;font-variant-numeric:tabular-nums}
+.fact span{font-size:.75rem;color:var(--ink-3)}
+section{display:flex;flex-direction:column;gap:1.125rem;min-width:0}
+.shead{display:flex;flex-direction:column;gap:.5rem}
+.hrow{display:flex;align-items:center;gap:.625rem;flex-wrap:wrap}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:1.25rem;box-shadow:var(--shadow);min-width:0}
 .scroller{overflow-x:auto}
-/* avisos */
-.avisos{display:flex;flex-direction:column;gap:10px}
-.aviso{display:flex;gap:14px;align-items:baseline;border:1px solid var(--rule);border-left:3px solid var(--c2);border-radius:3px;background:var(--panel);padding:14px 18px}
+svg{display:block;max-width:100%;height:auto}
+/* (i): explanations on demand */
+.info{flex:none;width:1.5rem;height:1.5rem;border-radius:50%;border:1px solid var(--rule);background:var(--panel);color:var(--ink-3);font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:.8125rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.info:hover{color:var(--ink);border-color:var(--ink-3)}
+.info[aria-expanded="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.info:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+.explica{background:var(--panel-2);border-radius:3px;padding:.875rem 1.125rem;display:flex;flex-direction:column;gap:.625rem;font-size:.875rem;color:var(--ink-2);max-width:80ch}
+.explica h3{font-size:.875rem}
+/* notices */
+.avisos{display:flex;flex-direction:column;gap:.625rem}
+.aviso{display:flex;gap:.875rem;align-items:baseline;flex-wrap:wrap;border:1px solid var(--rule);border-left:3px solid var(--c2);border-radius:3px;background:var(--panel);padding:.875rem 1.125rem}
 .aviso.quitar{border-left-color:var(--neg)}
 .aviso.agregar{border-left-color:var(--good)}
-.aviso .que{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.aviso.observar{border-left-color:var(--ink-3)}
+.aviso .que{font-family:var(--f-data);font-size:.6875rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--c2);min-width:8.5rem}
 .aviso.quitar .que{color:var(--neg)}
 .aviso.agregar .que{color:var(--good)}
-.aviso .par{font-family:Archivo,sans-serif;font-weight:700;font-size:16px}
-.aviso .por{color:var(--ink-2);font-size:13.5px}
-.calma{border:1px dashed var(--rule);border-radius:3px;padding:16px 18px;color:var(--ink-3);font-size:13.5px}
-/* tabla */
-table{border-collapse:collapse;width:100%;font-size:13.5px}
-th,td{text-align:right;padding:7px 10px;border-bottom:1px solid var(--rule-soft);white-space:nowrap}
+.aviso.observar .que{color:var(--ink-3)}
+.aviso .par{font-family:var(--f-display);font-weight:700;font-size:1rem;min-width:4.5rem}
+.aviso .por{color:var(--ink-2);font-size:.875rem;flex:1 1 20rem;min-width:0}
+.calma{border:1px dashed var(--rule);border-radius:3px;padding:1rem 1.125rem;color:var(--ink-3);font-size:.875rem}
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:.8125rem}
+th,td{text-align:right;padding:.4375rem .625rem;border-bottom:1px solid var(--rule-soft);white-space:nowrap}
 th:first-child,td:first-child{text-align:left}
-thead th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--rule)}
-tbody td{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
-tbody td:first-child{font-family:"IBM Plex Sans",sans-serif}
+thead th{font-family:var(--f-data);font-size:.625rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--rule)}
+tbody td{font-family:var(--f-data);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--f-body);font-weight:500}
 tbody tr:last-child td{border-bottom:none}
 thead th[data-col]{cursor:pointer;user-select:none}
 thead th[data-col]:hover{color:var(--ink)}
 thead th[data-col]:focus-visible{outline:2px solid var(--c1);outline-offset:-2px}
-thead th[data-col] .flecha{color:var(--c1);font-weight:600}
+thead th .flecha{color:var(--c1);font-weight:600}
 th.grp,td.grp{border-left:2px solid var(--rule)}
-thead tr:first-child th[colspan]{text-align:center;color:var(--ink-2);font-weight:600;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase}
+thead tr:first-child th[colspan]{text-align:center;color:var(--ink-2);font-weight:600}
 tr.pool td{background:color-mix(in srgb,var(--c1) 9%,transparent)}
-tr.fuera td{color:var(--ink-3)}
+tr.hl td{background:color-mix(in srgb,var(--c1) 10%,transparent)}
+tr.fuera td,tr.dead td{color:var(--ink-3)}
 td.t{font-weight:600}
-td.est{text-align:left;width:1%;padding-left:12px}
-.badge{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;display:inline-block;min-width:96px;text-align:center}
+td.est{text-align:left;width:1%;padding-left:.75rem}
+td.dim{color:var(--ink-3)}
+td.baja{color:var(--neg)}
+.badge{font-family:var(--f-data);font-size:.625rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.125rem .4375rem;border-radius:2px;display:inline-block;text-align:center;white-space:nowrap}
+td.est .badge{min-width:6.25rem}
 .badge.pool{background:color-mix(in srgb,var(--c1) 15%,transparent);color:var(--c1);border:1px solid color-mix(in srgb,var(--c1) 42%,transparent)}
-.badge.cand{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
-.badge.vig{background:color-mix(in srgb,var(--c2) 13%,transparent);color:var(--c2);border:1px solid color-mix(in srgb,var(--c2) 38%,transparent)}
+.badge.cand,.badge.ok{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
+.badge.chica,.badge.vig{background:color-mix(in srgb,var(--c2) 13%,transparent);color:var(--c2);border:1px solid color-mix(in srgb,var(--c2) 38%,transparent)}
 .badge.no{background:var(--panel-2);color:var(--ink-3);border:1px solid var(--rule)}
-.spark{display:block}
+.badge.borde{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 34%,transparent)}
 .delta.sube{color:var(--good)}
 .delta.baja{color:var(--neg)}
-footer{border-top:1px solid var(--rule);padding-top:18px;color:var(--ink-3);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.ciclo1{color:var(--c2)}
+.pager{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;justify-content:space-between;margin-top:.875rem;font-size:.8125rem;color:var(--ink-3)}
+.pager .pags{display:flex;flex-wrap:wrap;gap:.25rem}
+.pager button{font-family:var(--f-data);font-size:.75rem;min-width:2rem;padding:.3125rem .625rem;border:1px solid var(--rule);border-radius:3px;background:var(--panel-2);color:var(--ink-2);cursor:pointer}
+.pager button:hover:not(:disabled){color:var(--ink);border-color:var(--ink-3)}
+.pager button[aria-current="page"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.pager button:disabled{opacity:.45;cursor:default}
+.pager button:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+/* portfolio builder */
+.selector{display:flex;flex-direction:column;gap:.875rem}
+.presets{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.lbl,.grupo{font-family:var(--f-data);font-size:.625rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.btnp,.chip,.mas{font-family:var(--f-data);font-size:.75rem;border:1px solid var(--rule);border-radius:3px;cursor:pointer}
+.btnp{padding:.375rem .75rem;background:var(--panel-2);color:var(--ink-2)}
+.btnp:hover,.mas:hover{color:var(--ink);border-color:var(--ink-3)}
+.btnp[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.btnp:focus-visible,.chip:focus-visible,.mas:focus-visible,.seg button:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+.grupos{display:flex;flex-direction:column;gap:.625rem}
+.fila-chips{display:grid;grid-template-columns:7rem minmax(0,1fr);gap:.625rem;align-items:start}
+@media(max-width:40rem){.fila-chips{grid-template-columns:minmax(0,1fr);gap:.375rem}}
+.chips{display:flex;flex-wrap:wrap;gap:.375rem .5rem}
+.chip{padding:.25rem .625rem;background:transparent;color:var(--ink-3);display:inline-flex;gap:.5rem;align-items:baseline}
+.chip .tv{font-size:.625rem;opacity:.8}
+.chip[aria-pressed="true"]{background:color-mix(in srgb,var(--c1) 15%,transparent);border-color:color-mix(in srgb,var(--c1) 55%,transparent);color:var(--ink)}
+.mas{padding:.25rem .625rem;background:transparent;color:var(--ink-3);border-style:dashed}
+.resumen{font-size:.875rem;color:var(--ink-2);border-top:1px solid var(--rule-soft);padding-top:.75rem}
+.resumen .borde{color:var(--c2)}
+.vacio{border:1px dashed var(--rule);border-radius:3px;padding:1.125rem;color:var(--ink-3);font-size:.875rem;text-align:center}
+.chart-head{display:flex;flex-wrap:wrap;gap:.875rem;align-items:flex-start;justify-content:space-between;margin-bottom:1rem}
+.chart-title{font-family:var(--f-display);font-size:1rem;font-weight:600}
+.chart-sub{font-size:.8125rem;color:var(--ink-3)}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:var(--panel-2)}
+.seg button{font-family:var(--f-data);font-size:.75rem;font-weight:500;padding:.375rem .75rem;border:none;background:transparent;color:var(--ink-3);cursor:pointer;border-right:1px solid var(--rule)}
+.seg button:last-child{border-right:none}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.eqstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1rem 0;margin-top:1.125rem;border-top:1px solid var(--rule);padding-top:.875rem}
+.eqstats>div{padding:0 1.25rem;border-left:1px solid var(--rule-soft);min-width:0}
+.eqstats>div:first-child{padding-left:0;border-left:none}
+@media(max-width:40rem){.eqstats>div{padding:0;border-left:none}}
+.eqstats .who{font-family:var(--f-display);font-size:.875rem;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.eqstats dl{display:grid;grid-template-columns:auto 1fr;gap:.125rem .75rem;margin:0;font-size:.75rem}
+.eqstats dt{color:var(--ink-3)}
+.eqstats dd{margin:0;font-family:var(--f-data);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink)}
+.eqstats dd.risk{color:var(--neg)}
+.callout{border:1px solid var(--rule);border-left:3px solid var(--neg);border-radius:3px;background:var(--panel);padding:.875rem 1.125rem;display:flex;flex-direction:column;gap:.5rem;font-size:.875rem;color:var(--ink-2)}
+.callout.calm{border-left-color:var(--c1)}
+.callout .eyebrow{color:var(--neg)}
+.callout.calm .eyebrow{color:var(--c1)}
+.hm-scale{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--ink-3);font-family:var(--f-data);margin-bottom:.875rem}
+.hm-bar{width:7.5rem;height:.5rem;border-radius:2px;background:linear-gradient(90deg,var(--neg),var(--mid),var(--c1))}
+.hm-stats{margin-top:1rem;font-size:.8125rem;color:var(--ink-2)}
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(20rem,1fr));gap:1.25rem}
+.loo{display:flex;flex-direction:column;gap:.5rem}
+.loorow{display:grid;grid-template-columns:6.5rem minmax(0,1fr) 6.5rem;gap:.75rem;align-items:center;font-size:.75rem}
+.loorow .nm{font-weight:600}
+.loorow .track{height:1rem;background:var(--panel-2);border-radius:2px;position:relative;overflow:hidden}
+.loorow .bar{position:absolute;top:0;bottom:0;left:0;background:color-mix(in srgb,var(--c1) 55%,transparent)}
+.loorow.base .bar{background:var(--ink-3)}
+.loorow .val{font-family:var(--f-data);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink-2)}
+.loorow .val i{font-style:normal;color:var(--neg)}
+.loorow .val i.up{color:var(--good)}
+.hm{border-collapse:separate;border-spacing:.125rem;font-size:.75rem;width:auto}
+.hm td,.hm th{padding:0;border:none;white-space:nowrap}
+.hm th{font-family:var(--f-data);font-size:.625rem;color:var(--ink-3);font-weight:500;text-align:right;padding:0 .375rem}
+.hm th.col{text-align:center;padding-bottom:.25rem}
+.hm td div{min-width:2.75rem;height:1.5rem;display:flex;align-items:center;justify-content:center;border-radius:2px;font-family:var(--f-data);font-variant-numeric:tabular-nums;color:var(--ink)}
+.lectura{font-size:.8125rem;color:var(--ink-2);margin-top:.875rem}
+/* funnel */
+.funnel{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:0}
+.step{padding:0 1rem;border-left:1px solid var(--rule);display:flex;flex-direction:column;gap:.375rem;min-width:0}
+.step:first-child{padding-left:0;border-left:none}
+.step b{font-family:var(--f-data);font-size:1.625rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.step .what{font-size:.75rem;color:var(--ink-2);font-weight:600}
+.step .why{font-size:.75rem;color:var(--ink-3);line-height:1.5}
+.step.last b{color:var(--c1)}
+@media(max-width:43.75rem){.funnel{gap:.875rem}.step{padding:.75rem 0 0;border-left:none;border-top:1px solid var(--rule)}.step:first-child{border-top:none;padding-top:0}}
+.limites{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem}
+.mini{border-top:2px solid var(--rule);padding-top:.625rem;display:flex;flex-direction:column;gap:.25rem}
+.mini p{font-size:.8125rem;color:var(--ink-2)}
+footer{border-top:1px solid var(--rule);padding-top:1.125rem;color:var(--ink-3);font-size:.75rem;display:flex;flex-direction:column;gap:.375rem}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">RSI Divergence Strategy · monitoreo mensual</div>
-    <h1>Quién entra y quién sale</h1>
-    <p class="lede">Cada mes se recalcula el rendimiento de todos los pares del universo contra velas reales. Cuando uno pierde su ventaja estadística, o cuando otro la gana, aparece acá.</p>
+    <div class="eyebrow">RSI Divergence Strategy · cartera y monitoreo mensual</div>
+    <h1>Los pares vigentes</h1>
+    <p class="lede" id="lede"></p>
     <div class="facts" id="facts"></div>
-    <div class="recordatorio" id="recordatorio"></div>
   </header>
 
   <section>
     <div class="shead">
-      <div class="eyebrow">Avisos</div>
-      <h2 id="avisos-titulo">Sin cambios</h2>
+      <div class="eyebrow">Este mes</div>
+      <div class="hrow">
+        <h2 id="avisos-titulo">Sin cambios</h2>
+        <button type="button" class="info" aria-expanded="false" aria-controls="i-avisos" aria-label="Qué significa cada aviso">i</button>
+      </div>
+      <div class="explica" id="i-avisos" hidden>
+        <p>Un aviso aparece cuando un par cruza el umbral y lo sostiene <span id="i-persist">dos</span> lecturas mensuales seguidas. El corte no es seco: entre <span class="mono" id="i-bajo">1,8</span> y <span class="mono" id="i-alto">2,2</span> no se decide nada, para que un par no entre y salga por el ruido de una sola operación.</p>
+        <p><b>Sumar</b> y <b>sacar</b> se apoyan en un export reciente de TradingView, medido en la misma escala que la cartera: son decisiones. <b>Exportar y mirar</b> viene del simulador, que recalcula los pares solo pero queda entre 0,1 y 0,8 de t por debajo del export: nomina, no decide. <b>En observación</b> es un par que pasa el corte con menos de <span class="mono" id="i-muestra">100</span> operaciones efectivas: con una muestra así, unas pocas ganadoras sostienen todo el resultado.</p>
+      </div>
     </div>
     <div class="avisos" id="avisos"></div>
   </section>
 
   <section>
     <div class="shead">
-      <div class="eyebrow">Estado por par</div>
-      <h2>El universo completo</h2>
-      <p class="note">El estadístico <b>t</b> mide cuántos errores estándar separa del cero al retorno promedio por operación. Por debajo de 2 el resultado no se distingue de la suerte. La banda entre 1,8 y 2,2 es zona de nadie a propósito: un corte seco haría entrar y salir pares por el ruido de una sola operación. La miniatura muestra cómo se movió el <b>t</b> mes a mes, con la línea del umbral. Se puede ordenar por cualquier columna haciendo clic en su título.</p>
+      <div class="eyebrow">La cartera</div>
+      <div class="hrow">
+        <h2>Armá la cartera</h2>
+        <button type="button" class="info" aria-expanded="false" aria-controls="i-cartera" aria-label="Cómo se simula la cartera">i</button>
+      </div>
+      <p class="note">Elegí pares, margen y apalancamiento: la curva, la caída, el mes a mes y los análisis de abajo se recalculan con las operaciones de esos pares.</p>
+      <div class="explica" id="i-cartera" hidden>
+        <p>Los pares elegidos reparten un mismo capital. Cada operación toma como margen el porcentaje elegido del capital, el apalancamiento multiplica su resultado sin pedir más margen, y una señal que llega con el capital comprometido no entra. Cada par sostiene una sola posición a la vez y las ganancias se reinvierten.</p>
+        <p>Las operaciones son las del export de TradingView de cada par, recorridas contra velas reales de Binance a 5 minutos con comisión y funding: las mismas que miden los avisos. Cada nuevo export las actualiza.</p>
+      </div>
     </div>
-    <div class="panel scroller">
-      <table id="tabla"></table>
+    <div class="panel selector">
+      <div class="presets" id="presets" role="group" aria-label="Carteras rápidas"></div>
+      <div class="grupos" id="chips"></div>
+      <div class="grupos" id="controles"></div>
+      <div class="resumen" id="resumen"></div>
+    </div>
+
+    <div class="panel">
+      <div class="chart-head">
+        <div>
+          <div class="hrow">
+            <div class="chart-title">Capital acumulado, escala logarítmica</div>
+            <button type="button" class="info" aria-expanded="false" aria-controls="i-curva" aria-label="Cómo leer la curva y la caída">i</button>
+          </div>
+          <div class="chart-sub" id="eq-sub"></div>
+        </div>
+        <div class="seg" role="group" aria-label="Ventana">
+          <button type="button" id="btn-full" aria-pressed="true">Historia completa</button>
+          <button type="button" id="btn-win" aria-pressed="false">Desde que cotizan todos</button>
+        </div>
+      </div>
+      <div class="explica" id="i-curva" hidden style="margin-bottom:1rem">
+        <p>Las marcas verticales indican cuándo empieza a operar cada par. Debajo, el área muestra cuánto por debajo de su máximo anterior estuvo el capital al cierre de cada mes.</p>
+        <p id="uw-note"></p>
+        <p><b>MAR</b> es el rendimiento anual dividido por la caída máxima: cuánto retorno paga cada punto de caída. No dice si la ventaja es real, eso lo dice el t; dice si la forma del camino conviene.</p>
+      </div>
+      <div id="eq"></div>
+      <div id="underwater" style="margin-top:.25rem"></div>
+      <div class="eqstats" id="eqstats"></div>
+    </div>
+
+    <div class="callout calm" id="pool-dentro"></div>
+
+    <div class="panel">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Mes a mes</div>
+          <div class="chart-sub">Retorno mensual de la cartera; a la derecha, el año compuesto. Sigue la misma ventana que la curva.</div>
+        </div>
+      </div>
+      <div class="hm-scale"><span id="hm-min">−15%</span><span class="hm-bar"></span><span id="hm-max">+15%</span></div>
+      <div class="scroller"><div id="heatmap"></div></div>
+      <div class="hm-stats" id="hm-stats"></div>
+    </div>
+
+    <div class="callout" id="aviso-seleccion"></div>
+
+    <div class="panel">
+      <div class="chart-head">
+        <div>
+          <div class="hrow">
+            <div class="chart-title">Cuánto capital por operación</div>
+            <button type="button" class="info" aria-expanded="false" aria-controls="i-margen" aria-label="Cómo leer el tamaño de posición">i</button>
+          </div>
+          <div class="chart-sub">Cada margen posible sobre la historia completa de la cartera elegida. La fila resaltada es el margen elegido.</div>
+        </div>
+      </div>
+      <div class="explica" id="i-margen" hidden style="margin-bottom:1rem">
+        <p>Más margen por operación significa menos posiciones simultáneas y más señales perdidas, y suele rendir más: el capital se concentra donde hay señal. Un margen marcado como <b>borde</b> divide el capital en partes exactas que llegan a llenarse; ahí el resultado depende de cómo se cuente el margen y no de la estrategia, así que conviene evitarlo.</p>
+      </div>
+      <div class="scroller"><table id="tbl-sizing"></table></div>
+    </div>
+
+    <div class="trio">
+      <div class="panel">
+        <div class="hrow" style="margin-bottom:.875rem">
+          <div class="chart-title">Si sacamos un par</div>
+          <button type="button" class="info" aria-expanded="false" aria-controls="i-loo" aria-label="Cómo leer la concentración">i</button>
+        </div>
+        <div class="explica" id="i-loo" hidden style="margin-bottom:.875rem">
+          <p>Cada barra es el rendimiento anual de la cartera sin ese par, con el margen y el apalancamiento elegidos. Si sacar un par casi no mueve el resultado, es reemplazable; si se lleva un tercio del rendimiento, la cartera depende de él.</p>
+        </div>
+        <div class="loo" id="loo"></div>
+      </div>
+      <div class="panel">
+        <div class="hrow" style="margin-bottom:.875rem">
+          <div class="chart-title">Se mueven juntos o no</div>
+          <button type="button" class="info" aria-expanded="false" aria-controls="i-corr" aria-label="Cómo leer las correlaciones">i</button>
+        </div>
+        <div class="explica" id="i-corr" hidden style="margin-bottom:.875rem">
+          <p>Correlación entre los retornos mensuales de cada par, sumando sus operaciones por mes de entrada. Cerca de 1, ganan y pierden los mismos meses, y sumar el segundo agrega riesgo sin diversificar. Una celda vacía es una pareja con menos de 12 meses en común.</p>
+        </div>
+        <div class="scroller"><table class="hm" id="tbl-corr"></table></div>
+        <p class="lectura" id="corr-lectura"></p>
+      </div>
     </div>
   </section>
 
   <section>
     <div class="shead">
-      <div class="eyebrow">Cómo leerlo</div>
-      <h2>Uno nomina, el otro decide</h2>
+      <div class="eyebrow">Por par</div>
+      <div class="hrow">
+        <h2 id="tabla-titulo">Todos los pares</h2>
+        <button type="button" class="info" aria-expanded="false" aria-controls="i-tabla" aria-label="Cómo leer las columnas">i</button>
+      </div>
+      <p class="note">Ordená por cualquier columna con un clic en su título. El estado se decide con el t descontado del export.</p>
+      <div class="explica" id="i-tabla" hidden>
+        <p><b>Simulado.</b> Se recalcula solo cada mes para todos los pares: sirve para ver quién se movió. Su <b>t</b> queda entre 0,1 y 0,8 por debajo del export porque no reproduce las operaciones que nacen del recálculo intravela de TradingView. La miniatura muestra el t mes a mes con la línea de 2.</p>
+        <p><b>Export a 5 minutos.</b> Las operaciones del export de TradingView recorridas contra velas reales de 5 minutos, netas de comisión y funding. <b>pp/op</b> es lo que deja cada operación en promedio, en puntos porcentuales de la posición. El <b>t</b> mide cuántos errores estándar separan ese promedio del cero: por debajo de 2, no se distingue de la suerte.</p>
+        <p>El <b>t descontado</b> pesa cada operación por su antigüedad, con vida media de dos años: una de hace dos años vale la mitad que una de hoy. Es el que decide, porque el t acumulado tarda años en enterarse de que un par se apagó. El <b>n efectivo</b> es cuántas operaciones equivale ese peso.</p>
+        <p>La fecha en <span class="ciclo1">naranja</span> marca un par de <b>ciclo único</b>: cotiza desde 2024 y no atravesó el mercado bajista de 2022. El anual y la caída máxima por par suponen todo el capital en cada operación, así que no se comparan con los de la cartera.</p>
+      </div>
     </div>
-    <p class="note">La columna <b>simulado</b> se recalcula sola todos los meses: las entradas las genera una reimplementación de la estrategia y las salidas se replayan contra velas reales. Cubre los 65 pares sin que nadie mueva un dedo, pero no puede reproducir el 2,8% de operaciones que nacen del recálculo intravela de TradingView, y como esas resultaron rentables, deja el <b>t</b> entre 0,1 y 0,8 más abajo según el par. Sirve para ver quién se movió; no para decidir.</p>
-    <p class="note">Las columnas de <b>export</b> salen de backtests exportados a mano de TradingView y medidos con las mismas reglas que el informe, así que están en su misma escala. Son las que deciden. No hace falta exportar los 65: alcanza con la cartera y con los pares que el monitor haya señalado, diez o quince archivos. Y lo exportado se acumula: TradingView tiene un límite de velas y su ventana se desliza, así que cada export aporta lo que falta y lo viejo queda guardado.</p>
-    <p class="note">De ahí salen dos números. El <b>acumulado</b> toma todas las operaciones por igual, y tarda años en enterarse de que un par se apagó. El <b>descontado</b> pesa cada operación según su antigüedad, con una vida media de dos años: una operación de hace dos años vale la mitad que una de hoy, y una de 2022 todavía vale un quinto. Un par que atravesó un mercado difícil conserva ese crédito, pero no se escuda en él para siempre. Ese es el número que decide.</p>
-    <p class="note">El <b>n efectivo</b> es cuántas operaciones equivale ese peso total. Importa porque el <b>t</b> crece con la raíz del tamaño de muestra: un t de 2,5 apoyado en 95 operaciones efectivas no dice lo mismo que uno apoyado en 300. Es también la razón por la que una ventana con corte duro engaña — al quedarse con menos operaciones baja el t aunque la ventaja no haya cambiado.</p>
-    <p class="note">Por eso los avisos vienen en dos clases. <b>Exportar y mirar</b> es una nominación del simulador: se movió lo suficiente como para que valga la pena confirmarlo. <b>Sacar</b> y <b>sumar</b> solo aparecen cuando hay un export reciente que lo respalda, y esos sí son decisiones. Las dos columnas nunca se comparan entre sí dentro de un mismo aviso.</p>
+    <div class="panel">
+      <div class="scroller"><table id="tabla"></table></div>
+      <div class="pager" id="pager"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">El origen</div>
+      <div class="hrow">
+        <h2>Cómo se eligieron</h2>
+        <button type="button" class="info" aria-expanded="false" aria-controls="i-origen" aria-label="Qué se midió y con qué reglas">i</button>
+      </div>
+      <div class="explica" id="i-origen" hidden>
+        <h3>La estrategia</h3>
+        <p><a href="https://www.tradingview.com/script/pn6hOL4l-RSI-Divergence-Strategy/" target="_blank" rel="noopener">RSI Divergence Strategy</a> en gráfico de 4 horas, sin toma de ganancias, stop de 5,0% y trailing que se activa a 3,0% con 0,6% de distancia. Comisión de 0,05% por lado.</p>
+        <h3>Por qué no alcanza el Strategy Tester</h3>
+        <p>Corre un símbolo por vez y supone todo el capital disponible siempre. Operando varios pares desde una cuenta, las operaciones se pisan y compiten por el mismo capital, y las que llegan sin margen libre no entran. Por eso la cartera se simula aparte.</p>
+        <h3>Cómo se midió</h3>
+        <p>TradingView no sabe en qué orden recorrió el precio cada vela de 4 horas, y el trailing se mueve dentro de cada vela que atraviesa la operación. Las <span id="i-nops">—</span> operaciones de los exports se volvieron a recorrer contra velas reales de Binance a 5 minutos, con el funding histórico de cada posición. Antes se verificó que cada replay reprodujera su export: los 65 pares superaron el 98% de coincidencia, salvo BTC con 91%.</p>
+        <h3>Qué no se midió</h3>
+        <p>El deslizamiento, porque cada stop se ejecuta a su precio exacto, y la liquidación con apalancamiento.</p>
+      </div>
+    </div>
+    <div class="panel"><div class="funnel" id="funnel"></div></div>
+    <div class="callout" id="ruido"></div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <div class="eyebrow">Antes de poner plata</div>
+      <h2>Lo que estos números no dicen</h2>
+    </div>
+    <div class="limites" id="limites"></div>
   </section>
 
   <footer>
-    <div id="pie-corrida"></div>
-    <div>Entradas generadas desde la lógica de divergencia de la estrategia; salidas replayadas contra velas de Binance con el <a href="https://github.com/colochampre/bar-magnifier-estimator">bar-magnifier-estimator</a>. Incluye comisiones y funding real.</div>
+    <div id="pie"></div>
+    <div>Exports de TradingView a 4 horas, recorridos contra velas de Binance con el <a href="https://github.com/colochampre/bar-magnifier-estimator" target="_blank" rel="noopener">bar-magnifier-estimator</a>, con comisión y funding reales. La cartera se simula en el navegador con el mismo motor de pool común que el informe.</div>
   </footer>
 </div>
 
 <script>
 const D = __DATA__;
 const $ = (id) => document.getElementById(id);
-const pct = (v, d) => (v === null || v === undefined || Number.isNaN(v)) ? "—" : v.toFixed(d === undefined ? 1 : d) + "%";
-const UMBRAL = 2.0, BAJO = 1.8, ALTO = 2.2;
+const tiene = (v) => v !== null && v !== undefined && !Number.isNaN(v);
+const pct = (v, d) => tiene(v) ? v.toFixed(d === undefined ? 1 : d) + "%" : "—";
+const num = (v, d) => tiene(v) ? v.toFixed(d === undefined ? 2 : d) : "—";
+const coma = (v, d) => num(v, d).replace(".", ",");
+const corto = (s) => s.replace(/USDT$/, "");
+const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+const esMes = (m) => MESES[parseInt(m.slice(5, 7), 10) - 1] + " " + m.slice(2, 4);
+const esFecha = (f) => parseInt(f.slice(8, 10), 10) + " " + MESES[parseInt(f.slice(5, 7), 10) - 1] + " " + f.slice(0, 4);
+const lista = (xs) => xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " y " + xs[xs.length - 1];
+const U = D.umbral;
+const OPS = D.ops || {};
+const PALABRA = ["cero", "una", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"];
+// Historia fija de la selección: los exports originales y cuántos eran de Bybit.
+const EXPORTS_ORIGINALES = 70, DE_BYBIT = 5;
+// Cotizar desde antes de 2024 es haber atravesado el mercado bajista de 2022-2023.
+const DOS_CICLOS_ANTES_DE = "2024-01";
 
-const pares = Object.keys(D.pares).sort((a, b) => D.pares[b].t - D.pares[a].t);
+/* Pool compartido de capital: traduccion de bme.portfolio.simulate.
+ *
+ * Linea por linea a proposito, incluido el orden de las operaciones de coma
+ * flotante, para que el resultado sea identico al de Python y no parecido.
+ * Una operacion es { k, e, x, r }: clave del par, entrada y salida en minutos
+ * desde epoch, retorno en porcentaje. Las operaciones de cada par llegan ya
+ * secuenciadas (una posicion por simbolo). */
+const SimPool = (() => {
+  const mes = (minutos) => new Date(minutos * 60000).toISOString().slice(0, 7);
+
+  function simulate(trades, fraction, leverage, admission, onePerKey, reinvest) {
+    if (reinvest === undefined) reinvest = true;
+    if (!trades.length) return null;
+    const ordenadas = trades.slice().sort((a, b) => a.e - b.e);
+    const slots = admission === "slots" ? Math.trunc(1 / fraction) : null;
+    const porEntrada = new Map();
+    const reloj = new Set();
+    for (const t of ordenadas) {
+      if (!porEntrada.has(t.e)) porEntrada.set(t.e, []);
+      porEntrada.get(t.e).push(t);
+      reloj.add(t.e);
+      reloj.add(t.x);
+    }
+    const clock = Array.from(reloj).sort((a, b) => a - b);
+    let equity = 1, peak = 1, committed = 0, drawdown = 0, worst = 0, peakRatio = 0;
+    let taken = 0, skipped = 0, conflicts = 0, maxConc = 0;
+    let open = [];
+    const abiertas = new Map();
+    const curve = new Map();
+    for (const now of clock) {
+      const siguen = [];
+      for (const p of open) {
+        if (p.x <= now) {
+          const pnl = p.notional * p.r / 100;
+          worst = Math.min(worst, 100 * pnl / equity);
+          equity += pnl;
+          committed -= p.margin;
+          abiertas.set(p.k, abiertas.get(p.k) - 1);
+        } else {
+          siguen.push(p);
+        }
+      }
+      open = siguen;
+      peak = Math.max(peak, equity);
+      drawdown = Math.max(drawdown, 1 - equity / peak);
+      const entran = porEntrada.get(now);
+      if (entran) {
+        for (const t of entran) {
+          if (onePerKey && abiertas.get(t.k)) { conflicts++; continue; }
+          const margin = fraction * (reinvest ? equity : 1);
+          const room = slots ? open.length < slots : committed + margin <= equity + 1e-12;
+          if (room) {
+            open.push({ x: t.x, margin: margin, notional: margin * leverage, r: t.r, k: t.k });
+            abiertas.set(t.k, (abiertas.get(t.k) || 0) + 1);
+            committed += margin;
+            taken++;
+            maxConc = Math.max(maxConc, open.length);
+            peakRatio = Math.max(peakRatio, committed / equity);
+          } else {
+            skipped++;
+          }
+        }
+      }
+      curve.set(mes(now), equity);
+    }
+    for (const p of open) equity += p.notional * p.r / 100;
+    peak = Math.max(peak, equity);
+    drawdown = Math.max(drawdown, 1 - equity / peak);
+    curve.set(mes(clock[clock.length - 1]), equity);
+    const years = (clock[clock.length - 1] - clock[0]) * 60 / 31557600;
+    const cagr = (equity <= 0 || years <= 0) ? NaN : 100 * (Math.pow(equity, 1 / years) - 1);
+    const mdd = 100 * drawdown;
+    return {
+      equity, taken, skipped, conflicts, maxConc, worst, peakRatio, years, cagr, mdd,
+      mar: mdd ? cagr / mdd : 0,
+      skip: taken + skipped ? 100 * skipped / (taken + skipped) : 0,
+      fraction, leverage, admission, curve
+    };
+  }
+
+  function monthly(run) {
+    const out = [];
+    let prev = 1;
+    for (const m of Array.from(run.curve.keys()).sort()) {
+      const e = run.curve.get(m);
+      out.push({ m: m, e: e, r: 100 * (e / prev - 1) });
+      prev = e;
+    }
+    return out;
+  }
+
+  /* Fracciones donde las dos reglas de admision discrepan: bordes 1/n. */
+  function boundaries(runs, tolerance) {
+    if (tolerance === undefined) tolerance = 1e-9;
+    const porClave = new Map();
+    for (const r of runs) {
+      const k = r.fraction + "|" + r.leverage;
+      if (!porClave.has(k)) porClave.set(k, {});
+      porClave.get(k)[r.admission] = r;
+    }
+    const out = new Set();
+    for (const modos of porClave.values()) {
+      const a = modos.slots, b = modos.margin;
+      if (!a || !b) continue;
+      const mismas = a.taken === b.taken && a.skipped === b.skipped;
+      const mismoCapital = Math.abs(a.equity - b.equity) <= tolerance * Math.max(Math.abs(a.equity), 1);
+      if (!(mismas && mismoCapital)) out.add(Math.round(100 * a.fraction));
+    }
+    return Array.from(out).sort((x, y) => x - y);
+  }
+
+  return { simulate, monthly, boundaries, mes };
+})();
+
+/* --- cada par: lo simulado y, si tiene export, lo medido a 5 minutos --- */
 const pool = new Set(D.pool || []);
-const clase = (sym) => {
-  const t = D.pares[sym].t;
-  if (pool.has(sym)) return ["pool", "en cartera"];
-  if (t >= ALTO) return ["cand", "candidato"];
-  if (t >= BAJO) return ["vig", "en la banda"];
+const SIMBOLOS = Object.keys(D.pares);
+const corr = (s) => D.pares[s].corroborado;
+const EXP = {};
+for (const s of SIMBOLOS) {
+  const ops = OPS[s];
+  if (!ops || ops.length < 2) continue;
+  // Las mismas medidas que actualizar.estadisticas: total como suma, anual
+  // compuesto entre la primera entrada y la ultima salida, caida operacion a operacion.
+  let eq = 1, peak = 1, mdd = 0, suma = 0;
+  for (const o of ops) { suma += o[2]; eq *= 1 + o[2] / 100; peak = Math.max(peak, eq); mdd = Math.max(mdd, 1 - eq / peak); }
+  const anios = (ops[ops.length - 1][1] - ops[0][0]) * 60 / 31557600;
+  const desde = SimPool.mes(ops[0][0]);
+  const c = corr(s) || {};
+  EXP[s] = {
+    n: ops.length, total: suma, pp: suma / ops.length,
+    cagr: eq > 0 && anios > 0 ? 100 * (Math.pow(eq, 1 / anios) - 1) : null, mdd: 100 * mdd,
+    desde: desde, dos: desde < DOS_CICLOS_ANTES_DE,
+    t: tiene(c.t) ? c.t : null, td: tiene(c.td) ? c.td : null,
+    nef: c.n_ef || c.n || ops.length, medido: c.medido || null
+  };
+}
+const CON_EXPORT = SIMBOLOS.filter((s) => EXP[s]);
+// El t que decide: el descontado del export si existe, si no el simulado.
+const tDecide = (s) => EXP[s] && tiene(EXP[s].td) ? EXP[s].td : D.pares[s].t;
+const vigente = (s) => EXP[s] && tiene(EXP[s].td) && EXP[s].td >= U.alto && EXP[s].nef >= U.muestra;
+function estado(s) {
+  if (pool.has(s)) return ["pool", "en cartera"];
+  const t = tDecide(s);
+  if (t >= U.alto) return EXP[s] && EXP[s].nef < U.muestra ? ["chica", "muestra chica"] : ["cand", "candidato"];
+  if (t > U.bajo) return ["vig", "en la banda"];
   return ["no", "sin ventaja"];
-};
+}
+const RANGO = { pool: 0, cand: 1, chica: 2, vig: 3, no: 4 };
 
+/* --- encabezado --- */
+const enCartera = (D.pool || []).map(corto);
+$("lede").innerHTML = `Una estrategia de divergencias de RSI en 4 horas, probada en ${EXPORTS_ORIGINALES} pares. `
+  + `Cada mes se vuelve a medir cada par contra velas reales, y la cartera queda con los que conservan ventaja`
+  + (enCartera.length ? `: <b>${lista(enCartera)}</b>.` : ".");
+const medidos = CON_EXPORT.map((s) => EXP[s].medido).filter(Boolean).sort();
 $("facts").innerHTML = [
-  [pares.length, "pares medidos"],
   [pool.size, "en la cartera"],
-  [pares.filter((p) => !pool.has(p) && D.pares[p].t >= ALTO).length, "candidatos a entrar"],
-  [(D.alertas || []).length, "avisos este mes"],
-  [D.tf, "resolución de salida"]
+  [SIMBOLOS.length, "pares monitoreados"],
+  [CON_EXPORT.length, "con export a 5 minutos"],
+  [(D.alertas || []).length, (D.alertas || []).length === 1 ? "aviso este mes" : "avisos este mes"],
+  [D.generado ? esFecha(D.generado) : "—", "última corrida mensual"]
 ].map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join("");
+$("i-persist").textContent = PALABRA[U.persistencia] || U.persistencia;
+$("i-bajo").textContent = coma(U.bajo, 1);
+$("i-alto").textContent = coma(U.alto, 1);
+$("i-muestra").textContent = U.muestra;
+
+/* --- botones (i) --- */
+document.querySelectorAll(".info").forEach((b) => b.addEventListener("click", () => {
+  const caja = $(b.getAttribute("aria-controls"));
+  const abrir = caja.hidden;
+  caja.hidden = !abrir;
+  b.setAttribute("aria-expanded", String(abrir));
+}));
 
 /* --- avisos --- */
-const av = D.alertas || [];
-$("avisos-titulo").textContent = av.length
-  ? (av.length === 1 ? "Un par para revisar" : `${av.length} pares para revisar`)
-  : "Sin cambios";
-const ETIQUETA = { quitar: "Sacar", agregar: "Sumar", corroborar: "Exportar y mirar" };
-$("avisos").innerHTML = av.length ? av.map((a) => `<div class="aviso ${a.accion}">
-    <span class="que">${ETIQUETA[a.accion] || a.accion}</span>
-    <span class="par">${a.par.replace("USDT", "")}</span>
-    <span class="por">${a.por}</span>
-  </div>`).join("")
-  : `<div class="calma">Ningún par sostuvo un cruce del umbral durante dos lecturas seguidas. La cartera queda como está.</div>`;
+(() => {
+  const av = D.alertas || [];
+  $("avisos-titulo").textContent = av.length
+    ? (av.length === 1 ? "Un par para revisar" : `${av.length} pares para revisar`)
+    : "Sin cambios";
+  const ETIQUETA = { quitar: "Sacar", agregar: "Sumar", corroborar: "Exportar y mirar", observar: "En observación" };
+  $("avisos").innerHTML = av.length ? av.map((a) => `<div class="aviso ${a.accion}">
+      <span class="que">${ETIQUETA[a.accion] || a.accion}</span>
+      <span class="par">${corto(a.par)}</span>
+      <span class="por">${a.por.charAt(0).toUpperCase() + a.por.slice(1)}</span>
+    </div>`).join("")
+    : `<div class="calma">Ningún par sostuvo un cruce del umbral durante dos lecturas seguidas. La cartera queda como está.</div>`;
+})();
 
-/* --- miniatura del t --- */
-function spark(sym) {
-  const h = (D.historia[sym] || []).slice(-12);
-  if (h.length < 2) return '<span style="color:var(--ink-3)">—</span>';
+/* --- tabla de todos los pares --- */
+function spark(s) {
+  const h = (D.historia[s] || []).slice(-12);
+  if (h.length < 2) return '<span class="dim">—</span>';
   const W = 84, H = 22, P = 2;
-  const vals = h.map((x) => x.t).concat([UMBRAL]);
+  const vals = h.map((x) => x.t).concat([U.umbral]);
   const lo = Math.min(...vals), hi = Math.max(...vals);
   const rango = (hi - lo) || 1;
   const X = (i) => P + (i / (h.length - 1)) * (W - 2 * P);
   const Y = (v) => H - P - ((v - lo) / rango) * (H - 2 * P);
   const d = h.map((x, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(x.t).toFixed(1)).join(" ");
   const ult = h[h.length - 1].t;
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="t mes a mes">
-    <line x1="${P}" y1="${Y(UMBRAL).toFixed(1)}" x2="${W - P}" y2="${Y(UMBRAL).toFixed(1)}"
-          stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 3"/>
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="t simulado mes a mes">
+    <line x1="${P}" y1="${Y(U.umbral).toFixed(1)}" x2="${W - P}" y2="${Y(U.umbral).toFixed(1)}" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 3"/>
     <path d="${d}" fill="none" stroke="var(--ink-3)" stroke-width="1.4"/>
-    <circle cx="${X(h.length - 1).toFixed(1)}" cy="${Y(ult).toFixed(1)}" r="2.4"
-            fill="${ult >= UMBRAL ? "var(--c1)" : "var(--neg)"}"/>
+    <circle cx="${X(h.length - 1).toFixed(1)}" cy="${Y(ult).toFixed(1)}" r="2.4" fill="${ult >= U.umbral ? "var(--c1)" : "var(--neg)"}"/>
   </svg>`;
 }
-
-/* --- tabla --- */
-const corr = (s) => D.pares[s].corroborado;
-const tiene = (v) => v !== null && v !== undefined;
 const cambio = (s) => {
   const h = D.historia[s] || [];
   return h.length > 1 ? D.pares[s].t - h[h.length - 2].t : null;
 };
-// El orden ascendente del estado es el de cercanía a la cartera, no el alfabético.
-const RANGO = { pool: 0, cand: 1, vig: 2, no: 3 };
-
+const ex = (s, k) => EXP[s] ? EXP[s][k] : null;
 const COLS = [
-  { id: "par", txt: "par", val: (s) => s.replace("USDT", "") },
-  { id: "estado", txt: "estado", th: "est", val: (s) => RANGO[clase(s)[0]] },
-  { id: "ops", txt: "ops", val: (s) => D.pares[s].n },
-  { id: "total", txt: "total", val: (s) => D.pares[s].total },
-  { id: "t", txt: "t", val: (s) => D.pares[s].t },
+  { id: "par", txt: "par", val: (s) => corto(s) },
+  { id: "estado", txt: "estado", val: (s) => RANGO[estado(s)[0]] },
+  { id: "desde", txt: "desde", val: (s) => ex(s, "desde") || D.pares[s].desde },
+  { id: "t", txt: "t", grp: true, val: (s) => D.pares[s].t },
   { id: "cambio", txt: "cambio", val: cambio },
   { id: "spark", txt: "mes a mes", fijo: true },
-  { id: "tacum", txt: "t acum", th: "grp", val: (s) => corr(s) ? corr(s).t : null },
-  { id: "td", txt: "t descontado", val: (s) => corr(s) && tiene(corr(s).td) ? corr(s).td : null },
-  { id: "nef", txt: "n efectivo", val: (s) => corr(s) ? corr(s).n_ef : null },
-  { id: "medido", txt: "medido", val: (s) => corr(s) ? corr(s).medido : null },
-  { id: "anual", txt: "anual", val: (s) => D.pares[s].cagr },
-  { id: "dd", txt: "caída máx", val: (s) => D.pares[s].mdd }
+  { id: "ops", txt: "ops", grp: true, val: (s) => ex(s, "n") },
+  { id: "pp", txt: "pp/op", val: (s) => ex(s, "pp") },
+  { id: "total", txt: "total", val: (s) => ex(s, "total") },
+  { id: "tacum", txt: "t", val: (s) => ex(s, "t") },
+  { id: "td", txt: "t desc.", val: (s) => ex(s, "td") },
+  { id: "nef", txt: "n efect.", val: (s) => ex(s, "nef") },
+  { id: "anual", txt: "anual", val: (s) => ex(s, "cagr") },
+  { id: "dd", txt: "caída máx", val: (s) => ex(s, "mdd") }
 ];
-
-let orden = { id: "t", dir: "desc" };
+const POR_PAGINA = 15;
+let orden = { id: "estado", dir: "asc" }, pagina = 0;
+$("tabla-titulo").textContent = `Los ${SIMBOLOS.length} pares`;
 
 function ordenados() {
   const col = COLS.find((c) => c.id === orden.id);
-  if (!col || col.fijo) return pares;
   const signo = orden.dir === "asc" ? 1 : -1;
-  // Los pares sin dato van al final en las dos direcciones: una raya no es
-  // ni el mejor ni el peor valor, es la ausencia de uno.
-  return pares.slice().sort((a, b) => {
+  // Desempate por el t que decide, de mayor a menor: dentro de cada estado,
+  // primero los que están más lejos del corte.
+  const desempate = (a, b) => tDecide(b) - tDecide(a);
+  return SIMBOLOS.slice().sort((a, b) => {
     const x = col.val(a), y = col.val(b);
-    if (!tiene(x)) return tiene(y) ? 1 : 0;
+    // Los pares sin dato van al final en las dos direcciones.
+    if (!tiene(x)) return tiene(y) ? 1 : desempate(a, b);
     if (!tiene(y)) return -1;
-    return signo * (typeof x === "string" ? x.localeCompare(y, "es") : x - y);
+    const d = typeof x === "string" ? x.localeCompare(y, "es") : x - y;
+    return d ? signo * d : desempate(a, b);
   });
 }
-
 function pintarTabla() {
+  const filas = ordenados();
+  const paginas = Math.ceil(filas.length / POR_PAGINA);
+  pagina = Math.min(pagina, paginas - 1);
   const cabecera = COLS.map((c) => {
     const activa = orden.id === c.id;
+    const cls = c.grp ? ' class="grp"' : "";
+    if (c.fijo) return `<th${cls}>${c.txt}</th>`;
     const flecha = activa ? ` <span class="flecha">${orden.dir === "asc" ? "↑" : "↓"}</span>` : "";
-    const clases = [c.th || "", activa ? "activa" : ""].filter(Boolean).join(" ");
-    if (c.fijo) return `<th${clases ? ` class="${clases}"` : ""}>${c.txt}</th>`;
-    return `<th${clases ? ` class="${clases}"` : ""} data-col="${c.id}" tabindex="0" role="button"
+    return `<th${cls} data-col="${c.id}" tabindex="0" role="button"
       aria-sort="${activa ? (orden.dir === "asc" ? "ascending" : "descending") : "none"}"
       title="Ordenar por ${c.txt}">${c.txt}${flecha}</th>`;
   }).join("");
-
-  const filas = ordenados().map((sym) => {
-    const p = D.pares[sym], [tono, texto] = clase(sym);
-    const d = cambio(sym), c = corr(sym);
-    return `<tr class="${pool.has(sym) ? "pool" : p.t < BAJO ? "fuera" : ""}">
-      <td>${sym.replace("USDT", "")}</td>
+  const cuerpo = filas.slice(pagina * POR_PAGINA, (pagina + 1) * POR_PAGINA).map((s) => {
+    const p = D.pares[s], e = EXP[s], [tono, texto] = estado(s), d = cambio(s);
+    const desde = e ? e.desde : p.desde;
+    const unCiclo = desde >= DOS_CICLOS_ANTES_DE;
+    return `<tr class="${pool.has(s) ? "pool" : tono === "no" ? "fuera" : ""}">
+      <td>${corto(s)}</td>
       <td class="est"><span class="badge ${tono}">${texto}</span></td>
-      <td>${p.n}</td><td>${pct(p.total, 0)}</td>
-      <td class="t">${p.t.toFixed(2)}</td>
+      <td class="${unCiclo ? "ciclo1" : ""}" title="${unCiclo ? "Ciclo único: no atravesó el mercado bajista de 2022" : "Dos ciclos de mercado"}">${esMes(desde)}</td>
+      <td class="grp">${num(p.t)}</td>
       <td class="delta ${d === null ? "" : d > 0 ? "sube" : "baja"}">${d === null ? "—" : (d > 0 ? "+" : "") + d.toFixed(2)}</td>
-      <td>${spark(sym)}</td>
-      <td class="grp" style="color:var(--ink-3)">${c ? c.t.toFixed(2) : "—"}</td>
-      <td class="t ${c && tiene(c.td) && c.td <= BAJO ? "delta baja" : ""}">${c && tiene(c.td) ? c.td.toFixed(2) : "—"}</td>
-      <td style="color:var(--ink-3)">${c && c.n_ef ? c.n_ef : "—"}</td>
-      <td style="color:var(--ink-3)">${c ? c.medido : "—"}</td>
-      <td>${pct(p.cagr)}</td><td>${pct(p.mdd)}</td></tr>`;
+      <td>${spark(s)}</td>
+      <td class="grp">${e ? e.n : "—"}</td>
+      <td>${e ? num(e.pp, 3) : "—"}</td>
+      <td>${e ? pct(e.total, 0) : "—"}</td>
+      <td class="dim">${e ? num(e.t) : "—"}</td>
+      <td class="t${e && tiene(e.td) && e.td <= U.bajo ? " baja" : ""}">${e ? num(e.td) : "—"}</td>
+      <td class="${e && e.nef < U.muestra ? "baja" : "dim"}">${e ? e.nef : "—"}</td>
+      <td>${e ? pct(e.cagr) : "—"}</td>
+      <td>${e ? pct(e.mdd) : "—"}</td></tr>`;
   }).join("");
-
   $("tabla").innerHTML = `<thead>
-    <tr><th></th><th></th><th colspan="5">simulado, todos los meses</th>
-        <th class="grp" colspan="4">export, cuando lo pedís</th><th></th><th></th></tr>
-    <tr>${cabecera}</tr></thead><tbody>${filas}</tbody>`;
-
+    <tr><th></th><th></th><th></th><th class="grp" colspan="3">simulado, cada mes</th>
+        <th class="grp" colspan="8">export a 5 minutos</th></tr>
+    <tr>${cabecera}</tr></thead><tbody>${cuerpo}</tbody>`;
   $("tabla").querySelectorAll("th[data-col]").forEach((th) => {
     const activar = () => {
       const id = th.dataset.col;
       orden = { id: id, dir: orden.id === id && orden.dir === "asc" ? "desc" : "asc" };
+      pagina = 0;
       pintarTabla();
     };
     th.addEventListener("click", activar);
@@ -292,46 +702,457 @@ function pintarTabla() {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activar(); }
     });
   });
+  const desde = pagina * POR_PAGINA + 1, hasta = Math.min(filas.length, (pagina + 1) * POR_PAGINA);
+  const botones = Array.from({ length: paginas }, (_, i) =>
+    `<button type="button" data-pag="${i}"${i === pagina ? ' aria-current="page"' : ""} aria-label="Página ${i + 1}">${i + 1}</button>`).join("");
+  $("pager").innerHTML = `<span>${desde}–${hasta} de ${filas.length} pares</span>
+    <div class="pags">
+      <button type="button" data-pag="${pagina - 1}"${pagina === 0 ? " disabled" : ""} aria-label="Página anterior">‹</button>
+      ${botones}
+      <button type="button" data-pag="${pagina + 1}"${pagina >= paginas - 1 ? " disabled" : ""} aria-label="Página siguiente">›</button>
+    </div>`;
+  $("pager").querySelectorAll("button[data-pag]").forEach((b) => b.addEventListener("click", () => {
+    pagina = parseInt(b.dataset.pag, 10);
+    pintarTabla();
+  }));
 }
 pintarTabla();
 
-/* --- cuándo toca la próxima corrida --- */
-(() => {
-  const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
-                 "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-  const COMANDO = "python monitor/actualizar.py";
-  const caja = $("recordatorio");
-  const hoy = new Date();
-  // Mediodía para que el huso horario no corra la fecha un día.
-  const ultima = D.generado ? new Date(D.generado + "T12:00:00") : null;
-  const proximo = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 1);
-  const faltan = Math.ceil((proximo - hoy) / 86400000);
-  const alDia = ultima && ultima.getFullYear() === hoy.getFullYear()
-    && ultima.getMonth() === hoy.getMonth();
-  let texto;
-  if (alDia) {
-    texto = `Corrida de ${MESES[hoy.getMonth()]} hecha el ${ultima.getDate()}. `
-      + `La próxima toca el <b>1 de ${MESES[proximo.getMonth()]}</b>, en `
-      + `<b>${faltan} ${faltan === 1 ? "día" : "días"}</b>.`;
-  } else {
-    const desde = ultima
-      ? `La última fue el ${ultima.getDate()} de ${MESES[ultima.getMonth()]}.`
-      : "Todavía no hay ninguna corrida registrada.";
-    texto = `<b>La corrida de ${MESES[hoy.getMonth()]} está pendiente.</b> ${desde}`;
-    caja.classList.add("pendiente");
-  }
-  caja.innerHTML = `<span>${texto}</span>
-    <button type="button" class="cmd" id="copiar">${COMANDO}</button>`;
-  // La página no puede correr nada en tu máquina: lo más útil que puede hacer
-  // es dejarte el comando listo para pegar en la terminal.
-  $("copiar").addEventListener("click", function () {
-    const listo = () => { this.textContent = "copiado ✓"; setTimeout(() => { this.textContent = COMANDO; }, 1600); };
-    if (navigator.clipboard) navigator.clipboard.writeText(COMANDO).then(listo, () => {});
-    else listo();
-  });
-})();
+/* --- armador de cartera --- */
+const FRACCIONES = [20, 25, 30, 40, 50];
+const grupo = (s) => !tiene(EXP[s].t) || EXP[s].t < U.umbral ? "sin" : EXP[s].dos ? "dos" : "ciclo";
+const ELEGIBLES = CON_EXPORT.slice().sort((a, b) => tDecide(b) - tDecide(a));
+const PRESETS = [
+  ["vigente", "La cartera vigente", ELEGIBLES.filter((s) => pool.has(s))],
+  ["td", `t descontado ≥ ${coma(U.umbral, 0)}`, ELEGIBLES.filter((s) => tiene(EXP[s].td) && EXP[s].td >= U.umbral)],
+  ["t", `t ≥ ${coma(U.umbral, 0)} con toda la historia`, ELEGIBLES.filter((s) => grupo(s) !== "sin")],
+  ["ninguno", "Ninguno", []]
+];
+const CLAVE = "vigentes.seleccion";
+let seleccion = new Set(PRESETS[0][2]);
+let margen = 30, apal = 1, ventana = "full", verSin = false;
+try {
+  const guardada = JSON.parse(localStorage.getItem(CLAVE) || "null");
+  if (Array.isArray(guardada)) seleccion = new Set(guardada.filter((s) => EXP[s]));
+  const m = parseInt(localStorage.getItem("vigentes.margen"), 10);
+  if (FRACCIONES.includes(m)) margen = m;
+  if (localStorage.getItem("vigentes.apal") === "2") apal = 2;
+} catch (e) { /* sin almacenamiento: la cartera vigente, 30% y sin apalancamiento */ }
+const guardar = () => {
+  try {
+    localStorage.setItem(CLAVE, JSON.stringify(Array.from(seleccion)));
+    localStorage.setItem("vigentes.margen", String(margen));
+    localStorage.setItem("vigentes.apal", String(apal));
+  } catch (e) { /* nada */ }
+};
 
-$("pie-corrida").textContent = "Última corrida: " + D.generado
-  + " · salidas replayadas a " + D.tf + " · cartera vigente: "
-  + ((D.pool || []).map((s) => s.replace("USDT", "")).join(", ") || "sin definir");
+function pintarSelector() {
+  $("presets").innerHTML = '<span class="lbl">Rápido</span>' + PRESETS.map(([id, txt, xs]) => {
+    const igual = xs.length === seleccion.size && xs.every((s) => seleccion.has(s));
+    return `<button type="button" class="btnp" data-preset="${id}" aria-pressed="${igual}">${txt}${id === "ninguno" ? "" : ` <span class="mono">(${xs.length})</span>`}</button>`;
+  }).join("");
+  const chip = (s) => `<button type="button" class="chip" data-par="${s}" aria-pressed="${seleccion.has(s)}" title="t descontado ${num(EXP[s].td)}">${corto(s)}<span class="tv">t ${num(EXP[s].td)}</span></button>`;
+  const grupos = [["dos", "Dos ciclos"], ["ciclo", "Ciclo único"], ["sin", "Sin ventaja"]];
+  $("chips").innerHTML = grupos.map(([g, titulo]) => {
+    const xs = ELEGIBLES.filter((s) => grupo(s) === g);
+    if (!xs.length) return "";
+    // Los sin ventaja son la mayoría: se pliegan, salvo los que ya están elegidos.
+    const visibles = g === "sin" && !verSin ? xs.filter((s) => seleccion.has(s)) : xs;
+    const resto = xs.length - visibles.length;
+    return `<div class="fila-chips"><span class="grupo">${titulo}</span><div class="chips">${visibles.map(chip).join("")}`
+      + (g === "sin" ? `<button type="button" class="mas" id="ver-sin" aria-expanded="${verSin}">${verSin ? "ocultar" : `mostrar ${resto}`}</button>` : "")
+      + `</div></div>`;
+  }).join("");
+  $("presets").querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => {
+    seleccion = new Set(PRESETS.find((p) => p[0] === b.dataset.preset)[2]);
+    cambio_();
+  }));
+  $("chips").querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => {
+    const s = c.dataset.par;
+    if (seleccion.has(s)) seleccion.delete(s); else seleccion.add(s);
+    cambio_();
+  }));
+  const ver = $("ver-sin");
+  if (ver) ver.addEventListener("click", () => { verSin = !verSin; pintarSelector(); });
+}
+function pintarControles() {
+  $("controles").innerHTML = `<div class="fila-chips">
+      <span class="grupo">Margen</span>
+      <div class="chips" role="group" aria-label="Margen por operación">${FRACCIONES.map((f) =>
+        `<button type="button" class="chip" data-margen="${f}" aria-pressed="${f === margen}">${f}%</button>`).join("")}</div>
+    </div>
+    <div class="fila-chips">
+      <span class="grupo">Apalancamiento</span>
+      <div class="chips"><button type="button" class="chip" data-apal="2" aria-pressed="${apal === 2}">2x</button></div>
+    </div>`;
+  $("controles").querySelectorAll("[data-margen]").forEach((b) => b.addEventListener("click", () => {
+    margen = parseInt(b.dataset.margen, 10);
+    guardar(); pintarControles(); recalcular();
+  }));
+  $("controles").querySelectorAll("[data-apal]").forEach((b) => b.addEventListener("click", () => {
+    apal = apal === 2 ? 1 : 2;
+    guardar(); pintarControles(); recalcular();
+  }));
+}
+
+function elegidos() { return ELEGIBLES.filter((s) => seleccion.has(s)); }
+function operaciones(pares, desde) {
+  const out = [];
+  for (const s of pares) for (const [e, x, r] of OPS[s]) if (desde === null || e >= desde) out.push({ k: s, e: e, x: x, r: r });
+  return out;
+}
+const primeraEntrada = (s) => OPS[s][0][0];
+
+const W = 980, H = 300, M = { t: 14, r: 16, b: 28, l: 52 };
+function curva(meses, pares) {
+  if (meses.length < 2) return '<div class="vacio">No hay meses suficientes para dibujar la curva.</div>';
+  const vals = meses.map((x) => x.e);
+  const lo = Math.min(0.9, ...vals), hi = Math.max(1.1, ...vals);
+  const X = (i) => M.l + (i / (meses.length - 1)) * (W - M.l - M.r);
+  const Y = (v) => H - M.b - ((Math.log(v) - Math.log(lo)) / (Math.log(hi) - Math.log(lo))) * (H - M.t - M.b);
+  const idx = Object.fromEntries(meses.map((m, i) => [m.m, i]));
+  const ticks = [];
+  for (let e = Math.floor(Math.log10(lo)); Math.pow(10, e) <= hi * 10; e++) {
+    for (const mlt of [1, 2, 5]) { const v = mlt * Math.pow(10, e); if (v >= lo && v <= hi) ticks.push(v); }
+  }
+  const gy = ticks.map((v) => `<line x1="${M.l}" y1="${Y(v).toFixed(1)}" x2="${W - M.r}" y2="${Y(v).toFixed(1)}" stroke="var(--rule-soft)" stroke-width="1"/>
+     <text x="${M.l - 8}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end" fill="var(--ink-3)" font-size="11" font-family="IBM Plex Mono, monospace">${v}x</text>`).join("");
+  const paso = Math.max(1, Math.round(meses.length / 8));
+  const gx = meses.map((m, i) => (i % paso === 0 || i === meses.length - 1)
+    ? `<text x="${X(i).toFixed(1)}" y="${H - M.b + 17}" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-family="IBM Plex Mono, monospace">${esMes(m.m)}</text>` : "").join("");
+  const altas = pares.map((s) => ({ p: corto(s), m: SimPool.mes(primeraEntrada(s)) }))
+    .filter((a) => idx[a.m] !== undefined && idx[a.m] > 0).map((a) => {
+      const px = X(idx[a.m]);
+      return `<line x1="${px.toFixed(1)}" y1="${M.t}" x2="${px.toFixed(1)}" y2="${H - M.b}" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="2 4" opacity=".65"/>
+        <text x="${(px + 4).toFixed(1)}" y="${M.t + 11}" fill="var(--ink-3)" font-size="10" font-family="IBM Plex Mono, monospace">${a.p}</text>`;
+    }).join("");
+  const d = meses.map((m, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(m.e).toFixed(1)).join(" ");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Capital acumulado de la cartera elegida">
+    ${gy}${gx}${altas}
+    <path d="${d}" fill="none" stroke="var(--c1)" stroke-width="2.2" stroke-linejoin="round"/>
+    <line x1="${M.l}" y1="${H - M.b}" x2="${W - M.r}" y2="${H - M.b}" stroke="var(--rule)" stroke-width="1"/>
+  </svg>`;
+}
+function bajoElAgua(meses) {
+  let peak = 1;
+  return meses.map((p) => { peak = Math.max(peak, p.e); return { m: p.m, dd: 100 * (1 - p.e / peak) }; });
+}
+function caida(meses) {
+  if (meses.length < 2) return "";
+  const a = bajoElAgua(meses);
+  const HH = 152, T = 12, B = 30, ih = HH - T - B;
+  const worst = Math.max(10, Math.max(...a.map((p) => p.dd)) * 1.12);
+  const X = (i) => M.l + (i / (meses.length - 1)) * (W - M.l - M.r);
+  const Y = (v) => T + (v / worst) * ih;
+  const step = worst > 40 ? 20 : (worst > 20 ? 10 : 5);
+  let grid = "";
+  for (let v = 0; v <= worst; v += step) {
+    grid += `<line x1="${M.l}" y1="${Y(v).toFixed(1)}" x2="${W - M.r}" y2="${Y(v).toFixed(1)}" stroke="${v === 0 ? "var(--ink-3)" : "var(--rule-soft)"}" stroke-width="1"/>
+      <text x="${M.l - 9}" y="${(Y(v) + 3.5).toFixed(1)}" text-anchor="end" fill="var(--ink-3)" font-size="10" font-family="IBM Plex Mono, monospace">${v === 0 ? "0%" : "−" + v + "%"}</text>`;
+  }
+  const anios = meses.map((m, i) => m.m.slice(5) === "01"
+    ? `<line x1="${X(i).toFixed(1)}" y1="${T}" x2="${X(i).toFixed(1)}" y2="${T + ih}" stroke="var(--rule)" stroke-width="1"/>` : "").join("");
+  const pts = a.map((p, i) => X(i).toFixed(1) + " " + Y(p.dd).toFixed(1)).join("L");
+  return `<svg viewBox="0 0 ${W} ${HH}" role="img" aria-label="Cuánto por debajo de su máximo anterior estuvo el capital, mes a mes">
+    ${grid}${anios}
+    <path d="M${X(0).toFixed(1)} ${Y(0).toFixed(1)}L${pts}L${X(meses.length - 1).toFixed(1)} ${Y(0).toFixed(1)}Z" fill="var(--c1)" opacity=".22"/>
+    <path d="M${pts}" fill="none" stroke="var(--c1)" stroke-width="1.6"/>
+    <text x="${M.l}" y="${HH - 8}" fill="var(--ink-3)" font-size="9.5" font-family="IBM Plex Mono, monospace">caída desde el máximo anterior, al cierre de cada mes</text>
+  </svg>`;
+}
+function fichas(uno, dos, activo) {
+  const card = (r, titulo, enGrafico) => `<div><div class="who">${titulo}${enGrafico ? ' <span class="badge ok">en el gráfico</span>' : ""}</div><dl>
+      <dt>Rendimiento anual</dt><dd>${pct(r.cagr)}</dd>
+      <dt>Caída máxima</dt><dd class="risk">${pct(r.mdd)}</dd>
+      <dt>MAR</dt><dd>${num(r.mar)}</dd>
+      <dt>Capital final</dt><dd>${num(r.equity, 1)}x</dd>
+      <dt>Peor operación</dt><dd class="risk">${pct(r.worst, 2)} del capital</dd>
+      <dt>Operaciones tomadas</dt><dd>${r.taken}</dd>
+      <dt>Señales perdidas</dt><dd>${pct(r.skip)}</dd>
+      <dt>Máximo simultáneo</dt><dd>${r.maxConc}</dd>
+    </dl></div>`;
+  return card(uno, "Sin apalancamiento", activo === 1) + card(dos, "Con 2x", activo === 2);
+}
+
+const MES = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+// La escala sigue al riesgo elegido: con 50% y 2x, un rango fijo de ±15%
+// saturaria casi todas las celdas.
+let escalaMensual = 15;
+const shade = (v) => {
+  const t = Math.max(-1, Math.min(1, v / escalaMensual));
+  return "color-mix(in srgb," + (t >= 0 ? "var(--c1)" : "var(--neg)") + " " + (12 + Math.abs(t) * 80).toFixed(0) + "%, var(--mid))";
+};
+function heatmap(meses) {
+  if (!meses.length) { $("heatmap").innerHTML = ""; $("hm-stats").innerHTML = ""; return; }
+  const map = {};
+  meses.forEach((r) => { map[r.m] = r.r; });
+  const anios = [];
+  meses.forEach((r) => { const y = r.m.slice(0, 4); if (anios.indexOf(y) < 0) anios.push(y); });
+  const cw = 58, ch = 32, gap = 3, L = 46, T = 22, RW = 78;
+  const WH = L + 12 * (cw + gap) + RW, HH = T + anios.length * (ch + gap) + 8;
+  let s = MES.map((m, i) => `<text x="${L + i * (cw + gap) + cw / 2}" y="14" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-3)">${m}</text>`).join("");
+  s += `<text x="${L + 12 * (cw + gap) + RW - 6}" y="14" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--ink-3)">AÑO</text>`;
+  anios.forEach((yr, fila) => {
+    const y = T + fila * (ch + gap);
+    s += `<text x="${L - 10}" y="${y + ch / 2 + 4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)">${yr}</text>`;
+    let tot = 1, any = false;
+    for (let i = 0; i < 12; i++) {
+      const k = yr + "-" + String(i + 1).padStart(2, "0"), x = L + i * (cw + gap);
+      if (!(k in map)) {
+        s += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="2" fill="none" stroke="var(--rule-soft)" stroke-width="1" stroke-dasharray="2 3"/>`;
+        continue;
+      }
+      const v = map[k];
+      tot *= 1 + v / 100; any = true;
+      s += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="2" fill="${shade(v)}" stroke="var(--panel)" stroke-width="1"/>
+        <text x="${x + cw / 2}" y="${y + ch / 2 + 4}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="500" fill="${Math.abs(v) > escalaMensual * 0.55 ? "var(--panel)" : "var(--ink)"}">${v.toFixed(1)}</text>`;
+    }
+    if (any) {
+      const tv = 100 * (tot - 1);
+      s += `<text x="${L + 12 * (cw + gap) + RW - 6}" y="${y + ch / 2 + 4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="${tv >= 0 ? "var(--c1)" : "var(--neg)"}">${tv >= 0 ? "+" : ""}${tv.toFixed(1)}%</text>`;
+    }
+  });
+  $("heatmap").innerHTML = `<svg viewBox="0 0 ${WH} ${HH}" width="${WH}" style="min-width:${WH}px;max-width:100%" role="img" aria-label="Retorno mensual de la cartera por año y mes">${s}</svg>`;
+  const vals = meses.map((r) => r.r), pos = vals.filter((v) => v > 0).length;
+  let racha = 0, peor = 0;
+  vals.forEach((v) => { if (v <= 0) { racha++; peor = Math.max(peor, racha); } else racha = 0; });
+  const ord = vals.slice().sort((a, b) => a - b);
+  $("hm-stats").innerHTML = `<b>${pos} de ${vals.length} meses positivos</b> (${(100 * pos / vals.length).toFixed(0)}%) · `
+    + `mediana <span class="mono">${ord[Math.floor(vals.length / 2)].toFixed(2)}%</span> · `
+    + `mejor <span class="mono">${Math.max(...vals).toFixed(1)}%</span> · `
+    + `peor <span class="mono">${Math.min(...vals).toFixed(1)}%</span> · `
+    + `racha negativa más larga <b>${peor} ${peor === 1 ? "mes" : "meses"}</b>`;
+}
+
+function tamanio(ts) {
+  const corridas = [], filas = [];
+  for (const f of FRACCIONES) {
+    const r = {};
+    for (const modo of ["slots", "margin"]) for (const lev of [1, 2]) {
+      const c = SimPool.simulate(ts, f / 100, lev, modo, true);
+      corridas.push(c);
+      r[modo + lev] = c;
+    }
+    filas.push([f, r]);
+  }
+  const bordes = SimPool.boundaries(corridas);
+  $("tbl-sizing").innerHTML = `<thead>
+    <tr><th></th><th></th><th></th><th class="grp" colspan="3">sin apalancamiento</th><th class="grp" colspan="2">con 2x</th><th></th></tr>
+    <tr><th>margen</th><th>máx. simult.</th><th>señales perdidas</th>
+    <th class="grp">anual</th><th>caída máx</th><th>MAR</th><th class="grp">anual</th><th>caída máx</th><th></th></tr>
+    </thead><tbody>${filas.map(([f, r]) => {
+      const borde = bordes.includes(f), a = r.slots1, b = r.slots2;
+      return `<tr class="${f === margen ? "hl" : borde ? "dead" : ""}">
+        <td>${f}%</td><td>${a.maxConc}</td><td>${pct(a.skip)}</td>
+        <td class="grp">${pct(a.cagr)}</td><td>${pct(a.mdd)}</td><td>${num(a.mar)}</td>
+        <td class="grp">${pct(b.cagr)}</td><td>${pct(b.mdd)}</td>
+        <td>${borde ? '<span class="badge borde">borde</span>' : ""}</td></tr>`;
+    }).join("")}</tbody>`;
+  return bordes;
+}
+function concentracion(pares) {
+  if (pares.length < 2) { $("loo").innerHTML = '<div class="vacio">Con un solo par no hay concentración que medir.</div>'; return; }
+  const base = SimPool.simulate(operaciones(pares, null), margen / 100, apal, "slots", true).cagr;
+  const filas = [{ p: null, cagr: base }].concat(pares.map((q) => ({
+    p: corto(q), cagr: SimPool.simulate(operaciones(pares.filter((x) => x !== q), null), margen / 100, apal, "slots", true).cagr
+  })));
+  const max = Math.max(...filas.map((r) => r.cagr).filter((v) => !Number.isNaN(v)), 1);
+  $("loo").innerHTML = filas.map((r, i) => {
+    const d = r.cagr - base;
+    return `<div class="loorow${i === 0 ? " base" : ""}">
+      <span class="nm">${i === 0 ? "cartera entera" : "sin " + r.p}</span>
+      <span class="track"><span class="bar" style="width:${Math.max(0, 100 * r.cagr / max).toFixed(1)}%"></span></span>
+      <span class="val">${pct(r.cagr)}${i === 0 ? "" : ` <i class="${d > 0 ? "up" : ""}">${d > 0 ? "+" : ""}${d.toFixed(1)}</i>`}</span></div>`;
+  }).join("");
+}
+/* Retorno mensual de cada par: la suma de sus operaciones por mes de entrada,
+   la misma definicion con la que se midieron las correlaciones de la seleccion.
+   No depende del margen, asi que se calcula una vez por par. */
+const MENSUAL = new Map();
+function mensualSolo(s) {
+  if (!MENSUAL.has(s)) {
+    const m = new Map();
+    for (const [e, , r] of OPS[s]) { const k = SimPool.mes(e); m.set(k, (m.get(k) || 0) + r); }
+    MENSUAL.set(s, m);
+  }
+  return MENSUAL.get(s);
+}
+function correlacion(a, b) {
+  const A = mensualSolo(a), B = mensualSolo(b);
+  const ks = Array.from(A.keys()).filter((k) => B.has(k));
+  if (ks.length < 12) return null;
+  const xs = ks.map((k) => A.get(k)), ys = ks.map((k) => B.get(k));
+  const mx = xs.reduce((u, v) => u + v, 0) / xs.length, my = ys.reduce((u, v) => u + v, 0) / ys.length;
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < xs.length; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; syy += (ys[i] - my) ** 2; }
+  return sxx && syy ? sxy / Math.sqrt(sxx * syy) : null;
+}
+function correlaciones(pares) {
+  if (pares.length < 2) {
+    $("tbl-corr").innerHTML = '<tbody><tr><td><div class="vacio">Elegí al menos dos pares.</div></td></tr></tbody>';
+    $("corr-lectura").textContent = "";
+    return;
+  }
+  const C = {};
+  for (const a of pares) { C[a] = {}; for (const b of pares) C[a][b] = a === b ? null : correlacion(a, b); }
+  const color = (v) => v === null ? "var(--panel-2)"
+    : `color-mix(in srgb, var(--${v > 0 ? "c1" : "neg"}) ${Math.round(Math.abs(v) * 70)}%, var(--panel-2))`;
+  const head = `<tr><th></th>${pares.map((n) => `<th class="col">${corto(n)}</th>`).join("")}</tr>`;
+  const body = pares.map((a) => `<tr><th>${corto(a)}</th>${pares.map((b) => {
+    const v = C[a][b];
+    return `<td><div style="background:${color(v)}">${v === null ? (a === b ? "·" : "—") : v.toFixed(2)}</div></td>`;
+  }).join("")}</tr>`).join("");
+  $("tbl-corr").innerHTML = `<thead>${head}</thead><tbody>${body}</tbody>`;
+  const peores = pares.map((a) => {
+    const vs = pares.filter((b) => b !== a).map((b) => C[a][b]).filter((v) => v !== null);
+    return vs.length ? { p: corto(a), v: Math.max(...vs) } : null;
+  }).filter(Boolean);
+  if (!peores.length) { $("corr-lectura").textContent = ""; return; }
+  const top = peores.reduce((a, b) => (b.v > a.v ? b : a));
+  $("corr-lectura").innerHTML = `El más parecido a otro de la cartera es <b>${top.p}</b>, con ${num(top.v)}`
+    + (top.v >= 0.5 ? ": no está diversificando, está duplicando una apuesta." : ": ningún par elegido duplica a otro.");
+}
+
+/* El pool por dentro: cuanto tiempo hay posiciones abiertas, y cuanto se
+   cancelan las caidas entre si. */
+function exposicion(pares) {
+  const ev = [];
+  for (const s of pares) for (const [e, x] of OPS[s]) { ev.push([e, 1]); ev.push([x, -1]); }
+  if (!ev.length) return null;
+  ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  let abiertas = 0, prev = ev[0][0], efectivo = 0;
+  for (const [t, d] of ev) {
+    if (t > prev) { if (!abiertas) efectivo += t - prev; prev = t; }
+    abiertas += d;
+  }
+  const total = ev[ev.length - 1][0] - ev[0][0];
+  return total ? 100 * efectivo / total : null;
+}
+function poolPorDentro(pares, f, lev) {
+  const partes = [];
+  const efectivo = exposicion(pares);
+  if (efectivo !== null) partes.push(`Hay al menos una posición abierta el <b>${pct(100 - efectivo)}</b> del tiempo.`);
+  if (pares.length > 1) {
+    const solos = pares.map((s) => SimPool.simulate(operaciones([s], null), f, lev, "slots", true));
+    const junto = SimPool.simulate(operaciones(pares, null), f, lev, "slots", true);
+    const dds = solos.map((x) => x.mdd);
+    const lo = Math.min(...dds), hi = Math.max(...dds);
+    partes.push(`Con este margen, cada par solo cae entre <span class="mono">${pct(lo)}</span> y <span class="mono">${pct(hi)}</span>; `
+      + `juntos caen <b>${pct(junto.mdd)}</b>, porque no tocan fondo el mismo mes. `
+      + (junto.mdd > hi ? "Ojo: el conjunto cae más hondo que cualquier par solo; rinde más por punto de caída, pero no es más tranquilo." : ""));
+  }
+  $("pool-dentro").innerHTML = '<div class="eyebrow">El capital por dentro</div><p>' + partes.join(" ") + "</p>";
+}
+function aviso(pares, completa, juntos, ventanaCorta) {
+  const caja = $("aviso-seleccion");
+  const ciclo = pares.filter((s) => grupo(s) === "ciclo").map(corto);
+  const sin = pares.filter((s) => grupo(s) === "sin").map(corto);
+  const apagados = pares.filter((s) => grupo(s) !== "sin" && tiene(EXP[s].td) && EXP[s].td < U.umbral).map(corto);
+  const chicos = pares.filter((s) => EXP[s].nef < U.muestra).map(corto);
+  const partes = [];
+  if (ciclo.length) partes.push(`<b>${lista(ciclo)}</b> ${ciclo.length === 1 ? "cotiza" : "cotizan"} desde 2024 y no ${ciclo.length === 1 ? "atravesó" : "atravesaron"} el mercado bajista de 2022.`
+    + (juntos && ventanaCorta ? ` Desde que cotizan todos, la cartera rinde ${pct(juntos.cagr, 0)} anual contra ${pct(completa.cagr, 0)} con toda la historia: es una ventana corta y favorable.` : ""));
+  if (sin.length) partes.push(`<b>${lista(sin)}</b> no ${sin.length === 1 ? "pasa" : "pasan"} el corte de t = ${coma(U.umbral, 0)}: su resultado no se distingue de la suerte.`);
+  if (apagados.length) partes.push(`<b>${lista(apagados)}</b> ${apagados.length === 1 ? "pasa" : "pasan"} el corte con toda su historia, pero su t descontado queda por debajo de ${coma(U.umbral, 0)}: la ventaja reciente se apagó.`);
+  if (chicos.length) partes.push(`<b>${lista(chicos)}</b> ${chicos.length === 1 ? "tiene" : "tienen"} menos de ${U.muestra} operaciones efectivas.`);
+  if (partes.length) {
+    caja.className = "callout";
+    caja.innerHTML = `<div class="eyebrow">Cuidado con esta selección</div><p>${partes.join(" ")}</p>`;
+  } else {
+    caja.className = "callout calm";
+    caja.innerHTML = `<div class="eyebrow">Sobre esta selección</div><p>Todos los pares elegidos atravesaron más de un ciclo de mercado, conservan ventaja reciente y tienen muestra suficiente. Mirá la concentración antes de dimensionar.</p>`;
+  }
+}
+
+function cambio_() { guardar(); pintarSelector(); recalcular(); }
+function recalcular() {
+  const pares = elegidos();
+  $("btn-full").setAttribute("aria-pressed", String(ventana === "full"));
+  $("btn-win").setAttribute("aria-pressed", String(ventana === "win"));
+  if (!pares.length) {
+    ["eq", "underwater", "eqstats", "heatmap", "hm-stats", "tbl-sizing", "loo"].forEach((id) => { $(id).innerHTML = ""; });
+    $("eq").innerHTML = '<div class="vacio">Elegí al menos un par para armar la cartera.</div>';
+    $("uw-note").textContent = "";
+    $("resumen").textContent = "Ningún par elegido.";
+    $("eq-sub").textContent = "";
+    $("aviso-seleccion").className = "callout calm";
+    $("aviso-seleccion").innerHTML = '<div class="eyebrow">Sin cartera</div><p>Activá pares arriba, o elegí una de las carteras rápidas.</p>';
+    $("pool-dentro").innerHTML = '<div class="eyebrow">El capital por dentro</div><p>Sin pares elegidos.</p>';
+    correlaciones(pares);
+    return;
+  }
+  const f = margen / 100;
+  const comun = Math.max(...pares.map(primeraEntrada));
+  const tsFull = operaciones(pares, null);
+  const tsVentana = ventana === "win" ? operaciones(pares, comun) : tsFull;
+  const completa = SimPool.simulate(tsFull, f, apal, "slots", true);
+  const juntos = SimPool.simulate(operaciones(pares, comun), f, apal, "slots", true);
+  const r1 = SimPool.simulate(tsVentana, f, 1, "slots", true);
+  const r2 = SimPool.simulate(tsVentana, f, 2, "slots", true);
+  const uno = apal === 2 ? r2 : r1;
+  const meses = SimPool.monthly(uno);
+  const inicio = SimPool.mes(comun);
+  const config = `Margen ${margen}%, ${apal === 2 ? "con 2x" : "sin apalancamiento"}`;
+  escalaMensual = Math.max(5, Math.round(15 * margen * apal / 30));
+  $("hm-min").textContent = "−" + escalaMensual + "%";
+  $("hm-max").textContent = "+" + escalaMensual + "%";
+  $("resumen").innerHTML = `<b>${pares.length} ${pares.length === 1 ? "par" : "pares"}</b>: ${pares.map(corto).join(", ")} · `
+    + `${tsFull.length.toLocaleString("es-AR")} operaciones · cotizan todos desde ${esMes(inicio)}`;
+  $("btn-win").textContent = "Desde " + esMes(inicio);
+  $("eq-sub").textContent = ventana === "win" ? `${config}, desde ${esMes(inicio)}.` : `${config}, historia completa.`;
+  $("eq").innerHTML = curva(meses, pares);
+  $("underwater").innerHTML = caida(meses);
+  $("eqstats").innerHTML = fichas(r1, r2, apal);
+  const mensual = meses.length ? Math.max(...bajoElAgua(meses).map((p) => p.dd)) : 0;
+  $("uw-note").textContent = `Al cierre de mes la peor caída es de ${pct(mensual)}. La caída máxima de las fichas, ${pct(uno.mdd)}, `
+    + "se mide operación por operación y ocurre dentro de un mes: es la que importa para dimensionar el riesgo.";
+  heatmap(meses);
+  poolPorDentro(pares, f, apal);
+  aviso(pares, completa, juntos, comun > Math.min(...pares.map(primeraEntrada)));
+  const bordes = tamanio(tsFull);
+  if (bordes.includes(margen)) {
+    $("resumen").innerHTML += ` · <span class="borde">${margen}% es borde para esta cartera</span>`;
+  }
+  concentracion(pares);
+  correlaciones(pares);
+}
+$("btn-full").addEventListener("click", () => { ventana = "full"; recalcular(); });
+$("btn-win").addEventListener("click", () => { ventana = "win"; recalcular(); });
+pintarSelector();
+pintarControles();
+recalcular();
+
+/* --- cómo se eligieron --- */
+(() => {
+  const nOps = CON_EXPORT.reduce((a, s) => a + EXP[s].n, 0);
+  $("i-nops").textContent = nOps.toLocaleString("es-AR");
+  const conT = CON_EXPORT.filter((s) => grupo(s) !== "sin");
+  const vigentes = CON_EXPORT.filter(vigente);
+  const pasos = [
+    [EXPORTS_ORIGINALES, "backtests", "Uno por par, exportados del Strategy Tester."],
+    [SIMBOLOS.length, "en Binance", `${PALABRA[DE_BYBIT]} eran de Bybit: evaluados aparte, ninguno llega a t = 2.`.replace(/^./, (c) => c.toUpperCase())],
+    [CON_EXPORT.length, "a 5 minutos", "Medidos con su export y velas reales de 5 minutos."],
+    [conT.length, `con t ≥ ${coma(U.umbral, 0)}`, "Ganancia por operación que no se explica por azar, con toda su historia."],
+    [vigentes.length, "vigentes", `t descontado ≥ ${coma(U.alto, 1)} con ${U.muestra} operaciones efectivas o más.`],
+    [pool.size, "en la cartera", "Entran y salen por aviso, con dos lecturas seguidas."]
+  ];
+  $("funnel").innerHTML = pasos.map(([b, w, y], i) =>
+    `<div class="step${i === pasos.length - 1 ? " last" : ""}"><b>${b}</b><span class="what">${w}</span><span class="why">${y}</span></div>`).join("");
+  // Probabilidad de que un par sin ventaja pase t > 2 por azar (normal, una cola).
+  const esperado = CON_EXPORT.length * 0.02275;
+  $("ruido").innerHTML = `<div class="eyebrow">El problema de mirar muchos pares</div><p>Entre ${CON_EXPORT.length} pares sin ninguna ventaja, `
+    + `un corte en t &gt; 2 dejaría pasar alrededor de <b>${coma(esperado, 1)}</b> por puro azar. Lo pasan ${conT.length}, así que algunos `
+    + "pueden ser ruido, y estos datos no dicen cuáles. Por eso la decisión pide además una ventaja que siga viva pesando lo reciente, una muestra suficiente y, cuando se puede, historia en más de un ciclo de mercado.</p>";
+  const limites = [
+    ["5 minutos no es la realidad", "Cada resolución más fina es más pesimista: de 30 a 5 minutos se perdió entre 10% y 39% del total según el par, y nada indica que la caída termine ahí."],
+    ["Deslizamiento sin modelar", "Todo stop se ejecuta a su precio exacto. Es el supuesto que más pesa."],
+    ["Nada es fuera de muestra", "El stop, el trailing y su activación salieron de una búsqueda sobre estos mismos datos."],
+    ["Ventaja vigente no es garantía", "Es una lectura que se repite cada mes: un par puede salir y otro entrar."],
+    ["Liquidación con 2x", "El stop está en −5% y liquidar pide cerca de −50%; el riesgo real es un hueco de precio que saltee el stop con el capital comprometido."]
+  ];
+  $("limites").innerHTML = limites.map(([h, p]) => `<div class="mini"><h3>${h}</h3><p>${p}</p></div>`).join("");
+  $("pie").textContent = `Última corrida mensual: ${D.generado ? esFecha(D.generado) : "—"}`
+    + (medidos.length ? ` · export más reciente: ${esFecha(medidos[medidos.length - 1])}` : "")
+    + ` · salidas a ${D.tf} · cartera: ${enCartera.join(", ") || "sin definir"}`;
+})();
 </script>
